@@ -1,4 +1,4 @@
-import type { AlbumDetail, AlbumSummary, Track } from "@/lib/types"
+import type { AlbumDetail, AlbumSummary, ArtistSummary, Track } from "@/lib/types"
 
 const TOKEN_URL = "https://accounts.spotify.com/api/token"
 const API_BASE = "https://api.spotify.com/v1"
@@ -131,6 +131,13 @@ function mapTracks(album: SpotifyAlbumRaw): Track[] {
 // Spotify currently rejects /search with limit > 10 (docs still say 50).
 const SEARCH_LIMIT_MAX = 10
 
+type SpotifyArtistRaw = {
+  id: string
+  name: string
+  genres?: string[]
+  images: { url: string; height: number | null; width: number | null }[]
+}
+
 export async function searchAlbums(
   query: string,
   limit = SEARCH_LIMIT_MAX
@@ -149,6 +156,56 @@ export async function searchAlbums(
   }>(`/search?${params.toString()}`)
 
   return data.albums.items.filter(Boolean).map(mapAlbumSummary)
+}
+
+export async function searchArtists(
+  query: string,
+  limit = SEARCH_LIMIT_MAX
+): Promise<ArtistSummary[]> {
+  const trimmed = query.trim()
+  if (!trimmed) return []
+
+  const params = new URLSearchParams({
+    q: trimmed,
+    type: "artist",
+    limit: String(Math.min(Math.max(limit, 1), SEARCH_LIMIT_MAX)),
+  })
+
+  const data = await spotifyFetch<{
+    artists: { items: SpotifyArtistRaw[] }
+  }>(`/search?${params.toString()}`)
+
+  return data.artists.items.filter(Boolean).map((artist) => ({
+    id: artist.id,
+    name: artist.name,
+    imageUrl: pickImageUrl(artist.images),
+    genres: artist.genres ?? [],
+  }))
+}
+
+export async function getArtistAlbums(
+  artistId: string,
+  limit = SEARCH_LIMIT_MAX
+): Promise<AlbumSummary[]> {
+  const params = new URLSearchParams({
+    include_groups: "album",
+    limit: String(Math.min(Math.max(limit, 1), SEARCH_LIMIT_MAX)),
+  })
+
+  const data = await spotifyFetch<{ items: SpotifyAlbumRaw[] }>(
+    `/artists/${artistId}/albums?${params.toString()}`
+  )
+
+  return uniqueById(data.items.filter(Boolean).map(mapAlbumSummary))
+}
+
+function uniqueById(albums: AlbumSummary[]): AlbumSummary[] {
+  const seen = new Set<string>()
+  return albums.filter((album) => {
+    if (seen.has(album.id)) return false
+    seen.add(album.id)
+    return true
+  })
 }
 
 export async function getAlbum(id: string): Promise<AlbumDetail> {

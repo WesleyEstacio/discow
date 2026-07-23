@@ -13,14 +13,17 @@ export default function HomePage() {
             Catalog the albums you love.
           </h1>
           <p className="text-base text-muted-foreground sm:text-lg">
-            Search Spotify, rate with stars, write a short review, and keep your
-            listening diary on this device.
+            Search Spotify, rate with stars, write reviews, and discover new
+            albums based on what you already love.
           </p>
         </div>
         <div className="max-w-xl">
           <SearchForm autoFocus />
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button render={<Link href="/discover" />} nativeButton={false}>
+            Discover albums
+          </Button>
           <Button render={<Link href="/search" />} nativeButton={false} variant="outline">
             Browse search
           </Button>

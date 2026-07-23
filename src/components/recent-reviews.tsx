@@ -68,7 +68,7 @@ export function RecentReviews() {
               id: review.spotifyId,
               name: review.albumName,
               artists: review.artists,
-              releaseDate: review.listenedAt.slice(0, 4),
+              releaseDate: review.releaseDate ?? review.listenedAt.slice(0, 4),
               totalTracks: 0,
               imageUrl: review.imageUrl,
               spotifyUrl: `https://open.spotify.com/album/${review.spotifyId}`,

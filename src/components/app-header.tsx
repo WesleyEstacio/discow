@@ -2,13 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Disc3Icon, SearchIcon, UserIcon } from "lucide-react"
+import { CompassIcon, Disc3Icon, SearchIcon, UserIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 const links = [
   { href: "/", label: "Home", icon: Disc3Icon },
   { href: "/search", label: "Search", icon: SearchIcon },
+  { href: "/discover", label: "Discover", icon: CompassIcon },
   { href: "/profile", label: "Profile", icon: UserIcon },
 ]
 

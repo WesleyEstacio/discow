@@ -45,6 +45,7 @@ export function ReviewForm({ album }: ReviewFormProps) {
       albumName: album.name,
       artists: album.artists,
       imageUrl: album.imageUrl,
+      releaseDate: album.releaseDate,
       rating,
       text,
     })

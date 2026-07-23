@@ -15,8 +15,21 @@ function readAll(): Review[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
     if (!raw) return []
-    const parsed = JSON.parse(raw) as Review[]
-    return Array.isArray(parsed) ? parsed : []
+    const parsed = JSON.parse(raw) as Partial<Review>[]
+    if (!Array.isArray(parsed)) return []
+    return parsed
+      .filter((item): item is Partial<Review> => Boolean(item?.spotifyId))
+      .map((item) => ({
+        spotifyId: item.spotifyId!,
+        albumName: item.albumName ?? "Unknown album",
+        artists: item.artists ?? [],
+        imageUrl: item.imageUrl ?? null,
+        releaseDate: item.releaseDate ?? null,
+        rating: item.rating ?? 0,
+        text: item.text ?? "",
+        listenedAt: item.listenedAt ?? new Date().toISOString(),
+        updatedAt: item.updatedAt ?? new Date().toISOString(),
+      }))
   } catch {
     return []
   }
@@ -62,6 +75,7 @@ export type UpsertReviewInput = {
   albumName: string
   artists: string[]
   imageUrl: string | null
+  releaseDate?: string | null
   rating: number
   text: string
   listenedAt?: string
@@ -75,6 +89,7 @@ export function upsertReview(input: UpsertReviewInput): Review {
     albumName: input.albumName,
     artists: input.artists,
     imageUrl: input.imageUrl,
+    releaseDate: input.releaseDate ?? existing?.releaseDate ?? null,
     rating: input.rating,
     text: input.text.trim(),
     listenedAt: input.listenedAt ?? existing?.listenedAt ?? now,

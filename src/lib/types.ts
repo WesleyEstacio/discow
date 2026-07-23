@@ -14,6 +14,31 @@ export type AlbumSummary = {
   spotifyUrl: string
 }
 
+export type ArtistSummary = {
+  id: string
+  name: string
+  imageUrl: string | null
+  genres: string[]
+}
+
+export type RecommendMode = "genre" | "artist" | "surprise"
+
+export type RecommendRequest = {
+  mode: RecommendMode
+  genre?: string
+  artist?: string
+  yearFrom?: number
+  yearTo?: number
+  excludeIds?: string[]
+  seedArtists?: string[]
+  seedYears?: number[]
+}
+
+export type RecommendResponse = {
+  albums: AlbumSummary[]
+  reason: string
+}
+
 export type Track = {
   id: string
   name: string
@@ -33,6 +58,7 @@ export type Review = {
   albumName: string
   artists: string[]
   imageUrl: string | null
+  releaseDate: string | null
   rating: number
   text: string
   listenedAt: string
