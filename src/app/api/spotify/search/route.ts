@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server"
 import { searchAlbums } from "@/lib/spotify"
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit"
 
 export async function GET(request: Request) {
+  const rateLimit = checkRateLimit(request, { key: "spotify:search", limit: 30 })
+  if (!rateLimit.success) return rateLimitExceededResponse(rateLimit.resetAt)
+
   const { searchParams } = new URL(request.url)
   const q = searchParams.get("q") ?? ""
   const limitParam = searchParams.get("limit")

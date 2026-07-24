@@ -2,8 +2,16 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { CompassIcon, Disc3Icon, SearchIcon, UserIcon } from "lucide-react"
+import {
+  CompassIcon,
+  Disc3Icon,
+  LogOutIcon,
+  SearchIcon,
+  UserIcon,
+} from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { signOutUser } from "@/lib/auth-actions"
 import { cn } from "@/lib/utils"
 
 const links = [
@@ -13,7 +21,17 @@ const links = [
   { href: "/profile", label: "Profile", icon: UserIcon },
 ]
 
-export function AppHeader() {
+export type AppHeaderUser = {
+  name?: string | null
+  email?: string | null
+  image?: string | null
+}
+
+type AppHeaderProps = {
+  user: AppHeaderUser | null
+}
+
+export function AppHeader({ user }: AppHeaderProps) {
   const pathname = usePathname()
 
   return (
@@ -47,6 +65,32 @@ export function AppHeader() {
             )
           })}
         </nav>
+
+        {user ? (
+          <form action={signOutUser} className="flex items-center gap-2">
+            <Avatar size="sm">
+              {user.image ? (
+                <AvatarImage src={user.image} alt={user.name ?? "Profile picture"} />
+              ) : null}
+              <AvatarFallback>
+                {(user.name ?? user.email ?? "?").slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <Button type="submit" variant="ghost" size="sm">
+              <LogOutIcon data-icon="inline-start" />
+              <span className="hidden sm:inline">Sign out</span>
+            </Button>
+          </form>
+        ) : (
+          <Button
+            variant="secondary"
+            size="sm"
+            render={<Link href="/login" />}
+            nativeButton={false}
+          >
+            Sign in
+          </Button>
+        )}
       </div>
     </header>
   )

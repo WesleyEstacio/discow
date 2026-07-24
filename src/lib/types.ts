@@ -65,9 +65,3 @@ export type Review = {
   updatedAt: string
 }
 
-export type MockUser = {
-  id: string
-  displayName: string
-  avatar: string | null
-  bio: string
-}

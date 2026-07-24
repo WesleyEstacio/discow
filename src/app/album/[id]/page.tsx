@@ -3,11 +3,13 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Disc3Icon, ExternalLinkIcon } from "lucide-react"
+import { auth } from "@/auth"
 import { ReviewForm } from "@/components/review-form"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { formatDuration, formatReleaseYear } from "@/lib/format"
+import { getReviewForAlbum } from "@/lib/reviews"
 import { getAlbum } from "@/lib/spotify"
 
 type AlbumPageProps = {
@@ -40,6 +42,11 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
   } catch {
     notFound()
   }
+
+  const session = await auth()
+  const initialReview = session?.user?.id
+    ? await getReviewForAlbum(session.user.id, id)
+    : null
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-10">
@@ -135,7 +142,11 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
           ) : null}
         </section>
 
-        <ReviewForm album={album} />
+        <ReviewForm
+          album={album}
+          initialReview={initialReview}
+          isSignedIn={Boolean(session?.user)}
+        />
       </div>
 
       <p className="text-sm text-muted-foreground">

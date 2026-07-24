@@ -29,9 +29,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { toast } from "@/components/ui/toast"
-import { useReviews } from "@/hooks/use-reviews"
 import { DISCOVER_GENRES } from "@/lib/recommend"
-import type { AlbumSummary, RecommendMode } from "@/lib/types"
+import type { AlbumSummary, RecommendMode, Review } from "@/lib/types"
 
 const genreItems = [
   { label: "Select a genre", value: null },
@@ -62,8 +61,11 @@ function parseDecade(value: string | null): {
   return { yearFrom: start, yearTo: start + 9 }
 }
 
-export function DiscoverPanel() {
-  const { reviews } = useReviews()
+type DiscoverPanelProps = {
+  reviews: Review[]
+}
+
+export function DiscoverPanel({ reviews }: DiscoverPanelProps) {
   const [mode, setMode] = useState<RecommendMode>("surprise")
   const [genre, setGenre] = useState<string | null>(null)
   const [artist, setArtist] = useState("")

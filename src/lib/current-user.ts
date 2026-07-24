@@ -1,8 +1,4 @@
-import type { MockUser } from "@/lib/types"
-
-export const CURRENT_USER: MockUser = {
-  id: "local-user",
-  displayName: "You",
-  avatar: null,
-  bio: "Cataloging albums one listen at a time.",
-}
+// Deprecated: the mock user has been replaced by real Google sign-in via
+// Auth.js. Get the signed-in user from `auth()` (src/auth.ts) instead.
+// This file is safe to delete.
+export {}

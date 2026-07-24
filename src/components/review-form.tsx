@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useTransition } from "react"
+import Link from "next/link"
 import { Trash2Icon } from "lucide-react"
 import { StarRating } from "@/components/star-rating"
 import { Button } from "@/components/ui/button"
@@ -12,23 +13,51 @@ import {
 } from "@/components/ui/field"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/toast"
-import { useAlbumReview } from "@/hooks/use-reviews"
-import type { AlbumDetail } from "@/lib/types"
+import { deleteReviewAction, saveReview } from "@/lib/reviews-actions"
+import type { AlbumDetail, Review } from "@/lib/types"
 
 type ReviewFormProps = {
   album: AlbumDetail
+  initialReview: Review | null
+  isSignedIn: boolean
 }
 
-export function ReviewForm({ album }: ReviewFormProps) {
-  const { review, saveReview, removeReview, hydrated } = useAlbumReview(album.id)
-  const [rating, setRating] = useState(0)
-  const [text, setText] = useState("")
+export function ReviewForm({ album, initialReview, isSignedIn }: ReviewFormProps) {
+  if (!isSignedIn) {
+    return <SignInPrompt />
+  }
 
-  useEffect(() => {
-    if (!hydrated) return
-    setRating(review?.rating ?? 0)
-    setText(review?.text ?? "")
-  }, [hydrated, review])
+  return (
+    <ReviewFormFields key={album.id} album={album} initialReview={initialReview} />
+  )
+}
+
+function SignInPrompt() {
+  return (
+    <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground">
+      <div className="flex flex-col gap-1">
+        <h2 className="font-heading text-lg font-medium">Your review</h2>
+        <p className="text-sm text-muted-foreground">
+          Sign in with Google to rate this album and save a review.
+        </p>
+      </div>
+      <Button render={<Link href="/login" />} nativeButton={false}>
+        Sign in
+      </Button>
+    </div>
+  )
+}
+
+type ReviewFormFieldsProps = {
+  album: AlbumDetail
+  initialReview: Review | null
+}
+
+function ReviewFormFields({ album, initialReview }: ReviewFormFieldsProps) {
+  const [rating, setRating] = useState(initialReview?.rating ?? 0)
+  const [text, setText] = useState(initialReview?.text ?? "")
+  const [hasReview, setHasReview] = useState(initialReview !== null)
+  const [isPending, startTransition] = useTransition()
 
   function handleSave() {
     if (rating <= 0) {
@@ -40,31 +69,56 @@ export function ReviewForm({ album }: ReviewFormProps) {
       return
     }
 
-    saveReview({
-      spotifyId: album.id,
-      albumName: album.name,
-      artists: album.artists,
-      imageUrl: album.imageUrl,
-      releaseDate: album.releaseDate,
-      rating,
-      text,
-    })
+    startTransition(async () => {
+      const result = await saveReview({
+        spotifyId: album.id,
+        albumName: album.name,
+        artists: album.artists,
+        imageUrl: album.imageUrl,
+        releaseDate: album.releaseDate,
+        rating,
+        text,
+      })
 
-    toast.add({
-      title: "Review saved",
-      description: `${album.name} is now in your catalog.`,
-      type: "success",
+      if (!result.success) {
+        toast.add({
+          title: "Could not save review",
+          description: result.error,
+          type: "error",
+        })
+        return
+      }
+
+      setHasReview(true)
+      toast.add({
+        title: "Review saved",
+        description: `${album.name} is now in your catalog.`,
+        type: "success",
+      })
     })
   }
 
   function handleDelete() {
-    removeReview(album.id)
-    setRating(0)
-    setText("")
-    toast.add({
-      title: "Review removed",
-      description: "This album was removed from your catalog.",
-      type: "success",
+    startTransition(async () => {
+      const result = await deleteReviewAction(album.id)
+
+      if (!result.success) {
+        toast.add({
+          title: "Could not remove review",
+          description: result.error,
+          type: "error",
+        })
+        return
+      }
+
+      setRating(0)
+      setText("")
+      setHasReview(false)
+      toast.add({
+        title: "Review removed",
+        description: "This album was removed from your catalog.",
+        type: "success",
+      })
     })
   }
 
@@ -73,7 +127,7 @@ export function ReviewForm({ album }: ReviewFormProps) {
       <div className="flex flex-col gap-1">
         <h2 className="font-heading text-lg font-medium">Your review</h2>
         <p className="text-sm text-muted-foreground">
-          Rate this album and leave a short note. Saved locally on this device.
+          Rate this album and leave a short note.
         </p>
       </div>
 
@@ -99,15 +153,15 @@ export function ReviewForm({ album }: ReviewFormProps) {
 
         <Field>
           <div className="flex flex-wrap items-center gap-2">
-            <Button type="button" onClick={handleSave} disabled={!hydrated}>
-              Save review
+            <Button type="button" onClick={handleSave} disabled={isPending}>
+              {isPending ? "Saving…" : "Save review"}
             </Button>
-            {review ? (
+            {hasReview ? (
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleDelete}
-                disabled={!hydrated}
+                disabled={isPending}
               >
                 <Trash2Icon data-icon="inline-start" />
                 Remove

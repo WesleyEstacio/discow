@@ -1,9 +1,8 @@
-"use client"
-
 import Link from "next/link"
+import { Disc3Icon } from "lucide-react"
 import { AlbumCard } from "@/components/album-card"
 import { StarRating } from "@/components/star-rating"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,34 +14,48 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useReviews } from "@/hooks/use-reviews"
-import { CURRENT_USER } from "@/lib/current-user"
 import { formatRating } from "@/lib/format"
-import { Disc3Icon } from "lucide-react"
+import type { Review } from "@/lib/types"
 
-export function ProfileView() {
-  const { reviews } = useReviews()
+type ProfileUser = {
+  name?: string | null
+  email?: string | null
+  image?: string | null
+}
+
+type ProfileViewProps = {
+  user: ProfileUser
+  reviews: Review[]
+}
+
+export function ProfileView({ user, reviews }: ProfileViewProps) {
   const average =
     reviews.length > 0
       ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
       : 0
 
+  const displayName = user.name ?? user.email ?? "Discow listener"
+  const initials = displayName.slice(0, 2).toUpperCase()
+
   return (
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <Avatar size="lg" className="size-16">
-          <AvatarFallback>
-            {CURRENT_USER.displayName.slice(0, 2).toUpperCase()}
-          </AvatarFallback>
+          {user.image ? (
+            <AvatarImage src={user.image} alt={displayName} />
+          ) : null}
+          <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="font-heading text-3xl font-semibold tracking-tight">
-              {CURRENT_USER.displayName}
+              {displayName}
             </h1>
-            <Badge variant="secondary">Local profile</Badge>
+            <Badge variant="secondary">Signed in with Google</Badge>
           </div>
-          <p className="max-w-xl text-muted-foreground">{CURRENT_USER.bio}</p>
+          {user.email ? (
+            <p className="max-w-xl text-muted-foreground">{user.email}</p>
+          ) : null}
           <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
             <span>
               <strong className="text-foreground">{reviews.length}</strong>{" "}

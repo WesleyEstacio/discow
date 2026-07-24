@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server"
 import { getAlbum } from "@/lib/spotify"
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit"
 
 type RouteContext = {
   params: Promise<{ id: string }>
 }
 
-export async function GET(_request: Request, context: RouteContext) {
+export async function GET(request: Request, context: RouteContext) {
+  const rateLimit = checkRateLimit(request, { key: "spotify:album", limit: 60 })
+  if (!rateLimit.success) return rateLimitExceededResponse(rateLimit.resetAt)
+
   const { id } = await context.params
 
   if (!id) {

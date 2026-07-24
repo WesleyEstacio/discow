@@ -2,32 +2,69 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+1. Copy `.env.example` to `.env.local` and fill in the values (see setup steps below).
+2. Install dependencies and push the database schema:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+   ```bash
+   npm install
+   npm run db:push
+   ```
+
+3. Run the dev server:
+
+   ```bash
+   npm run dev
+   ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Auth & database setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Authentication uses [Auth.js](https://authjs.dev) with Google sign-in, backed by a [Neon](https://neon.tech) Postgres database through [Drizzle ORM](https://orm.drizzle.team).
+
+### 1. Neon database
+
+1. Create a free project at [console.neon.tech](https://console.neon.tech).
+2. Copy the pooled connection string and set it as `DATABASE_URL` in `.env.local`.
+3. Push the schema (users/accounts/sessions tables) with `npm run db:push`, or generate + run a versioned migration with `npm run db:generate` followed by `npm run db:migrate`.
+
+### 2. Google OAuth credentials
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com) → APIs & Services → OAuth consent screen, and configure it (External, add your email as a test user while in development).
+2. Go to Credentials → Create Credentials → OAuth client ID → Web application.
+3. Add these Authorized redirect URIs:
+   - `http://localhost:3000/api/auth/callback/google` (development)
+   - `https://<your-production-domain>/api/auth/callback/google` (production)
+4. Copy the Client ID and Client Secret into `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` in `.env.local`.
+
+### 3. Auth secret
+
+Generate a random secret used to sign session cookies:
+
+```bash
+openssl rand -base64 32
+```
+
+Set it as `AUTH_SECRET` in `.env.local`.
+
+## Database migrations
+
+Any schema change lives in `src/lib/db/schema.ts`. After editing it:
+
+```bash
+npm run db:generate   # creates a new SQL migration file under ./drizzle
+npm run db:migrate     # applies pending migrations to DATABASE_URL
+```
+
+Use `npm run db:studio` to browse the database with Drizzle Studio.
 
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [Auth.js Documentation](https://authjs.dev) - authentication for the web.
+- [Drizzle ORM Documentation](https://orm.drizzle.team) - the TypeScript ORM used for the database.
 
 ## Deploy on Vercel
 

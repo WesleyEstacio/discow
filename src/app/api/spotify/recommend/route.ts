@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server"
 import { recommendAlbums } from "@/lib/recommend"
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit"
 import type { RecommendMode, RecommendRequest } from "@/lib/types"
 
 const MODES: RecommendMode[] = ["genre", "artist", "surprise"]
 
 export async function POST(request: Request) {
+  const rateLimit = checkRateLimit(request, { key: "spotify:recommend", limit: 20 })
+  if (!rateLimit.success) return rateLimitExceededResponse(rateLimit.resetAt)
+
   let body: Partial<RecommendRequest>
 
   try {
