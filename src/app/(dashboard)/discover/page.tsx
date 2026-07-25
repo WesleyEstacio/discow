@@ -1,18 +1,15 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { auth } from "@/auth"
 import { DiscoverPanel } from "@/components/discover-panel"
+import { Skeleton } from "@/components/ui/skeleton"
 import { getReviewsForUser } from "@/lib/reviews"
 
 export const metadata: Metadata = {
   title: "Discover",
 }
 
-export default async function DiscoverPage() {
-  const session = await auth()
-  const reviews = session?.user?.id
-    ? await getReviewsForUser(session.user.id)
-    : []
-
+export default function DiscoverPage() {
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10">
       <div className="flex max-w-2xl flex-col gap-3">
@@ -24,7 +21,18 @@ export default async function DiscoverPage() {
           already love.
         </p>
       </div>
-      <DiscoverPanel reviews={reviews} />
+      <Suspense fallback={<Skeleton className="h-64 w-full max-w-xl rounded-xl" />}>
+        <DiscoverPanelData />
+      </Suspense>
     </main>
   )
+}
+
+async function DiscoverPanelData() {
+  const session = await auth()
+  const reviews = session?.user?.id
+    ? await getReviewsForUser(session.user.id)
+    : []
+
+  return <DiscoverPanel reviews={reviews} />
 }

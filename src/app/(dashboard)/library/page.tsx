@@ -1,10 +1,12 @@
 import Link from "next/link"
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import { auth } from "@/auth"
 import { SearchForm } from "@/components/search-form"
 import { RecentReviews } from "@/components/recent-reviews"
 import { LibrarySignInDialog } from "@/components/library-signin-dialog"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export const metadata: Metadata = {
   title: "Library",
@@ -47,12 +49,27 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
         </div>
       </section>
 
-      <RecentReviews />
+      <Suspense fallback={<RecentReviewsSkeleton />}>
+        <RecentReviews />
+      </Suspense>
 
       <LibrarySignInDialog
         isAuthenticated={Boolean(session?.user)}
         callbackUrl={callbackUrl}
       />
     </main>
+  )
+}
+
+function RecentReviewsSkeleton() {
+  return (
+    <section className="flex flex-col gap-4">
+      <Skeleton className="h-6 w-40" />
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <Skeleton key={index} className="aspect-square w-full rounded-xl" />
+        ))}
+      </div>
+    </section>
   )
 }
