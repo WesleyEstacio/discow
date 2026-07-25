@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import type { TouchEvent } from "react"
+import type { PointerEvent as ReactPointerEvent } from "react"
 import { motion } from "framer-motion"
 import type { LandingAlbum } from "./albums"
 
@@ -19,7 +19,12 @@ export function CoverFlow({
   const [activeIndex, setActiveIndex] = useState(0)
   const [isHovered, setIsHovered] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const touchStartX = useRef<number | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragX, setDragX] = useState(0)
+
+  const dragStartX = useRef<number | null>(null)
+  const dragDelta = useRef(0)
+  const dragMoved = useRef(false)
 
   // Check screen size
   useEffect(() => {
@@ -32,6 +37,9 @@ export function CoverFlow({
   }, [])
 
   const total = albums.length
+  const stepX = isMobile ? 75 : 145
+  const overlapGap = isMobile ? 35 : 70
+  const dragStepThreshold = isMobile ? 60 : 90
 
   const nextAlbum = useCallback(() => {
     setActiveIndex((prev) => (prev + 1) % total)
@@ -43,13 +51,13 @@ export function CoverFlow({
 
   // Infinite Auto-play loop
   useEffect(() => {
-    if (isHovered) return
+    if (isHovered || isDragging) return
     const timer = setInterval(() => {
       nextAlbum()
     }, autoPlayInterval)
 
     return () => clearInterval(timer)
-  }, [autoPlayInterval, nextAlbum, isHovered])
+  }, [autoPlayInterval, nextAlbum, isHovered, isDragging])
 
   // Keyboard navigation
   useEffect(() => {
@@ -71,37 +79,65 @@ export function CoverFlow({
     }
   }, [activeIndex, albums, onSelectAlbum])
 
-  // Touch handlers for swipe
-  const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
-    touchStartX.current = e.touches[0].clientX
+  // Unified pointer handlers: mouse drag and touch swipe both flow through here
+  const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    dragStartX.current = e.clientX
+    dragDelta.current = 0
+    dragMoved.current = false
+    setIsDragging(true)
+    e.currentTarget.setPointerCapture(e.pointerId)
   }
 
-  const handleTouchEnd = (e: TouchEvent<HTMLDivElement>) => {
-    if (touchStartX.current === null) return
-    const touchEndX = e.changedTouches[0].clientX
-    const diff = touchStartX.current - touchEndX
+  const handlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragStartX.current === null) return
+    const delta = dragStartX.current - e.clientX
+    dragDelta.current = delta
+    if (Math.abs(delta) > 4) dragMoved.current = true
+    // Subtle damped "peek" so the stage follows the pointer while dragging
+    const damped = Math.max(-140, Math.min(140, -delta * 0.5))
+    setDragX(damped)
+  }
 
-    if (Math.abs(diff) > 40) {
-      if (diff > 0) {
-        nextAlbum()
-      } else {
-        prevAlbum()
-      }
+  const endDrag = () => {
+    if (dragStartX.current === null) return
+    const steps = Math.round(dragDelta.current / dragStepThreshold)
+    if (steps !== 0) {
+      setActiveIndex((prev) => ((prev + steps) % total + total) % total)
     }
-    touchStartX.current = null
+    dragStartX.current = null
+    dragDelta.current = 0
+    setDragX(0)
+    setIsDragging(false)
   }
+
+  const handlePointerUp = () => endDrag()
+  const handlePointerCancel = () => endDrag()
 
   return (
     <div className="w-full flex flex-col items-center justify-center select-none">
       {/* 3D Viewport Stage */}
       <div
-        className="relative w-full h-[320px] sm:h-[400px] md:h-[460px] flex items-center justify-center perspective-container overflow-visible"
+        className="relative w-full h-[320px] sm:h-[400px] md:h-[460px] flex items-center justify-center perspective-container overflow-visible cursor-grab touch-pan-y active:cursor-grabbing"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
+        onPointerLeave={(e) => {
+          setIsHovered(false)
+          if (e.buttons === 1) endDrag()
+        }}
+        onDragStart={(e) => e.preventDefault()}
       >
-        <div className="relative w-full max-w-5xl h-full flex items-center justify-center preserve-3d">
+        <motion.div
+          className="relative w-full max-w-5xl h-full flex items-center justify-center preserve-3d"
+          animate={{ x: dragX }}
+          transition={{
+            duration: isDragging ? 0 : 0.5,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        >
           {albums.map((album, index) => {
             // Compute shortest circular distance
             let offset = index - activeIndex
@@ -118,9 +154,6 @@ export function CoverFlow({
             // Responsive 3D Transform calculations
             const cardWidth = isMobile ? 180 : 270
             const cardHeight = isMobile ? 180 : 270
-
-            const stepX = isMobile ? 75 : 145
-            const overlapGap = isMobile ? 35 : 70
 
             let translateX = 0
             let rotateY = 0
@@ -149,7 +182,13 @@ export function CoverFlow({
             return (
               <motion.div
                 key={album.id || album.title + index}
-                onClick={() => setActiveIndex(index)}
+                onClick={() => {
+                  if (dragMoved.current) {
+                    dragMoved.current = false
+                    return
+                  }
+                  setActiveIndex(index)
+                }}
                 className="absolute cursor-pointer preserve-3d"
                 style={{
                   width: `${cardWidth}px`,
@@ -170,10 +209,10 @@ export function CoverFlow({
                 <div className="relative group">
                   {/* Main Album Card */}
                   <div
-                    className={`relative rounded-sm overflow-hidden bg-muted border ${
+                    className={`relative rounded-sm overflow-hidden bg-muted ${
                       isCenter
-                        ? "border-foreground/30 shadow-[0_25px_60px_rgba(0,0,0,0.95)] ring-1 ring-foreground/10"
-                        : "border-foreground/10 shadow-md brightness-55 hover:brightness-85 transition-all"
+                        ? "shadow-[0_25px_60px_rgba(0,0,0,0.95)]"
+                        : "shadow-md brightness-55 hover:brightness-85 transition-all"
                     }`}
                     style={{
                       width: `${cardWidth}px`,
@@ -186,16 +225,11 @@ export function CoverFlow({
                       alt={`${album.title} - ${album.artist}`}
                       className="w-full h-full object-cover select-none pointer-events-none"
                       loading="eager"
-                      crossOrigin="anonymous"
+                      draggable={false}
                     />
 
                     {/* Subtle vinyl sheen highlight */}
                     <div className="absolute inset-0 vinyl-sheen pointer-events-none" />
-
-                    {/* Active highlight subtle border */}
-                    {isCenter && (
-                      <div className="absolute inset-0 border border-foreground/20 rounded-sm pointer-events-none" />
-                    )}
 
                     {/* Hover Info Overlay on Central Cover */}
                     {isCenter && (
@@ -234,6 +268,7 @@ export function CoverFlow({
                       src={album.cover}
                       alt=""
                       className="w-full object-cover reflection-image"
+                      draggable={false}
                       style={{
                         height: `${cardHeight}px`,
                         opacity: isCenter ? 0.6 : 0.35,
@@ -244,7 +279,7 @@ export function CoverFlow({
               </motion.div>
             )
           })}
-        </div>
+        </motion.div>
       </div>
     </div>
   )
