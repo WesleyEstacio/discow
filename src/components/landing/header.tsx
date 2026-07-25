@@ -1,10 +1,7 @@
 "use client"
 
-import Link from "next/link"
 import { motion } from "framer-motion"
-import { DiscowsLogo } from "./discows-logo"
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
+import { DiscowsLogo } from "@/components/discows-logo"
 
 export function LandingHeader() {
   return (
@@ -12,7 +9,7 @@ export function LandingHeader() {
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full max-w-5xl mx-auto flex items-center justify-between gap-4 z-20 select-none"
+      className="w-full max-w-5xl mx-auto flex flex-col items-center gap-2 z-20 select-none"
     >
       <div className="flex items-center gap-2">
         <DiscowsLogo size={20} />
@@ -20,17 +17,9 @@ export function LandingHeader() {
           Discows
         </h1>
       </div>
-
-      <div className="flex items-center gap-2">
-        <ModeToggle />
-        <Button
-          variant="secondary"
-          render={<Link href="/library" />}
-          nativeButton={false}
-        >
-          Sign in
-        </Button>
-      </div>
+      <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+        Rate • Discover • Share
+      </p>
     </motion.header>
   )
 }

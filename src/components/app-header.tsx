@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
 import {
   CompassIcon,
-  Disc3Icon,
   LibraryIcon,
   LogOutIcon,
   SearchIcon,
@@ -13,6 +12,7 @@ import {
   UserIcon,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { DiscowsLogo } from "@/components/discows-logo"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -56,7 +56,7 @@ export function AppHeader({ user }: AppHeaderProps) {
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4">
         <Link href="/" className="flex items-center gap-2 font-heading text-lg font-semibold tracking-tight">
-          <Disc3Icon className="size-5" />
+          <DiscowsLogo size={24} />
           Discows
         </Link>
 
