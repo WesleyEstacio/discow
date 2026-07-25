@@ -19,7 +19,7 @@ export function LoginForm({ className, callbackUrl, ...props }: LoginFormProps) 
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Welcome to Discow</CardTitle>
+          <CardTitle>Welcome to Discows</CardTitle>
           <CardDescription>
             Sign in with Google to catalog albums and write reviews.
           </CardDescription>

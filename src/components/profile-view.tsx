@@ -34,7 +34,7 @@ export function ProfileView({ user, reviews }: ProfileViewProps) {
       ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
       : 0
 
-  const displayName = user.name ?? user.email ?? "Discow listener"
+  const displayName = user.name ?? user.email ?? "Discows listener"
   const initials = displayName.slice(0, 2).toUpperCase()
 
   return (
