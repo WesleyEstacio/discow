@@ -30,7 +30,7 @@ export function SearchForm({ initialQuery = "", autoFocus = false }: SearchFormP
           <FieldLabel htmlFor="album-search" className="sr-only">
             Search albums
           </FieldLabel>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Input
               id="album-search"
               value={query}

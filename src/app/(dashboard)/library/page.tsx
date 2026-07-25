@@ -36,7 +36,7 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
         <div className="max-w-xl">
           <SearchForm autoFocus />
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button render={<Link href="/discover" />} nativeButton={false}>
             Discover albums
           </Button>
