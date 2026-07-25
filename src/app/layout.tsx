@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-import { auth } from "@/auth"
-import { AppHeader } from "@/components/app-header"
+import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toast"
 import "./globals.css"
 
@@ -17,31 +16,32 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Discow",
-    template: "%s · Discow",
+    default: "Discows",
+    template: "%s · Discows",
   },
   description: "Catalog albums, rate them, and write reviews.",
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const session = await auth()
-
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full bg-background text-foreground">
-        <Toaster>
-          <div className="flex min-h-full flex-col">
-            <AppHeader user={session?.user ?? null} />
-            <div className="flex-1">{children}</div>
-          </div>
-        </Toaster>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Toaster>{children}</Toaster>
+        </ThemeProvider>
       </body>
     </html>
   )

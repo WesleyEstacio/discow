@@ -12,7 +12,7 @@ export default async function ProfilePage() {
   const session = await auth()
 
   if (!session?.user?.id) {
-    redirect("/login?callbackUrl=/profile")
+    redirect("/library?callbackUrl=/profile")
   }
 
   const reviews = await getReviewsForUser(session.user.id)
