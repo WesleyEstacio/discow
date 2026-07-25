@@ -1,39 +1,33 @@
-import Link from "next/link"
-import { SearchForm } from "@/components/search-form"
-import { RecentReviews } from "@/components/recent-reviews"
-import { Button } from "@/components/ui/button"
+import { Plus_Jakarta_Sans } from "next/font/google"
+import { LandingHeader } from "@/components/landing/header"
+import { CoverFlow } from "@/components/landing/cover-flow"
+import { LandingFooter } from "@/components/landing/footer"
+import { LANDING_ALBUMS } from "@/components/landing/albums"
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+})
 
 export default function HomePage() {
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 py-10">
-      <section className="flex flex-col gap-6">
-        <div className="flex max-w-2xl flex-col gap-3">
-          <p className="text-sm font-medium text-muted-foreground">Discow</p>
-          <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">
-            Catalog the albums you love.
-          </h1>
-          <p className="text-base text-muted-foreground sm:text-lg">
-            Search Spotify, rate with stars, write reviews, and discover new
-            albums based on what you already love.
-          </p>
-        </div>
-        <div className="max-w-xl">
-          <SearchForm autoFocus />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button render={<Link href="/discover" />} nativeButton={false}>
-            Discover albums
-          </Button>
-          <Button render={<Link href="/search" />} nativeButton={false} variant="outline">
-            Browse search
-          </Button>
-          <Button render={<Link href="/profile" />} nativeButton={false} variant="ghost">
-            Open profile
-          </Button>
-        </div>
-      </section>
+    <div
+      className={`${plusJakartaSans.className} relative w-full h-dvh bg-background text-foreground flex flex-col overflow-hidden select-none`}
+    >
+      {/* Header: logo on the left, login button on the right — takes only the space it needs */}
+      <div className="w-full shrink-0 pt-4 sm:pt-6 px-4 sm:px-8">
+        <LandingHeader />
+      </div>
 
-      <RecentReviews />
-    </main>
+      {/* Main: 3D Cover Flow Carousel, centered in the remaining space */}
+      <main className="w-full flex-1 flex items-center justify-center px-4 min-h-0">
+        <CoverFlow albums={LANDING_ALBUMS} autoPlayInterval={3800} />
+      </main>
+
+      {/* Footer: pinned to the bottom, takes only the space it needs — same container as header */}
+      <div className="w-full shrink-0 px-4 sm:px-8">
+        <LandingFooter />
+      </div>
+    </div>
   )
 }
