@@ -3,7 +3,6 @@ import { Disc3Icon } from "lucide-react"
 import { AlbumCard } from "@/components/album-card"
 import { StarRating } from "@/components/star-rating"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Empty,
@@ -51,7 +50,6 @@ export function ProfileView({ user, reviews }: ProfileViewProps) {
             <h1 className="font-heading text-3xl font-semibold tracking-tight">
               {displayName}
             </h1>
-            <Badge variant="secondary">Signed in with Google</Badge>
           </div>
           {user.email ? (
             <p className="max-w-xl text-muted-foreground">{user.email}</p>

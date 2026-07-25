@@ -55,10 +55,10 @@ export function AppHeader({ user }: AppHeaderProps) {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4">
-        <Link href="/" className="flex items-center gap-2 font-heading text-lg font-semibold tracking-tight">
+        <div className="flex items-center gap-2 font-heading text-lg font-semibold tracking-tight">
           <DiscowsLogo size={24} />
           Discows
-        </Link>
+        </div>
 
         <nav className="flex items-center gap-1">
           {links.map((link) => {

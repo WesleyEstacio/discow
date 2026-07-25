@@ -4,6 +4,7 @@ import { LandingHeader } from "@/components/landing/header"
 import { CoverFlow } from "@/components/landing/cover-flow"
 import { LandingFooter } from "@/components/landing/footer"
 import { LANDING_ALBUMS } from "@/components/landing/albums"
+import { Disc3Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
 
@@ -32,11 +33,12 @@ export default function HomePage() {
         <CoverFlow albums={LANDING_ALBUMS} autoPlayInterval={3800} />
         <Button
           variant="outline"
-          className="uppercase"
+          className="uppercase py-3 px-6 h-auto"
           render={<Link href="/library" />}
           nativeButton={false}
         >
-          Sign in
+          <Disc3Icon />
+          Explore
         </Button>
       </main>
 
