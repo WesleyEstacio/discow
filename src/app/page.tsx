@@ -30,7 +30,12 @@ export default function HomePage() {
       {/* Main: 3D Cover Flow Carousel, centered in the remaining space */}
       <main className="w-full flex-1 flex flex-col items-center justify-center gap-6 px-4 min-h-0">
         <CoverFlow albums={LANDING_ALBUMS} autoPlayInterval={3800} />
-        <Button variant="default" render={<Link href="/library" />} nativeButton={false}>
+        <Button
+          variant="outline"
+          className="uppercase"
+          render={<Link href="/library" />}
+          nativeButton={false}
+        >
           Sign in
         </Button>
       </main>
