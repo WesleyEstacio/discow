@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import Link from "next/link"
 import { Trash2Icon } from "lucide-react"
+import { SignInButton } from "@/components/sign-in-button"
 import { StarRating } from "@/components/star-rating"
 import { Button } from "@/components/ui/button"
 import {
@@ -41,9 +41,7 @@ function SignInPrompt() {
           Sign in with Google to rate this album and save a review.
         </p>
       </div>
-      <Button render={<Link href="/login" />} nativeButton={false}>
-        Sign in
-      </Button>
+      <SignInButton />
     </div>
   )
 }

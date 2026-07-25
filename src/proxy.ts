@@ -13,7 +13,7 @@ export const proxy = auth((request) => {
   const { pathname } = request.nextUrl
 
   if (isProtectedPath(pathname) && !request.auth) {
-    const loginUrl = new URL("/login", request.nextUrl.origin)
+    const loginUrl = new URL("/library", request.nextUrl.origin)
     loginUrl.searchParams.set("callbackUrl", pathname)
     return NextResponse.redirect(loginUrl)
   }

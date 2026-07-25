@@ -10,6 +10,6 @@ export async function signInWithGoogle(formData: FormData) {
   await signIn("google", { redirectTo })
 }
 
-export async function signOutUser() {
-  await signOut({ redirectTo: "/" })
+export async function signOutUser(redirectTo: string = "/") {
+  await signOut({ redirectTo })
 }
