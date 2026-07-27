@@ -20,14 +20,23 @@ type ProfileUser = {
   name?: string | null
   email?: string | null
   image?: string | null
+  username?: string | null
 }
 
 type ProfileViewProps = {
   user: ProfileUser
   reviews: Review[]
+  // Controls whether private info (email) and self-service CTAs are shown.
+  // Defaults to true so the existing "my own profile" call site keeps
+  // working unchanged.
+  isOwnProfile?: boolean
 }
 
-export function ProfileView({ user, reviews }: ProfileViewProps) {
+export function ProfileView({
+  user,
+  reviews,
+  isOwnProfile = true,
+}: ProfileViewProps) {
   const average =
     reviews.length > 0
       ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
@@ -51,7 +60,15 @@ export function ProfileView({ user, reviews }: ProfileViewProps) {
               {displayName}
             </h1>
           </div>
-          {user.email ? (
+          {user.username ? (
+            <Link
+              href={`/profile/${user.username}`}
+              className="w-fit text-sm text-muted-foreground underline-offset-4 hover:underline"
+            >
+              @{user.username}
+            </Link>
+          ) : null}
+          {isOwnProfile && user.email ? (
             <p className="max-w-xl text-muted-foreground">{user.email}</p>
           ) : null}
           <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
@@ -75,16 +92,22 @@ export function ProfileView({ user, reviews }: ProfileViewProps) {
             <EmptyMedia variant="icon">
               <Disc3Icon />
             </EmptyMedia>
-            <EmptyTitle>Your catalog is empty</EmptyTitle>
+            <EmptyTitle>
+              {isOwnProfile ? "Your catalog is empty" : "No albums yet"}
+            </EmptyTitle>
             <EmptyDescription>
-              Rate an album to start building your profile.
+              {isOwnProfile
+                ? "Rate an album to start building your profile."
+                : `${displayName} hasn't reviewed any albums yet.`}
             </EmptyDescription>
           </EmptyHeader>
-          <EmptyContent>
-            <Button render={<Link href="/search" />} nativeButton={false}>
-              Search albums
-            </Button>
-          </EmptyContent>
+          {isOwnProfile ? (
+            <EmptyContent>
+              <Button render={<Link href="/search" />} nativeButton={false}>
+                Search albums
+              </Button>
+            </EmptyContent>
+          ) : null}
         </Empty>
       ) : (
         <Tabs defaultValue="grid">

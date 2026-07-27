@@ -1,13 +1,10 @@
-import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
-import { ProfileView } from "@/components/profile-view"
-import { getReviewsForUser } from "@/lib/reviews"
+import { ensureUsername } from "@/lib/username"
 
-export const metadata: Metadata = {
-  title: "Profile",
-}
-
+// "/profile" is just an entry point that bounces the signed-in user to their
+// own public profile at "/profile/[username]" - that's the one canonical URL
+// for a profile, whether you're viewing your own or someone else's.
 export default async function ProfilePage() {
   const session = await auth()
 
@@ -15,11 +12,8 @@ export default async function ProfilePage() {
     redirect("/library?callbackUrl=/profile")
   }
 
-  const reviews = await getReviewsForUser(session.user.id)
+  const username =
+    session.user.username ?? (await ensureUsername(session.user.id, session.user.name))
 
-  return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10">
-      <ProfileView user={session.user} reviews={reviews} />
-    </main>
-  )
+  redirect(`/profile/${username}`)
 }

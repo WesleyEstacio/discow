@@ -1,7 +1,7 @@
 "use server"
 
 import { and, eq } from "drizzle-orm"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { reviews as reviewsTable } from "@/lib/db/schema"
@@ -20,10 +20,16 @@ export type ReviewActionResult =
   | { success: true }
   | { success: false; error: string }
 
-function revalidateReviewPaths(spotifyId: string) {
+function revalidateReviewPaths(spotifyId: string, username: string | null) {
   revalidatePath(`/album/${spotifyId}`)
   revalidatePath("/profile")
+  if (username) revalidatePath(`/profile/${username}`)
+  revalidatePath("/library")
   revalidatePath("/")
+  // Popular albums and community activity on the library page are cached
+  // with unstable_cache (see src/lib/home.ts) independently of the route
+  // cache, so they need their own invalidation here too.
+  revalidateTag("community-activity", "max")
 }
 
 export async function saveReview(
@@ -66,7 +72,7 @@ export async function saveReview(
       },
     })
 
-  revalidateReviewPaths(input.spotifyId)
+  revalidateReviewPaths(input.spotifyId, session.user.username)
 
   return { success: true }
 }
@@ -88,7 +94,7 @@ export async function deleteReviewAction(
       )
     )
 
-  revalidateReviewPaths(spotifyId)
+  revalidateReviewPaths(spotifyId, session.user.username)
 
   return { success: true }
 }
