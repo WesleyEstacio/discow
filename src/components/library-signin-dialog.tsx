@@ -19,7 +19,10 @@ export function LibrarySignInDialog({
   isAuthenticated,
   callbackUrl = "/library",
 }: LibrarySignInDialogProps) {
-  const [isOpen, setIsOpen] = useState(!isAuthenticated)
+  // The library page is now a public discovery hub, so only pop the dialog
+  // open automatically when the user was redirected here to sign in for a
+  // protected route (see src/proxy.ts) - not on every anonymous visit.
+  const [isOpen, setIsOpen] = useState(!isAuthenticated && callbackUrl !== "/library")
 
   if (isAuthenticated) {
     return null

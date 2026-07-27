@@ -7,7 +7,6 @@ import {
   CompassIcon,
   LibraryIcon,
   LogOutIcon,
-  SearchIcon,
   SunMoonIcon,
   UserIcon,
 } from "lucide-react"
@@ -29,7 +28,6 @@ import { cn } from "@/lib/utils"
 
 const links = [
   { href: "/library", label: "Library", icon: LibraryIcon },
-  { href: "/search", label: "Search", icon: SearchIcon },
   { href: "/discover", label: "Discover", icon: CompassIcon },
   { href: "/profile", label: "Profile", icon: UserIcon, requiresAuth: true },
 ]
@@ -38,6 +36,7 @@ export type AppHeaderUser = {
   name?: string | null
   email?: string | null
   image?: string | null
+  username?: string | null
 }
 
 type AppHeaderProps = {
@@ -47,6 +46,9 @@ type AppHeaderProps = {
 export function AppHeader({ user }: AppHeaderProps) {
   const pathname = usePathname()
   const { resolvedTheme, setTheme } = useTheme()
+  // "/profile" always redirects here anyway, but linking to it directly
+  // skips that extra hop whenever we already know the username.
+  const profileHref = user?.username ? `/profile/${user.username}` : "/profile"
 
   function handleToggleTheme() {
     setTheme(resolvedTheme === "dark" ? "light" : "dark")
@@ -55,16 +57,20 @@ export function AppHeader({ user }: AppHeaderProps) {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4">
-        <div className="flex items-center gap-2 font-heading text-lg font-semibold tracking-tight">
+        <Link
+          href="/library"
+          className="flex items-center gap-2 rounded-md font-heading text-lg font-semibold tracking-tight outline-none transition-opacity hover:opacity-90 focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
           <DiscowsLogo size={24} />
           Discows
-        </div>
+        </Link>
 
         <nav className="flex items-center gap-1">
           {links.map((link) => {
             const Icon = link.icon
             const active = pathname.startsWith(link.href)
             const disabled = link.requiresAuth && !user
+            const href = link.href === "/profile" ? profileHref : link.href
 
             return (
               <Button
@@ -72,7 +78,7 @@ export function AppHeader({ user }: AppHeaderProps) {
                 variant={active ? "secondary" : "ghost"}
                 size="sm"
                 disabled={disabled}
-                render={<Link href={link.href} />}
+                render={<Link href={href} />}
                 nativeButton={false}
                 className={cn(active && "font-medium")}
               >
@@ -101,7 +107,7 @@ export function AppHeader({ user }: AppHeaderProps) {
             <DropdownMenuContent>
               <DropdownMenuLabel>{user.name ?? user.email}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuLinkItem render={<Link href="/profile" />} closeOnClick>
+              <DropdownMenuLinkItem render={<Link href={profileHref} />} closeOnClick>
                 <UserIcon />
                 Profile
               </DropdownMenuLinkItem>

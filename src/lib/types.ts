@@ -65,3 +65,22 @@ export type Review = {
   updatedAt: string
 }
 
+export type PopularAlbum = {
+  album: AlbumSummary
+  averageRating: number
+  reviewCount: number
+}
+
+export type CommunityActivityItem = {
+  spotifyId: string
+  albumName: string
+  artists: string[]
+  imageUrl: string | null
+  rating: number
+  reviewText: string
+  updatedAt: string
+  reviewerName: string
+  reviewerImage: string | null
+  reviewerUsername: string | null
+}
+

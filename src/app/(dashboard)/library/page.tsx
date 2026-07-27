@@ -1,12 +1,11 @@
-import Link from "next/link"
-import { Suspense } from "react"
 import type { Metadata } from "next"
 import { auth } from "@/auth"
-import { SearchForm } from "@/components/search-form"
-import { RecentReviews } from "@/components/recent-reviews"
+import { LibrarySearch } from "@/components/library-search"
 import { LibrarySignInDialog } from "@/components/library-signin-dialog"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
+import { CommunityActivitySection } from "@/components/home/community-activity-section"
+import { DiscowsPicksSection } from "@/components/home/discows-picks-section"
+import { NewReleasesSection } from "@/components/home/new-releases-section"
+import { PopularAlbumsSection } from "@/components/home/popular-albums-section"
 
 export const metadata: Metadata = {
   title: "Library",
@@ -19,57 +18,36 @@ type LibraryPageProps = {
 export default async function LibraryPage({ searchParams }: LibraryPageProps) {
   const session = await auth()
   const { callbackUrl } = await searchParams
+  const firstName = session?.user?.name?.split(" ")[0]
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 py-10">
-      <section className="flex flex-col gap-6">
-        <div className="flex max-w-2xl flex-col gap-3">
-          <p className="text-sm font-medium text-muted-foreground">Discows</p>
+      <section className="flex flex-col items-center gap-6 text-center">
+        <div className="flex max-w-2xl flex-col gap-2">
           <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">
-            Catalog the albums you love.
+            {firstName ? `Welcome, ${firstName}!` : "Welcome to Discows!"}
           </h1>
           <p className="text-base text-muted-foreground sm:text-lg">
-            Search Spotify, rate with stars, write reviews, and discover new
-            albums based on what you already love.
+            Discover what&apos;s happening on Discows today.
           </p>
         </div>
-        <div className="max-w-xl">
-          <SearchForm autoFocus />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button render={<Link href="/discover" />} nativeButton={false}>
-            Discover albums
-          </Button>
-          <Button render={<Link href="/search" />} nativeButton={false} variant="outline">
-            Browse search
-          </Button>
-          <Button render={<Link href="/profile" />} nativeButton={false} variant="ghost">
-            Open profile
-          </Button>
+        <div className="w-full max-w-xl">
+          <LibrarySearch autoFocus />
         </div>
       </section>
 
-      <Suspense fallback={<RecentReviewsSkeleton />}>
-        <RecentReviews />
-      </Suspense>
+      <NewReleasesSection />
+
+      <PopularAlbumsSection />
+
+      <CommunityActivitySection />
+
+      <DiscowsPicksSection />
 
       <LibrarySignInDialog
         isAuthenticated={Boolean(session?.user)}
         callbackUrl={callbackUrl}
       />
     </main>
-  )
-}
-
-function RecentReviewsSkeleton() {
-  return (
-    <section className="flex flex-col gap-4">
-      <Skeleton className="h-6 w-40" />
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="aspect-square w-full rounded-xl" />
-        ))}
-      </div>
-    </section>
   )
 }
