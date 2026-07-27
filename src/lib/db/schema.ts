@@ -15,6 +15,10 @@ export const users = pgTable("user", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name"),
+  // Auto-generated from the user's name on account creation (see
+  // src/lib/username.ts). Nullable so it can be safely added to existing
+  // rows via migration; editable by the user in a future release.
+  username: text("username").unique(),
   email: text("email").notNull().unique(),
   emailVerified: timestamp("email_verified", { mode: "date" }),
   image: text("image"),
