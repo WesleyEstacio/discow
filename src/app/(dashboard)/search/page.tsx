@@ -15,6 +15,8 @@ import { SearchIcon } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Search",
+  description: "Find albums on Spotify and open one to rate and review on Discows.",
+  alternates: { canonical: "/search" },
 }
 
 type SearchPageProps = {

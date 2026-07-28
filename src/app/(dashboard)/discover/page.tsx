@@ -7,6 +7,9 @@ import { getReviewsForUser } from "@/lib/reviews"
 
 export const metadata: Metadata = {
   title: "Discover",
+  description:
+    "Get album picks by genre, artist, or a surprise mix based on what you already love on Discows.",
+  alternates: { canonical: "/discover" },
 }
 
 export default function DiscoverPage() {
