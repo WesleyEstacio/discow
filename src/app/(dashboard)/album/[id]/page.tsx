@@ -2,15 +2,18 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 import { Disc3Icon, ExternalLinkIcon } from "lucide-react"
 import { auth } from "@/auth"
 import { ReviewForm } from "@/components/review-form"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import { formatDuration, formatReleaseYear } from "@/lib/format"
 import { getReviewForAlbum } from "@/lib/reviews"
 import { getAlbum } from "@/lib/spotify"
+import type { AlbumDetail } from "@/lib/types"
 
 type AlbumPageProps = {
   params: Promise<{ id: string }>
@@ -23,9 +26,17 @@ export async function generateMetadata({
 
   try {
     const album = await getAlbum(id)
+    const description = `${album.name} by ${album.artists.join(", ")} - rate it and read reviews on Discows.`
+
     return {
       title: album.name,
-      description: `${album.name} by ${album.artists.join(", ")}`,
+      description,
+      alternates: { canonical: `/album/${id}` },
+      openGraph: {
+        title: album.name,
+        description,
+        images: album.imageUrl ? [{ url: album.imageUrl }] : undefined,
+      },
     }
   } catch {
     return { title: "Album" }
@@ -42,11 +53,6 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
   } catch {
     notFound()
   }
-
-  const session = await auth()
-  const initialReview = session?.user?.id
-    ? await getReviewForAlbum(session.user.id, id)
-    : null
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-10">
@@ -142,11 +148,9 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
           ) : null}
         </section>
 
-        <ReviewForm
-          album={album}
-          initialReview={initialReview}
-          isSignedIn={Boolean(session?.user)}
-        />
+        <Suspense fallback={<ReviewFormSkeleton />}>
+          <ReviewFormData album={album} />
+        </Suspense>
       </div>
 
       <p className="text-sm text-muted-foreground">
@@ -155,5 +159,36 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
         </Link>
       </p>
     </main>
+  )
+}
+
+// Isolated so the tracklist above renders immediately - only this slot
+// waits on the session lookup and the signed-in user's existing review.
+async function ReviewFormData({ album }: { album: AlbumDetail }) {
+  const session = await auth()
+  const initialReview = session?.user?.id
+    ? await getReviewForAlbum(session.user.id, album.id)
+    : null
+
+  return (
+    <ReviewForm
+      album={album}
+      initialReview={initialReview}
+      isSignedIn={Boolean(session?.user)}
+    />
+  )
+}
+
+function ReviewFormSkeleton() {
+  return (
+    <div className="flex flex-col gap-4 rounded-xl border bg-card p-4">
+      <div className="flex flex-col gap-1">
+        <Skeleton className="h-5 w-28" />
+        <Skeleton className="h-4 w-48" />
+      </div>
+      <Skeleton className="h-6 w-32" />
+      <Skeleton className="h-24 w-full" />
+      <Skeleton className="h-9 w-28" />
+    </div>
   )
 }

@@ -1,3 +1,4 @@
+import { cache } from "react"
 import type { AlbumDetail, AlbumSummary, ArtistSummary, Track } from "@/lib/types"
 
 const TOKEN_URL = "https://accounts.spotify.com/api/token"
@@ -208,7 +209,10 @@ function uniqueById(albums: AlbumSummary[]): AlbumSummary[] {
   })
 }
 
-export async function getAlbum(id: string): Promise<AlbumDetail> {
+// Wrapped in React's cache() because both an album page's generateMetadata
+// and the page component itself look up the same album on every request -
+// this dedupes that into a single Spotify API call per render.
+export const getAlbum = cache(async (id: string): Promise<AlbumDetail> => {
   const album = await spotifyFetch<SpotifyAlbumRaw>(`/albums/${id}`)
 
   return {
@@ -217,4 +221,4 @@ export async function getAlbum(id: string): Promise<AlbumDetail> {
     genres: album.genres ?? [],
     tracks: mapTracks(album),
   }
-}
+})
