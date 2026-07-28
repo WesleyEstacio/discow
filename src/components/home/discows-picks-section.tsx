@@ -37,7 +37,7 @@ export function DiscowsPicksSection() {
           <div
             key={collection.title}
             aria-disabled
-            className="flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground opacity-70"
+            className="flex min-w-0 flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground opacity-70"
           >
             <div className="flex aspect-video items-center justify-center rounded-lg bg-muted text-muted-foreground">
               <Disc3Icon className="size-8" />

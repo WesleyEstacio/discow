@@ -2,7 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Suspense } from "react"
 import { Disc3Icon } from "lucide-react"
-import { StarRating } from "@/components/star-rating"
+import { StarRatingDisplay } from "@/components/star-rating-display"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Empty,
@@ -13,8 +13,15 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatRelativeTime } from "@/lib/format"
 import { getRecentCommunityActivity } from "@/lib/home"
+import { cn } from "@/lib/utils"
 
 const COMMUNITY_ACTIVITY_LIMIT = 3
+
+// Keeps the mobile slider looking like a carousel instead of a plain
+// scroll box - the drag/swipe affordance is enough of a hint on touch
+// devices without a visible scrollbar track.
+const SCROLLBAR_HIDDEN_CLASS_NAME =
+  "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
 
 // Static header renders immediately; Suspense only wraps the list that has
 // to wait on the database.
@@ -51,11 +58,27 @@ async function CommunityActivityList() {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div
+      className={cn(
+        // Below `sm`, this is a horizontally swiping slider (most recent
+        // activity first) instead of a stacked column, since these cards are
+        // dense enough that one per row wastes a lot of vertical space.
+        "-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-1",
+        SCROLLBAR_HIDDEN_CLASS_NAME,
+        "sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3"
+      )}
+    >
       {activity.map((item) => (
         <div
           key={`${item.spotifyId}-${item.updatedAt}`}
-          className="flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground"
+          className={cn(
+            // `min-w-0` matters here: without it, a long album/reviewer name
+            // forces this card (and the grid track around it) wider than the
+            // viewport instead of letting the `truncate`/`line-clamp` text
+            // below actually clip.
+            "flex min-w-0 shrink-0 basis-[85%] snap-start flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground",
+            "sm:shrink sm:basis-auto"
+          )}
         >
           <div className="flex items-center gap-3">
             <Avatar size="sm">
@@ -115,7 +138,7 @@ async function CommunityActivityList() {
             </div>
           </Link>
 
-          <StarRating value={item.rating} size="sm" readOnly />
+          <StarRatingDisplay value={item.rating} size="sm" />
 
           <p className="line-clamp-3 text-sm text-muted-foreground">
             {item.reviewText}
@@ -128,11 +151,16 @@ async function CommunityActivityList() {
 
 export function CommunityActivityListSkeleton() {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div
+      className={cn(
+        "-mx-4 flex gap-4 overflow-x-hidden px-4 pb-1",
+        "sm:mx-0 sm:grid sm:grid-cols-2 sm:px-0 sm:pb-0 lg:grid-cols-3"
+      )}
+    >
       {Array.from({ length: COMMUNITY_ACTIVITY_LIMIT }).map((_, index) => (
         <div
           key={index}
-          className="flex flex-col gap-3 rounded-xl border bg-card p-4"
+          className="flex min-w-0 shrink-0 basis-[85%] flex-col gap-3 rounded-xl border bg-card p-4 sm:shrink sm:basis-auto"
         >
           <div className="flex items-center gap-3">
             <Skeleton className="size-6 rounded-full" />
