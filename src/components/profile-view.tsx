@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Disc3Icon } from "lucide-react"
 import { AlbumCard } from "@/components/album-card"
-import { StarRating } from "@/components/star-rating"
+import { StarRatingDisplay } from "@/components/star-rating-display"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -154,7 +154,7 @@ export function ProfileView({
                       ) : null}
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-1">
-                      <StarRating value={review.rating} size="sm" readOnly />
+                      <StarRatingDisplay value={review.rating} size="sm" />
                       <span className="text-xs text-muted-foreground">
                         {formatRating(review.rating)}
                       </span>

@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Disc3Icon } from "lucide-react"
-import { StarRating } from "@/components/star-rating"
+import { StarRatingDisplay } from "@/components/star-rating-display"
 import { Badge } from "@/components/ui/badge"
 import { formatRating, formatReleaseYear } from "@/lib/format"
 import type { AlbumSummary } from "@/lib/types"
@@ -46,7 +46,7 @@ export function AlbumCard({ album, rating, className }: AlbumCardProps) {
           <Badge variant="secondary">{formatReleaseYear(album.releaseDate)}</Badge>
           {typeof rating === "number" ? (
             <div className="flex items-center gap-1.5">
-              <StarRating value={rating} size="sm" readOnly />
+              <StarRatingDisplay value={rating} size="sm" />
               <span className="text-xs text-muted-foreground">
                 {formatRating(rating)}
               </span>
