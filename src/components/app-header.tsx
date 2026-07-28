@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense, use } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
@@ -40,19 +41,13 @@ export type AppHeaderUser = {
 }
 
 type AppHeaderProps = {
-  user: AppHeaderUser | null
+  // A promise instead of the resolved user so the header shell (logo + nav)
+  // can render immediately; only the account slot below suspends on it.
+  userPromise: Promise<AppHeaderUser | null>
 }
 
-export function AppHeader({ user }: AppHeaderProps) {
+export function AppHeader({ userPromise }: AppHeaderProps) {
   const pathname = usePathname()
-  const { resolvedTheme, setTheme } = useTheme()
-  // "/profile" always redirects here anyway, but linking to it directly
-  // skips that extra hop whenever we already know the username.
-  const profileHref = user?.username ? `/profile/${user.username}` : "/profile"
-
-  function handleToggleTheme() {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark")
-  }
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur-md">
@@ -69,63 +64,157 @@ export function AppHeader({ user }: AppHeaderProps) {
           {links.map((link) => {
             const Icon = link.icon
             const active = pathname.startsWith(link.href)
-            const disabled = link.requiresAuth && !user
-            const href = link.href === "/profile" ? profileHref : link.href
+
+            // Only the "Profile" link's href and disabled state depend on
+            // the session, so it's the only one that needs to read
+            // `userPromise` - Library and Discover render immediately.
+            if (link.requiresAuth) {
+              return (
+                <Suspense
+                  key={link.href}
+                  fallback={
+                    <NavLinkButton href={link.href} label={link.label} icon={Icon} active={active} disabled />
+                  }
+                >
+                  <ProfileNavLink
+                    href={link.href}
+                    label={link.label}
+                    icon={Icon}
+                    active={active}
+                    userPromise={userPromise}
+                  />
+                </Suspense>
+              )
+            }
 
             return (
-              <Button
+              <NavLinkButton
                 key={link.href}
-                variant={active ? "secondary" : "ghost"}
-                size="sm"
-                disabled={disabled}
-                render={<Link href={href} />}
-                nativeButton={false}
-                className={cn(active && "font-medium")}
-              >
-                <Icon data-icon="inline-start" />
-                <span className="hidden sm:inline">{link.label}</span>
-              </Button>
+                href={link.href}
+                label={link.label}
+                icon={Icon}
+                active={active}
+                disabled={false}
+              />
             )
           })}
         </nav>
 
-        {user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className="rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-              aria-label="Account menu"
-            >
-              <Avatar size="sm">
-                {user.image ? (
-                  <AvatarImage src={user.image} alt={user.name ?? "Profile picture"} />
-                ) : null}
-                <AvatarFallback>
-                  {(user.name ?? user.email ?? "?").slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>{user.name ?? user.email}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuLinkItem render={<Link href={profileHref} />} closeOnClick>
-                <UserIcon />
-                Profile
-              </DropdownMenuLinkItem>
-              <DropdownMenuItem onClick={handleToggleTheme}>
-                <SunMoonIcon />
-                Toggle theme
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => signOutUser(pathname)}>
-                <LogOutIcon />
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <SignInButton />
-        )}
+        <Suspense fallback={<AccountSlotSkeleton />}>
+          <AccountSlot userPromise={userPromise} />
+        </Suspense>
       </div>
     </header>
+  )
+}
+
+type ProfileNavLinkProps = {
+  href: string
+  label: string
+  icon: typeof LibraryIcon
+  active: boolean
+  userPromise: Promise<AppHeaderUser | null>
+}
+
+function ProfileNavLink({ href, label, icon: Icon, active, userPromise }: ProfileNavLinkProps) {
+  const user = use(userPromise)
+  const resolvedHref = user?.username ? `/profile/${user.username}` : href
+
+  return (
+    <NavLinkButton href={resolvedHref} label={label} icon={Icon} active={active} disabled={!user} />
+  )
+}
+
+type NavLinkButtonProps = {
+  href: string
+  label: string
+  icon: typeof LibraryIcon
+  active: boolean
+  disabled: boolean
+}
+
+// Rendered twice - a centered icon-only button on mobile, and an icon+label
+// button from `sm` up - instead of hiding the label with CSS. The shared
+// Button component pads icon+label layouts asymmetrically (tighter on the
+// icon side), which only looks centered when the label is actually visible.
+function NavLinkButton({ href, label, icon: Icon, active, disabled }: NavLinkButtonProps) {
+  return (
+    <>
+      <Button
+        variant={active ? "secondary" : "ghost"}
+        size="icon-sm"
+        disabled={disabled}
+        render={<Link href={href} aria-label={label} />}
+        nativeButton={false}
+        className="sm:hidden"
+      >
+        <Icon />
+      </Button>
+      <Button
+        variant={active ? "secondary" : "ghost"}
+        size="sm"
+        disabled={disabled}
+        render={<Link href={href} />}
+        nativeButton={false}
+        className={cn("hidden sm:inline-flex", active && "font-medium")}
+      >
+        <Icon data-icon="inline-start" />
+        {label}
+      </Button>
+    </>
+  )
+}
+
+function AccountSlotSkeleton() {
+  return <div className="size-8 shrink-0 animate-pulse rounded-full bg-muted" />
+}
+
+function AccountSlot({ userPromise }: { userPromise: Promise<AppHeaderUser | null> }) {
+  const user = use(userPromise)
+  const pathname = usePathname()
+  const { resolvedTheme, setTheme } = useTheme()
+  const profileHref = user?.username ? `/profile/${user.username}` : "/profile"
+
+  function handleToggleTheme() {
+    setTheme(resolvedTheme === "dark" ? "light" : "dark")
+  }
+
+  if (!user) {
+    return <SignInButton />
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className="rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        aria-label="Account menu"
+      >
+        <Avatar size="sm">
+          {user.image ? (
+            <AvatarImage src={user.image} alt={user.name ?? "Profile picture"} />
+          ) : null}
+          <AvatarFallback>
+            {(user.name ?? user.email ?? "?").slice(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuLabel>{user.name ?? user.email}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuLinkItem render={<Link href={profileHref} />} closeOnClick>
+          <UserIcon />
+          Profile
+        </DropdownMenuLinkItem>
+        <DropdownMenuItem onClick={handleToggleTheme}>
+          <SunMoonIcon />
+          Toggle theme
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => signOutUser(pathname)}>
+          <LogOutIcon />
+          Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
