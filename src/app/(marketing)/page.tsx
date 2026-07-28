@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { Plus_Jakarta_Sans } from "next/font/google"
 import { LandingHeader } from "@/components/landing/header"
@@ -7,17 +8,37 @@ import { LANDING_ALBUMS } from "@/components/landing/albums"
 import { Disc3Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo"
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
 })
 
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+}
+
+// A WebSite entry helps search engines understand the site as a single
+// entity (and is a prerequisite for a sitelinks search box in results).
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  url: SITE_URL,
+}
+
 export default function HomePage() {
   return (
     <div
       className={`${plusJakartaSans.className} relative w-full h-dvh bg-background text-foreground flex flex-col overflow-hidden select-none`}
     >
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
       {/* Theme toggle: pinned to the top-right of the screen, independent of the header */}
       <div className="absolute top-4 right-4 sm:top-6 sm:right-8 z-30">
         <ModeToggle />
