@@ -42,3 +42,8 @@ yarn-error.log*
 next-env.d.ts
 
 .agents/*
+
+# ad-hoc dev-only scripts (e.g. one-off DB checks) - never meant to be
+# committed; delete the file locally once you're done using it
+check_db.mjs
+*.local.mjs
