@@ -7,18 +7,10 @@ import { searchAlbums } from "@/lib/spotify"
 import type { AlbumSummary, CommunityActivityItem, PopularAlbum } from "@/lib/types"
 
 // Spotify's search "tag:new" filter (albums released in the last two weeks)
-// only returns results when combined with another filter, so we fan out
-// across a handful of broad genres and merge the results. This replaces the
-// old GET /browse/new-releases endpoint, which Spotify removed in Feb 2026.
-const NEW_RELEASES_SEED_GENRES = [
-  "pop",
-  "hip-hop",
-  "rock",
-  "electronic",
-  "indie",
-  "r&b",
-] as const
-
+// only works for `type=album` on its own - the API's `genre` filter is only
+// supported when searching artists/tracks, so `genre:"x" tag:new` silently
+// matches zero albums. This replaces the old GET /browse/new-releases
+// endpoint, which Spotify removed in Feb 2026.
 function dedupeAlbumsById(albums: AlbumSummary[]): AlbumSummary[] {
   const seenAlbumIds = new Set<string>()
   return albums.filter((album) => {
@@ -29,13 +21,7 @@ function dedupeAlbumsById(albums: AlbumSummary[]): AlbumSummary[] {
 }
 
 export async function getNewReleases(limit = 6): Promise<AlbumSummary[]> {
-  const settledSearches = await Promise.allSettled(
-    NEW_RELEASES_SEED_GENRES.map((genre) => searchAlbums(`genre:"${genre}" tag:new`))
-  )
-
-  const albums = settledSearches.flatMap((result) =>
-    result.status === "fulfilled" ? result.value : []
-  )
+  const albums = await searchAlbums("tag:new")
 
   return dedupeAlbumsById(albums)
     .sort((a, b) => b.releaseDate.localeCompare(a.releaseDate))
