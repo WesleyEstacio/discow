@@ -27,7 +27,11 @@ export function LoginForm({ className, callbackUrl, ...props }: LoginFormProps) 
         <CardContent>
           <form action={signInWithGoogle}>
             <input type="hidden" name="callbackUrl" value={callbackUrl ?? "/profile"} />
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              variant="outline"
+              className="w-full uppercase py-3 px-6 h-auto"
+            >
               <GoogleIcon data-icon="inline-start" className="size-4" />
               Continue with Google
             </Button>
