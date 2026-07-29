@@ -61,11 +61,7 @@ export function ProfileView({
   const displayName = profile.name ?? profile.username ?? "Discows listener"
   const initials = displayName.slice(0, 2).toUpperCase()
 
-  function handleProfileUpdated(patch: {
-    name?: string
-    username?: string
-    image?: string | null
-  }) {
+  function handleProfileUpdated(patch: { name?: string; username?: string }) {
     setProfile((current) => ({ ...current, ...patch }))
     // The URL for this page is /profile/[username], so renaming needs to
     // update it too - otherwise refreshing the page would 404 on the old one.
@@ -75,11 +71,11 @@ export function ProfileView({
   }
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-5">
       {/* Identity: everything you need at a glance - avatar, @handle, tags,
           and the edit action - no banner, no photography required. */}
-      <section className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4 sm:gap-5">
+      <section className="flex flex-row items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-4 sm:gap-5">
           {/* A gradient ring stands in for the banner as the bit of visual
               flair here, instead of relying on a user-uploaded photo. */}
           <div className="rounded-full bg-gradient-to-br from-primary via-primary/60 to-primary/20 p-[3px] shadow-lg shadow-primary/10">
@@ -94,18 +90,9 @@ export function ProfileView({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            {profile.username ? (
-              <Link
-                href={`/profile/${profile.username}`}
-                className="font-heading text-2xl font-semibold tracking-tight hover:underline sm:text-3xl"
-              >
-                @{profile.username}
-              </Link>
-            ) : (
-              <span className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
-                {displayName}
-              </span>
-            )}
+            <span className="font-heading text-xl tracking-tight sm:text-2xl">
+              {profile.username ? `@${profile.username}` : displayName}
+            </span>
             {tags.length > 0 ? (
               <div className="flex flex-wrap gap-1.5">
                 {tags.map((tag) => (
@@ -126,7 +113,6 @@ export function ProfileView({
           <ProfileEditDialog
             name={profile.name}
             username={profile.username}
-            image={profile.image}
             onUpdated={handleProfileUpdated}
           />
         ) : null}

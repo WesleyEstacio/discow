@@ -2,7 +2,6 @@
 
 import { eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
-import { del, put } from "@vercel/blob"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { users } from "@/lib/db/schema"
@@ -12,11 +11,9 @@ const USERNAME_PATTERN = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/
 const MIN_USERNAME_LENGTH = 3
 const MAX_USERNAME_LENGTH = 30
 const MAX_NAME_LENGTH = 80
-const MAX_AVATAR_BYTES = 5 * 1024 * 1024 // 5MB
-const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"])
 
 export type ProfileActionResult =
-  | { success: true; image?: string | null }
+  | { success: true }
   | { success: false; error: string }
 
 function isUniqueConstraintViolation(error: unknown): boolean {
@@ -31,28 +28,6 @@ function isUniqueConstraintViolation(error: unknown): boolean {
 function revalidateProfilePaths(username: string | null) {
   revalidatePath("/profile")
   if (username) revalidatePath(`/profile/${username}`)
-}
-
-function validateImageFile(file: File, maxBytes: number, maxLabel: string): string | null {
-  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
-    return "Photo must be a JPEG, PNG, WEBP, or GIF."
-  }
-  if (file.size > maxBytes) {
-    return `Photo must be ${maxLabel} or smaller.`
-  }
-  return null
-}
-
-// Deletes a previous avatar from Blob storage, if it was one of ours. Avatars
-// coming from Google (or anywhere else) are just external URLs we don't own,
-// so we leave those alone.
-async function deletePreviousBlobImage(imageUrl: string | null) {
-  if (!imageUrl || !imageUrl.includes(".public.blob.vercel-storage.com/")) return
-  try {
-    await del(imageUrl)
-  } catch {
-    // Best-effort cleanup - an orphaned blob isn't worth failing the request over.
-  }
 }
 
 export type UpdateProfileInput = {
@@ -109,61 +84,4 @@ export async function updateProfileAction(
   revalidateProfilePaths(username)
 
   return { success: true }
-}
-
-export async function uploadAvatarAction(file: File): Promise<ProfileActionResult> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Sign in to edit your profile." }
-  }
-
-  const validationError = validateImageFile(file, MAX_AVATAR_BYTES, "5MB")
-  if (validationError) {
-    return { success: false, error: validationError }
-  }
-
-  const currentUser = await db.query.users.findFirst({
-    where: eq(users.id, session.user.id),
-    columns: { image: true },
-  })
-
-  const extension = file.type.split("/")[1] ?? "jpg"
-  const blob = await put(`avatars/${session.user.id}-${Date.now()}.${extension}`, file, {
-    access: "public",
-    addRandomSuffix: false,
-  })
-
-  await db
-    .update(users)
-    .set({ image: blob.url })
-    .where(eq(users.id, session.user.id))
-
-  await deletePreviousBlobImage(currentUser?.image ?? null)
-
-  revalidateProfilePaths(session.user.username)
-
-  return { success: true, image: blob.url }
-}
-
-export async function removeAvatarAction(): Promise<ProfileActionResult> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return { success: false, error: "Sign in to edit your profile." }
-  }
-
-  const currentUser = await db.query.users.findFirst({
-    where: eq(users.id, session.user.id),
-    columns: { image: true },
-  })
-
-  await db
-    .update(users)
-    .set({ image: null })
-    .where(eq(users.id, session.user.id))
-
-  await deletePreviousBlobImage(currentUser?.image ?? null)
-
-  revalidateProfilePaths(session.user.username)
-
-  return { success: true, image: null }
 }
