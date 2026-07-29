@@ -22,6 +22,34 @@
       "when": 1785179060774,
       "tag": "0002_add_user_username",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785270685000,
+      "tag": "0003_add_user_cover_image",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785358800000,
+      "tag": "0004_add_user_created_at",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785445200000,
+      "tag": "0005_add_user_tag",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785531600000,
+      "tag": "0006_drop_user_cover_image",
+      "breakpoints": true
     }
   ]
 }

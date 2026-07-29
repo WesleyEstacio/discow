@@ -9,6 +9,7 @@ export type PublicUser = {
   name: string | null
   username: string
   image: string | null
+  createdAt: Date
 }
 
 // Wrapped in React's cache() because both generateMetadata and the page
@@ -27,6 +28,7 @@ export const getUserByUsername = cache(
       name: row.name,
       username: row.username,
       image: row.image,
+      createdAt: row.createdAt,
     }
   }
 )

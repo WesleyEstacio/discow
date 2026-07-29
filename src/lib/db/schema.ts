@@ -16,12 +16,18 @@ export const users = pgTable("user", {
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name"),
   // Auto-generated from the user's name on account creation (see
-  // src/lib/username.ts). Nullable so it can be safely added to existing
-  // rows via migration; editable by the user in a future release.
+  // src/lib/username.ts) and editable afterwards (see
+  // src/lib/profile-actions.ts). Nullable only so it can be safely added to
+  // existing rows via migration - ensureUsername/updateProfileAction never
+  // let it be set back to null once assigned.
   username: text("username").unique(),
   email: text("email").notNull().unique(),
   emailVerified: timestamp("email_verified", { mode: "date" }),
   image: text("image"),
+  // Backs the "Joined in <year>" profile tag (see src/lib/tags.ts). Existing
+  // rows get backfilled to the migration's run date, so pre-launch accounts
+  // are all treated as one early cohort.
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 })
 
 export const accounts = pgTable(
@@ -88,6 +94,27 @@ export const authenticators = pgTable(
     primaryKey({
       columns: [authenticator.userId, authenticator.credentialID],
     }),
+  ]
+)
+
+// Profile badges (see src/lib/tags.ts): stored, not recomputed on every
+// request. "joined-<year>" is assigned automatically on first sign-in
+// (auth.ts). Others - like "first-users" - are added by hand for now (e.g.
+// via `npm run db:studio`), until there's an admin UI or achievement system
+// to manage them. (userId, key) is the primary key, so re-inserting the same
+// tag for a user is a safe no-op instead of a duplicate row.
+export const userTags = pgTable(
+  "user_tag",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+  },
+  (userTag) => [
+    primaryKey({ columns: [userTag.userId, userTag.key] }),
   ]
 )
 

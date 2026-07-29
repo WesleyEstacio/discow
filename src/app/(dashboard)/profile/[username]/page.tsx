@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { auth } from "@/auth"
 import { ProfileView } from "@/components/profile-view"
 import { getReviewsForUser } from "@/lib/reviews"
+import { getProfileTags } from "@/lib/tags"
 import { getUserByUsername } from "@/lib/users"
 
 type PublicProfilePageProps = {
@@ -45,13 +46,18 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   }
 
   const isOwnProfile = session?.user?.id === profileUser.id
-  const reviews = await getReviewsForUser(profileUser.id)
+  // Independent of each other, so they run concurrently.
+  const [reviews, tags] = await Promise.all([
+    getReviewsForUser(profileUser.id),
+    getProfileTags(profileUser.id),
+  ])
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10">
       <ProfileView
         user={profileUser}
         reviews={reviews}
+        tags={tags}
         isOwnProfile={isOwnProfile}
       />
     </main>

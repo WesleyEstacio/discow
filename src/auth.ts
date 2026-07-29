@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { db } from "@/lib/db"
 import { accounts, sessions, users, verificationTokens } from "@/lib/db/schema"
+import { ensureJoinedTag } from "@/lib/tags"
 import { ensureUsername } from "@/lib/username"
 
 // The Auth.js `AdapterUser` type doesn't know about our custom `username`
@@ -38,14 +39,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     // Fires once, right after the adapter creates the row for a brand-new
     // account.
     async createUser({ user }) {
-      if (user.id) await ensureUsername(user.id, user.name)
+      if (user.id) {
+        await ensureUsername(user.id, user.name)
+        await ensureJoinedTag(user.id)
+      }
     },
     // Fires on every sign-in (including the first one, right after
-    // createUser above). Backfills a username for accounts that existed
-    // before this feature shipped; a no-op for everyone else since
-    // ensureUsername only touches rows with no username yet.
+    // createUser above). Backfills a username/joined-tag for accounts that
+    // existed before these features shipped; a no-op for everyone else since
+    // both are idempotent (username only touches rows with none yet, and the
+    // joined tag has a primary key on (userId, key)).
     async signIn({ user }) {
-      if (user.id) await ensureUsername(user.id, user.name)
+      if (user.id) {
+        await ensureUsername(user.id, user.name)
+        await ensureJoinedTag(user.id)
+      }
     },
   },
 })
