@@ -94,7 +94,7 @@ async function CommunityActivityList() {
                 {item.reviewerUsername ? (
                   <Link
                     href={`/profile/${item.reviewerUsername}`}
-                    className="font-medium underline-offset-4 hover:underline"
+                    className="font-medium underline-offset-2 transition-colors hover:text-primary-glow hover:underline"
                   >
                     {item.reviewerName}
                   </Link>
