@@ -154,8 +154,8 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
       </div>
 
       <p className="text-sm text-muted-foreground">
-        <Link href="/search" className="underline-offset-4 hover:underline">
-          Back to search
+        <Link href="/library" className="underline-offset-4 hover:underline">
+          Back to library
         </Link>
       </p>
     </main>

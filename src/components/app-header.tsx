@@ -23,14 +23,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { HeaderSearch } from "@/components/header-search"
 import { SignInButton } from "@/components/sign-in-button"
 import { signOutUser } from "@/lib/auth-actions"
 import { cn } from "@/lib/utils"
 
+// "Profile" used to live here as a third nav link; it's now folded into the
+// account avatar menu below, and this slot is the search bar instead (see
+// HeaderSearch).
 const links = [
   { href: "/library", label: "Library", icon: LibraryIcon },
   { href: "/discover", label: "Discover", icon: CompassIcon },
-  { href: "/profile", label: "Profile", icon: UserIcon, requiresAuth: true },
 ]
 
 export type AppHeaderUser = {
@@ -60,68 +63,36 @@ export function AppHeader({ userPromise }: AppHeaderProps) {
           Discows
         </Link>
 
-        <nav className="flex items-center gap-1">
-          {links.map((link) => {
-            const Icon = link.icon
-            const active = pathname.startsWith(link.href)
+        {/* Nav links and search are grouped as one unit so they move as a
+            block and keep their own spacing, instead of each being spread
+            out independently by justify-between. */}
+        <div className="flex items-center gap-1">
+          <nav className="flex items-center gap-1">
+            {links.map((link) => {
+              const Icon = link.icon
+              const active = pathname.startsWith(link.href)
 
-            // Only the "Profile" link's href and disabled state depend on
-            // the session, so it's the only one that needs to read
-            // `userPromise` - Library and Discover render immediately.
-            if (link.requiresAuth) {
               return (
-                <Suspense
+                <NavLinkButton
                   key={link.href}
-                  fallback={
-                    <NavLinkButton href={link.href} label={link.label} icon={Icon} active={active} disabled />
-                  }
-                >
-                  <ProfileNavLink
-                    href={link.href}
-                    label={link.label}
-                    icon={Icon}
-                    active={active}
-                    userPromise={userPromise}
-                  />
-                </Suspense>
+                  href={link.href}
+                  label={link.label}
+                  icon={Icon}
+                  active={active}
+                  disabled={false}
+                />
               )
-            }
+            })}
+          </nav>
 
-            return (
-              <NavLinkButton
-                key={link.href}
-                href={link.href}
-                label={link.label}
-                icon={Icon}
-                active={active}
-                disabled={false}
-              />
-            )
-          })}
-        </nav>
+          <HeaderSearch />
+        </div>
 
         <Suspense fallback={<AccountSlotSkeleton />}>
           <AccountSlot userPromise={userPromise} />
         </Suspense>
       </div>
     </header>
-  )
-}
-
-type ProfileNavLinkProps = {
-  href: string
-  label: string
-  icon: typeof LibraryIcon
-  active: boolean
-  userPromise: Promise<AppHeaderUser | null>
-}
-
-function ProfileNavLink({ href, label, icon: Icon, active, userPromise }: ProfileNavLinkProps) {
-  const user = use(userPromise)
-  const resolvedHref = user?.username ? `/profile/${user.username}` : href
-
-  return (
-    <NavLinkButton href={resolvedHref} label={label} icon={Icon} active={active} disabled={!user} />
   )
 }
 

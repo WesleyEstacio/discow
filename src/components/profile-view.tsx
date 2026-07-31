@@ -147,7 +147,7 @@ export function ProfileView({
           </EmptyHeader>
           {isOwnProfile ? (
             <EmptyContent>
-              <Button render={<Link href="/search" />} nativeButton={false}>
+              <Button render={<Link href="/library" />} nativeButton={false}>
                 Search albums
               </Button>
             </EmptyContent>

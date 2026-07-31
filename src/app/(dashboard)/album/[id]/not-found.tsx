@@ -8,8 +8,8 @@ export default function AlbumNotFound() {
       <p className="text-muted-foreground">
         This album could not be loaded from Spotify.
       </p>
-      <Button render={<Link href="/search" />} nativeButton={false}>
-        Back to search
+      <Button render={<Link href="/library" />} nativeButton={false}>
+        Back to library
       </Button>
     </main>
   )

@@ -21,6 +21,13 @@ export type ArtistSummary = {
   genres: string[]
 }
 
+export type UserSummary = {
+  id: string
+  name: string | null
+  username: string
+  image: string | null
+}
+
 export type RecommendMode = "genre" | "artist" | "surprise"
 
 export type RecommendRequest = {

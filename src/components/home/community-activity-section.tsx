@@ -62,10 +62,13 @@ async function CommunityActivityList() {
       className={cn(
         // Below `sm`, this is a horizontally swiping slider (most recent
         // activity first) instead of a stacked column, since these cards are
-        // dense enough that one per row wastes a lot of vertical space.
-        "-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-1",
+        // dense enough that one per row wastes a lot of vertical space. No
+        // negative-margin bleed here - it stays inside the page's own
+        // padding, same as every other section, so the first card doesn't
+        // end up flush against the screen edge.
+        "flex snap-x snap-mandatory gap-4 overflow-x-auto pb-1",
         SCROLLBAR_HIDDEN_CLASS_NAME,
-        "sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3"
+        "sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-3"
       )}
     >
       {activity.map((item) => (
@@ -153,8 +156,8 @@ export function CommunityActivityListSkeleton() {
   return (
     <div
       className={cn(
-        "-mx-4 flex gap-4 overflow-x-hidden px-4 pb-1",
-        "sm:mx-0 sm:grid sm:grid-cols-2 sm:px-0 sm:pb-0 lg:grid-cols-3"
+        "flex gap-4 overflow-x-hidden pb-1",
+        "sm:grid sm:grid-cols-2 sm:pb-0 lg:grid-cols-3"
       )}
     >
       {Array.from({ length: COMMUNITY_ACTIVITY_LIMIT }).map((_, index) => (
