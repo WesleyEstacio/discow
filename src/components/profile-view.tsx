@@ -3,8 +3,16 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Disc3Icon, StarIcon, type LucideIcon } from "lucide-react"
+import {
+  Disc3Icon,
+  StarIcon,
+  UserCheckIcon,
+  UsersIcon,
+  type LucideIcon,
+} from "lucide-react"
 import { AlbumCard } from "@/components/album-card"
+import { FollowButton } from "@/components/follow-button"
+import { FollowListDialog } from "@/components/follow-list-dialog"
 import { ProfileEditDialog } from "@/components/profile-edit-dialog"
 import { StarRatingDisplay } from "@/components/star-rating-display"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -19,39 +27,62 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getMoreFollowersAction, getMoreFollowingAction } from "@/lib/follow-actions"
 import { formatRating } from "@/lib/format"
+import type { FollowCounts } from "@/lib/follows"
+import { resolveDisplayTag } from "@/lib/tag-utils"
 import type { ProfileTag } from "@/lib/tags"
-import type { Review } from "@/lib/types"
+import type { Review, UserSummary } from "@/lib/types"
 
 type ProfileUser = {
+  id: string
   name?: string | null
   image?: string | null
   username?: string | null
+  bio?: string | null
 }
 
 type ProfileViewProps = {
   user: ProfileUser
   reviews: Review[]
-  // Rule-based badges (join year, "first users", ...) - see src/lib/tags.ts.
-  // Optional so existing call sites don't have to be updated all at once.
-  tags?: ProfileTag[]
+  // The single tag shown next to the name, already resolved server-side
+  // (defaulted to "joined-<year>" if the user hasn't picked one - see
+  // resolveDisplayTag in src/lib/tag-utils.ts).
+  displayTag?: ProfileTag | null
+  // Every tag the user has actually earned - only used to offer choices in
+  // the edit dialog on their own profile.
+  availableTags?: ProfileTag[]
   // Controls whether self-service CTAs (edit profile) are shown. Defaults to
   // true so the existing "my own profile" call site keeps working unchanged.
   isOwnProfile?: boolean
+  followCounts: FollowCounts
+  followers: UserSummary[]
+  following: UserSummary[]
+  // Whether the signed-in visitor already follows this profile - irrelevant
+  // (and unused) when isOwnProfile is true.
+  viewerIsFollowing?: boolean
 }
 
 export function ProfileView({
   user,
   reviews,
-  tags = [],
+  displayTag = null,
+  availableTags = [],
   isOwnProfile = true,
+  followCounts,
+  followers,
+  following,
+  viewerIsFollowing = false,
 }: ProfileViewProps) {
   const router = useRouter()
   const [profile, setProfile] = useState({
     name: user.name ?? null,
     username: user.username ?? null,
     image: user.image ?? null,
+    bio: user.bio ?? null,
   })
+  const [tag, setTag] = useState(displayTag)
+  const [followerCount, setFollowerCount] = useState(followCounts.followers)
 
   const average =
     reviews.length > 0
@@ -61,8 +92,20 @@ export function ProfileView({
   const displayName = profile.name ?? profile.username ?? "Discows listener"
   const initials = displayName.slice(0, 2).toUpperCase()
 
-  function handleProfileUpdated(patch: { name?: string; username?: string }) {
-    setProfile((current) => ({ ...current, ...patch }))
+  function handleProfileUpdated(patch: {
+    name?: string
+    username?: string
+    bio?: string
+    displayTagKey?: string | null
+  }) {
+    setProfile((current) => ({
+      ...current,
+      ...patch,
+      bio: patch.bio !== undefined ? patch.bio || null : current.bio,
+    }))
+    if (patch.displayTagKey !== undefined) {
+      setTag(resolveDisplayTag(availableTags, patch.displayTagKey))
+    }
     // The URL for this page is /profile/[username], so renaming needs to
     // update it too - otherwise refreshing the page would 404 on the old one.
     if (patch.username && patch.username !== user.username) {
@@ -70,64 +113,114 @@ export function ProfileView({
     }
   }
 
+  function handleFollowerCountChange(delta: 1 | -1) {
+    setFollowerCount((current) => Math.max(0, current + delta))
+  }
+
   return (
     <div className="flex flex-col gap-5">
-      {/* Identity: everything you need at a glance - avatar, @handle, tags,
-          and the edit action - no banner, no photography required. */}
-      <section className="flex flex-row items-center justify-between gap-4">
-        <div className="flex min-w-0 items-center gap-4 sm:gap-5">
-          {/* A gradient ring stands in for the banner as the bit of visual
-              flair here, instead of relying on a user-uploaded photo. */}
-          <div className="rounded-full bg-gradient-to-br from-primary via-primary/60 to-primary/20 p-[3px] shadow-lg shadow-primary/10">
-            <Avatar className="size-20 ring-4 ring-background sm:size-24">
-              {profile.image ? (
-                <AvatarImage src={profile.image} alt={displayName} />
+      {/* Identity: photo, name, username, bio, and the edit/follow action -
+          Instagram-style, but tuned for a listener profile instead of posts. */}
+      <section className="flex flex-col gap-4">
+        <div className="flex flex-row items-start justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+            {/* A gradient ring stands in for the banner as the bit of visual
+                flair here, instead of relying on a user-uploaded photo. */}
+            <div className="rounded-full bg-gradient-to-br from-primary via-primary/60 to-primary/20 p-[3px] shadow-lg shadow-primary/10">
+              <Avatar className="size-20 ring-4 ring-background sm:size-24">
+                {profile.image ? (
+                  <AvatarImage src={profile.image} alt={displayName} />
+                ) : null}
+                <AvatarFallback className="text-2xl sm:text-3xl">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="font-heading text-xl tracking-tight sm:text-2xl">
+                {profile.username ? `@${profile.username}` : displayName}
+              </span>
+              {profile.username && profile.name ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm text-muted-foreground sm:text-base">
+                    {profile.name}
+                  </span>
+                  {tag ? (
+                    <Badge variant="secondary" className="font-normal text-muted-foreground">
+                      {tag.label}
+                    </Badge>
+                  ) : null}
+                </div>
+              ) : tag ? (
+                <Badge variant="secondary" className="w-fit font-normal text-muted-foreground">
+                  {tag.label}
+                </Badge>
               ) : null}
-              <AvatarFallback className="text-2xl sm:text-3xl">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
+
+              {/* Instagram-style counts: just the number and the label, a
+                  small icon alongside instead of a big card. */}
+              <div className="mt-1 flex flex-wrap items-center gap-x-5 gap-y-1.5">
+                <StatInline icon={Disc3Icon} value={String(reviews.length)} label="Albums" />
+                <StatInline
+                  icon={StarIcon}
+                  value={reviews.length ? formatRating(average) : "—"}
+                  label="Avg rating"
+                />
+                <FollowListDialog
+                  title="Followers"
+                  users={followers}
+                  loadMore={(offset) => getMoreFollowersAction(user.id, offset)}
+                  emptyMessage={
+                    isOwnProfile ? "No followers yet." : `${displayName} has no followers yet.`
+                  }
+                >
+                  <StatInline icon={UsersIcon} value={String(followerCount)} label="Followers" />
+                </FollowListDialog>
+                <FollowListDialog
+                  title="Following"
+                  users={following}
+                  loadMore={(offset) => getMoreFollowingAction(user.id, offset)}
+                  emptyMessage={
+                    isOwnProfile
+                      ? "You aren't following anyone yet."
+                      : `${displayName} isn't following anyone yet.`
+                  }
+                >
+                  <StatInline
+                    icon={UserCheckIcon}
+                    value={String(followCounts.following)}
+                    label="Following"
+                  />
+                </FollowListDialog>
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <span className="font-heading text-xl tracking-tight sm:text-2xl">
-              {profile.username ? `@${profile.username}` : displayName}
-            </span>
-            {tags.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
-                {tags.map((tag) => (
-                  <Badge
-                    key={tag.id}
-                    variant="secondary"
-                    className="font-normal text-muted-foreground"
-                  >
-                    {tag.label}
-                  </Badge>
-                ))}
-              </div>
-            ) : null}
-          </div>
+          {isOwnProfile ? (
+            <ProfileEditDialog
+              name={profile.name}
+              username={profile.username}
+              bio={profile.bio}
+              availableTags={availableTags}
+              selectedTagId={tag?.id ?? null}
+              onUpdated={handleProfileUpdated}
+            />
+          ) : (
+            <FollowButton
+              targetUserId={user.id}
+              initialFollowing={viewerIsFollowing}
+              onFollowerCountChange={handleFollowerCountChange}
+            />
+          )}
         </div>
 
-        {isOwnProfile ? (
-          <ProfileEditDialog
-            name={profile.name}
-            username={profile.username}
-            onUpdated={handleProfileUpdated}
-          />
+        {profile.bio ? (
+          <p className="max-w-prose text-sm whitespace-pre-line text-muted-foreground italic sm:text-base">
+            {profile.bio}
+          </p>
         ) : null}
       </section>
-
-      {/* Stats get real visual weight here - this is the info that matters
-          most about a listener. */}
-      <div className="grid grid-cols-2 gap-4 sm:max-w-sm">
-        <StatCard icon={Disc3Icon} value={String(reviews.length)} label="Albums" />
-        <StatCard
-          icon={StarIcon}
-          value={reviews.length ? formatRating(average) : "—"}
-          label="Avg rating"
-        />
-      </div>
 
       {/* Albums: the main event. */}
       {reviews.length === 0 ? (
@@ -222,24 +315,20 @@ export function ProfileView({
   )
 }
 
-type StatCardProps = {
+type StatInlineProps = {
   icon: LucideIcon
   value: string
   label: string
 }
 
-function StatCard({ icon: Icon, value, label }: StatCardProps) {
+// Just the number and the label, Instagram-style - a small icon alongside
+// instead of the boxed card this used to be.
+function StatInline({ icon: Icon, value, label }: StatInlineProps) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border bg-card p-4 text-card-foreground shadow-sm">
-      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <Icon className="size-5" />
-      </div>
-      <div className="flex min-w-0 flex-col leading-tight">
-        <span className="truncate font-heading text-2xl font-bold tracking-tight">
-          {value}
-        </span>
-        <span className="truncate text-xs text-muted-foreground">{label}</span>
-      </div>
-    </div>
+    <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm">
+      <Icon className="size-3.5 shrink-0 text-muted-foreground" />
+      <span className="font-heading font-bold tracking-tight">{value}</span>
+      <span className="text-muted-foreground">{label}</span>
+    </span>
   )
 }

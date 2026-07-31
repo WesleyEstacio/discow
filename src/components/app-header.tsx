@@ -27,10 +27,8 @@ import { SignInButton } from "@/components/sign-in-button"
 import { signOutUser } from "@/lib/auth-actions"
 import { cn } from "@/lib/utils"
 
-// "Profile" used to live here as a third nav link; it's now folded into the
-// account avatar menu below, and this slot is the search bar instead (see
-// HeaderSearch).
-const links = [{ href: "/library", label: "Library", icon: LibraryIcon }]
+const libraryLink = { href: "/library", label: "Library", icon: LibraryIcon }
+const profileLink = { href: "/profile", label: "Profile", icon: UserIcon, requiresAuth: true }
 
 export type AppHeaderUser = {
   name?: string | null
@@ -61,27 +59,41 @@ export function AppHeader({ userPromise }: AppHeaderProps) {
 
         {/* Nav links and search are grouped as one unit so they move as a
             block and keep their own spacing, instead of each being spread
-            out independently by justify-between. */}
+            out independently by justify-between. Order is deliberately
+            Library, Search, Profile. */}
         <div className="flex items-center gap-1">
-          <nav className="flex items-center gap-1">
-            {links.map((link) => {
-              const Icon = link.icon
-              const active = pathname.startsWith(link.href)
-
-              return (
-                <NavLinkButton
-                  key={link.href}
-                  href={link.href}
-                  label={link.label}
-                  icon={Icon}
-                  active={active}
-                  disabled={false}
-                />
-              )
-            })}
-          </nav>
+          <NavLinkButton
+            href={libraryLink.href}
+            label={libraryLink.label}
+            icon={libraryLink.icon}
+            active={pathname.startsWith(libraryLink.href)}
+            disabled={false}
+          />
 
           <HeaderSearch />
+
+          {/* Only the "Profile" link's href and disabled state depend on the
+              session, so it's the only one that needs to read `userPromise` -
+              Library renders immediately. */}
+          <Suspense
+            fallback={
+              <NavLinkButton
+                href={profileLink.href}
+                label={profileLink.label}
+                icon={profileLink.icon}
+                active={pathname.startsWith(profileLink.href)}
+                disabled
+              />
+            }
+          >
+            <ProfileNavLink
+              href={profileLink.href}
+              label={profileLink.label}
+              icon={profileLink.icon}
+              active={pathname.startsWith(profileLink.href)}
+              userPromise={userPromise}
+            />
+          </Suspense>
         </div>
 
         <Suspense fallback={<AccountSlotSkeleton />}>
@@ -89,6 +101,23 @@ export function AppHeader({ userPromise }: AppHeaderProps) {
         </Suspense>
       </div>
     </header>
+  )
+}
+
+type ProfileNavLinkProps = {
+  href: string
+  label: string
+  icon: typeof LibraryIcon
+  active: boolean
+  userPromise: Promise<AppHeaderUser | null>
+}
+
+function ProfileNavLink({ href, label, icon: Icon, active, userPromise }: ProfileNavLinkProps) {
+  const user = use(userPromise)
+  const resolvedHref = user?.username ? `/profile/${user.username}` : href
+
+  return (
+    <NavLinkButton href={resolvedHref} label={label} icon={Icon} active={active} disabled={!user} />
   )
 }
 

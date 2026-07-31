@@ -24,6 +24,15 @@ export const users = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: timestamp("email_verified", { mode: "date" }),
   image: text("image"),
+  // Short free-text blurb shown on the public profile (see
+  // src/components/profile-view.tsx). Nullable - most accounts won't set one.
+  bio: text("bio"),
+  // Which of the user's earned tags (see user_tag / src/lib/tags.ts) to show
+  // next to their name. Null means "use the default" (the joined-<year>
+  // tag) - see resolveDisplayTag() in src/lib/tags.ts. Not a foreign key
+  // since user_tag's key isn't unique on its own (it's per-user), so this is
+  // validated against the user's actual tags in updateProfileAction instead.
+  displayTagKey: text("display_tag_key"),
   // Backs the "Joined in <year>" profile tag (see src/lib/tags.ts). Existing
   // rows get backfilled to the migration's run date, so pre-launch accounts
   // are all treated as one early cohort.
@@ -115,6 +124,26 @@ export const userTags = pgTable(
   },
   (userTag) => [
     primaryKey({ columns: [userTag.userId, userTag.key] }),
+  ]
+)
+
+// Social graph backing the "Followers"/"Following" counts and Follow button
+// on the profile (see src/lib/follows.ts). A row means followerId follows
+// followingId. (followerId, followingId) as the primary key makes following
+// someone twice a safe no-op instead of a duplicate row.
+export const follows = pgTable(
+  "follow",
+  {
+    followerId: text("follower_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    followingId: text("following_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+  },
+  (follow) => [
+    primaryKey({ columns: [follow.followerId, follow.followingId] }),
   ]
 )
 

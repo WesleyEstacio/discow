@@ -11,6 +11,8 @@ export type PublicUser = {
   name: string | null
   username: string
   image: string | null
+  bio: string | null
+  displayTagKey: string | null
   createdAt: Date
 }
 
@@ -30,6 +32,8 @@ export const getUserByUsername = cache(
       name: row.name,
       username: row.username,
       image: row.image,
+      bio: row.bio,
+      displayTagKey: row.displayTagKey,
       createdAt: row.createdAt,
     }
   }

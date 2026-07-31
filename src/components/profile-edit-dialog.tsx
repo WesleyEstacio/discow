@@ -12,16 +12,39 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/toast"
 import { cn } from "@/lib/utils"
 import { updateProfileAction } from "@/lib/profile-actions"
+import type { ProfileTag } from "@/lib/tags"
+
+const MAX_BIO_LENGTH = 160
 
 export type ProfileEditDialogProps = {
   name: string | null
   username: string | null
-  onUpdated: (patch: { name?: string; username?: string }) => void
+  bio?: string | null
+  // Tags the user has actually earned - the tag picker below never offers
+  // anything outside this list. See resolveDisplayTag() in src/lib/tags.ts.
+  availableTags?: ProfileTag[]
+  // The tag currently shown on the profile (already resolved to a default
+  // if the user hasn't picked one) - preselects the picker.
+  selectedTagId?: string | null
+  onUpdated: (patch: {
+    name?: string
+    username?: string
+    bio?: string
+    displayTagKey?: string | null
+  }) => void
   // Lets call sites fit the trigger button into different layouts (e.g. full
   // width in the profile sidebar) without hardcoding that here.
   triggerClassName?: string
@@ -30,12 +53,17 @@ export type ProfileEditDialogProps = {
 export function ProfileEditDialog({
   name,
   username,
+  bio,
+  availableTags = [],
+  selectedTagId = null,
   onUpdated,
   triggerClassName,
 }: ProfileEditDialogProps) {
   const [open, setOpen] = useState(false)
   const [nameInput, setNameInput] = useState(name ?? "")
   const [usernameInput, setUsernameInput] = useState(username ?? "")
+  const [bioInput, setBioInput] = useState(bio ?? "")
+  const [tagInput, setTagInput] = useState(selectedTagId)
   const [isSaving, startSaving] = useTransition()
 
   function handleOpenChange(nextOpen: boolean) {
@@ -45,12 +73,15 @@ export function ProfileEditDialog({
       // Reset the form to the latest saved values every time it's reopened.
       setNameInput(name ?? "")
       setUsernameInput(username ?? "")
+      setBioInput(bio ?? "")
+      setTagInput(selectedTagId)
     }
   }
 
   function handleSave() {
     const trimmedName = nameInput.trim()
     const trimmedUsername = usernameInput.trim()
+    const trimmedBio = bioInput.trim()
 
     if (!trimmedName) {
       toast.add({
@@ -66,11 +97,20 @@ export function ProfileEditDialog({
       })
       return
     }
+    if (trimmedBio.length > MAX_BIO_LENGTH) {
+      toast.add({
+        title: `Bio must be ${MAX_BIO_LENGTH} characters or fewer`,
+        type: "error",
+      })
+      return
+    }
 
     startSaving(async () => {
       const result = await updateProfileAction({
         name: trimmedName,
         username: trimmedUsername,
+        bio: trimmedBio,
+        displayTagKey: tagInput,
       })
 
       if (!result.success) {
@@ -82,7 +122,12 @@ export function ProfileEditDialog({
         return
       }
 
-      onUpdated({ name: trimmedName, username: trimmedUsername.toLowerCase() })
+      onUpdated({
+        name: trimmedName,
+        username: trimmedUsername.toLowerCase(),
+        bio: trimmedBio,
+        displayTagKey: tagInput,
+      })
       toast.add({ title: "Profile updated", type: "success" })
       setOpen(false)
     })
@@ -147,6 +192,50 @@ export function ProfileEditDialog({
               disabled={isSaving}
             />
           </Field>
+
+          <Field>
+            <FieldLabel htmlFor="profile-bio">Bio</FieldLabel>
+            <Textarea
+              id="profile-bio"
+              value={bioInput}
+              onChange={(event) => setBioInput(event.target.value)}
+              maxLength={MAX_BIO_LENGTH}
+              placeholder="Tell people what you're into."
+              disabled={isSaving}
+            />
+            <FieldDescription>
+              {bioInput.length}/{MAX_BIO_LENGTH}
+            </FieldDescription>
+          </Field>
+
+          {availableTags.length > 0 ? (
+            <Field>
+              <FieldLabel htmlFor="profile-tag">Tag</FieldLabel>
+              <Select
+                value={tagInput}
+                onValueChange={(value) => setTagInput(value)}
+                disabled={isSaving}
+              >
+                <SelectTrigger id="profile-tag" className="w-full">
+                  <SelectValue placeholder="Choose a tag">
+                    {(value: string | null) =>
+                      availableTags.find((tag) => tag.id === value)?.label ?? "Choose a tag"
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent alignItemWithTrigger={false}>
+                  {availableTags.map((tag) => (
+                    <SelectItem key={tag.id} value={tag.id}>
+                      {tag.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FieldDescription>
+                Shown next to your name. Defaults to when you joined.
+              </FieldDescription>
+            </Field>
+          ) : null}
         </FieldGroup>
 
         <DialogFooter>
