@@ -20,13 +20,25 @@ function dedupeAlbumsById(albums: AlbumSummary[]): AlbumSummary[] {
   })
 }
 
-export async function getNewReleases(limit = 6): Promise<AlbumSummary[]> {
+async function getNewReleasesUncached(limit = 6): Promise<AlbumSummary[]> {
   const albums = await searchAlbums("tag:new")
 
   return dedupeAlbumsById(albums)
     .sort((a, b) => b.releaseDate.localeCompare(a.releaseDate))
     .slice(0, limit)
 }
+
+// Shared across every visitor via Next's Data Cache - the first person to
+// load the library page each cycle pays for the Spotify call, everyone else
+// within the window gets it instantly from cache. Revalidates every 4 hours
+// so "new this week" stays current without hitting Spotify on every request.
+const NEW_RELEASES_REVALIDATE_SECONDS = 60 * 60 * 4
+
+export const getNewReleases = unstable_cache(
+  getNewReleasesUncached,
+  ["home-new-releases"],
+  { revalidate: NEW_RELEASES_REVALIDATE_SECONDS, tags: ["new-releases"] }
+)
 
 // Spotify removed the album `popularity` field in Feb 2026, so there is no
 // Spotify-side signal left to build a "popular" chart from. Instead, this

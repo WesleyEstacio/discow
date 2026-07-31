@@ -5,7 +5,6 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
 import {
-  CompassIcon,
   LibraryIcon,
   LogOutIcon,
   SunMoonIcon,
@@ -31,10 +30,7 @@ import { cn } from "@/lib/utils"
 // "Profile" used to live here as a third nav link; it's now folded into the
 // account avatar menu below, and this slot is the search bar instead (see
 // HeaderSearch).
-const links = [
-  { href: "/library", label: "Library", icon: LibraryIcon },
-  { href: "/discover", label: "Discover", icon: CompassIcon },
-]
+const links = [{ href: "/library", label: "Library", icon: LibraryIcon }]
 
 export type AppHeaderUser = {
   name?: string | null

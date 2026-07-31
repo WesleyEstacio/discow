@@ -8,7 +8,7 @@ import { SearchModal } from "@/components/search-modal"
 /**
  * Header search trigger, in the slot the "Profile" link used to occupy
  * (profile is still reachable from the account avatar menu). Styled and
- * rendered exactly like the Library/Discover nav buttons (see
+ * rendered exactly like the Library nav button (see
  * `NavLinkButton` in app-header.tsx) - icon-only on mobile, icon+label from
  * `sm` up - instead of looking like a search field. Clicking it opens the
  * shared `SearchModal`, same as the library hero trigger.

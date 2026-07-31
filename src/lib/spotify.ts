@@ -130,7 +130,7 @@ function mapTracks(album: SpotifyAlbumRaw): Track[] {
 }
 
 // Spotify currently rejects /search with limit > 10 (docs still say 50).
-const SEARCH_LIMIT_MAX = 10
+export const SEARCH_LIMIT_MAX = 10
 
 type SpotifyArtistRaw = {
   id: string
@@ -141,7 +141,8 @@ type SpotifyArtistRaw = {
 
 export async function searchAlbums(
   query: string,
-  limit = SEARCH_LIMIT_MAX
+  limit = SEARCH_LIMIT_MAX,
+  offset = 0
 ): Promise<AlbumSummary[]> {
   const trimmed = query.trim()
   if (!trimmed) return []
@@ -150,6 +151,7 @@ export async function searchAlbums(
     q: trimmed,
     type: "album",
     limit: String(Math.min(Math.max(limit, 1), SEARCH_LIMIT_MAX)),
+    offset: String(Math.max(offset, 0)),
   })
 
   const data = await spotifyFetch<{

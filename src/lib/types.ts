@@ -28,24 +28,6 @@ export type UserSummary = {
   image: string | null
 }
 
-export type RecommendMode = "genre" | "artist" | "surprise"
-
-export type RecommendRequest = {
-  mode: RecommendMode
-  genre?: string
-  artist?: string
-  yearFrom?: number
-  yearTo?: number
-  excludeIds?: string[]
-  seedArtists?: string[]
-  seedYears?: number[]
-}
-
-export type RecommendResponse = {
-  albums: AlbumSummary[]
-  reason: string
-}
-
 export type Track = {
   id: string
   name: string
