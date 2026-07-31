@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Disc3Icon } from "lucide-react"
 import { StarRatingDisplay } from "@/components/star-rating-display"
 import { Badge } from "@/components/ui/badge"
-import { formatRating, formatReleaseYear } from "@/lib/format"
+import { formatRating, formatReleaseYear, formatTrackCount } from "@/lib/format"
 import type { AlbumSummary } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -11,9 +11,15 @@ type AlbumCardProps = {
   album: AlbumSummary
   rating?: number | null
   className?: string
+  badge?: "year" | "tracks"
 }
 
-export function AlbumCard({ album, rating, className }: AlbumCardProps) {
+export function AlbumCard({
+  album,
+  rating,
+  className,
+  badge = "year",
+}: AlbumCardProps) {
   return (
     <Link
       href={`/album/${album.id}`}
@@ -43,7 +49,11 @@ export function AlbumCard({ album, rating, className }: AlbumCardProps) {
           {album.artists.join(", ")}
         </p>
         <div className="flex items-center gap-2 pt-0.5">
-          <Badge variant="secondary">{formatReleaseYear(album.releaseDate)}</Badge>
+          <Badge variant="secondary">
+            {badge === "tracks"
+              ? formatTrackCount(album.totalTracks)
+              : formatReleaseYear(album.releaseDate)}
+          </Badge>
           {typeof rating === "number" ? (
             <div className="flex items-center gap-1.5">
               <StarRatingDisplay value={rating} size="sm" />

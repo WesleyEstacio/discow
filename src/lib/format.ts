@@ -9,6 +9,10 @@ export function formatReleaseYear(releaseDate: string) {
   return releaseDate.slice(0, 4)
 }
 
+export function formatTrackCount(totalTracks: number) {
+  return `${totalTracks} ${totalTracks === 1 ? "track" : "tracks"}`
+}
+
 export function formatRating(rating: number) {
   return rating % 1 === 0 ? rating.toFixed(0) : rating.toFixed(1)
 }
