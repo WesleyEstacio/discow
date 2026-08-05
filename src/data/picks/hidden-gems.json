@@ -1,0 +1,249 @@
+{
+  "id": "hidden-gems",
+  "title": "Hidden Gems",
+  "description": "Extraordinary albums that never reached the audience they deserved.",
+  "createdBy": "Discows",
+  "cover": null,
+  "albums": [
+    {
+      "title": "Laughing Stock",
+      "artist": "Talk Talk",
+      "releaseDate": "1991-09-16",
+      "genres": ["Post-Rock", "Art Rock"],
+      "id": "7vqMpYHIqqWQQc0IVR03ue",
+      "cover": "hidden-gems-covers/7vqMpYHIqqWQQc0IVR03ue.jpg"
+    },
+    {
+      "title": "Spiderland",
+      "artist": "Slint",
+      "releaseDate": "1991-03-27",
+      "genres": ["Post-Rock", "Math Rock"],
+      "id": "2NnkLRaeX33d1Mn8ZLgTo8",
+      "cover": "hidden-gems-covers/2NnkLRaeX33d1Mn8ZLgTo8.jpg"
+    },
+    {
+      "title": "Hex",
+      "artist": "Bark Psychosis",
+      "releaseDate": "1994-02-14",
+      "genres": ["Post-Rock", "Ambient"],
+      "id": "7j98uMKCZuBQU1SPcrQAxP",
+      "cover": "hidden-gems-covers/7j98uMKCZuBQU1SPcrQAxP.jpg"
+    },
+    {
+      "title": "Marquee Moon",
+      "artist": "Television",
+      "releaseDate": "1977-02-08",
+      "genres": ["Art Rock", "Punk Rock"],
+      "id": "630o1rKTDsLeIPreOY1jqP",
+      "cover": "hidden-gems-covers/630o1rKTDsLeIPreOY1jqP.jpg"
+    },
+    {
+      "title": "#1 Record",
+      "artist": "Big Star",
+      "releaseDate": "1972-08-24",
+      "genres": ["Power Pop", "Rock"],
+      "id": "1BumwwIEw1EC3xAHyf1ive",
+      "cover": "hidden-gems-covers/1BumwwIEw1EC3xAHyf1ive.jpg"
+    },
+    {
+      "title": "Scott 4",
+      "artist": "Scott Walker",
+      "releaseDate": "1969-11-01",
+      "genres": ["Baroque Pop", "Art Pop"],
+      "id": "7uU2qrFZQSdQacicLXMnaJ",
+      "cover": "hidden-gems-covers/7uU2qrFZQSdQacicLXMnaJ.jpg"
+    },
+    {
+      "title": "Judee Sill",
+      "artist": "Judee Sill",
+      "releaseDate": "1971-09-15",
+      "genres": ["Folk", "Singer-Songwriter"],
+      "id": "2zaIMRTlztlfkxLoo5nPtf",
+      "cover": "hidden-gems-covers/2zaIMRTlztlfkxLoo5nPtf.jpg"
+    },
+    {
+      "title": "World of Echo",
+      "artist": "Arthur Russell",
+      "releaseDate": "1986-01-01",
+      "genres": ["Experimental", "Ambient"],
+      "id": "7hodLjVNQZSsNEqvG77ZkI",
+      "cover": "hidden-gems-covers/7hodLjVNQZSsNEqvG77ZkI.jpg"
+    },
+    {
+      "title": "Future Days",
+      "artist": "Can",
+      "releaseDate": "1973-08-01",
+      "genres": ["Krautrock", "Experimental Rock"],
+      "id": "75o5qK7yKZIGyPDa7bWOPn",
+      "cover": "hidden-gems-covers/75o5qK7yKZIGyPDa7bWOPn.jpg"
+    },
+    {
+      "title": "Neu! '75",
+      "artist": "Neu!",
+      "releaseDate": "1975-01-01",
+      "genres": ["Krautrock", "Experimental Rock"],
+      "id": "5jFhHUqOLlGag9HlhmlDVC",
+      "cover": "hidden-gems-covers/5jFhHUqOLlGag9HlhmlDVC.jpg"
+    },
+    {
+      "title": "LONG SEASON",
+      "artist": "Fishmans",
+      "releaseDate": "1996-10-25",
+      "genres": ["Dream Pop", "Dub", "Psychedelic Rock"],
+      "id": "4EX1fAypgQC9wDjGI5QzbZ",
+      "cover": "hidden-gems-covers/4EX1fAypgQC9wDjGI5QzbZ.jpg"
+    },
+    {
+      "title": "The Moon & Antarctica",
+      "artist": "Modest Mouse",
+      "releaseDate": "2000-06-13",
+      "genres": ["Indie Rock", "Alternative Rock"],
+      "id": "5SbcupirEParczvqqyUPXL",
+      "cover": "hidden-gems-covers/5SbcupirEParczvqqyUPXL.jpg"
+    },
+    {
+      "title": "Leaves Turn Inside You",
+      "artist": "Unwound",
+      "releaseDate": "2001-04-17",
+      "genres": ["Post-Hardcore", "Post-Rock", "Indie Rock"],
+      "id": "6lw4HFj2dgaG98jjSP5zOz",
+      "cover": "hidden-gems-covers/6lw4HFj2dgaG98jjSP5zOz.jpg"
+    },
+    {
+      "title": "Dragging a Dead Deer Up a Hill",
+      "artist": "Grouper",
+      "releaseDate": "2008-07-22",
+      "genres": ["Ambient", "Drone", "Dream Pop"],
+      "id": "0r1ffFQRFvtthTdLV2ZPWL",
+      "cover": "hidden-gems-covers/0r1ffFQRFvtthTdLV2ZPWL.jpg"
+    },
+    {
+      "title": "Hats",
+      "artist": "The Blue Nile",
+      "releaseDate": "1989-10-16",
+      "genres": ["Sophisti-Pop", "Art Pop"],
+      "id": "4pLVvQiysxBwbUuSB3ceQv",
+      "cover": "hidden-gems-covers/4pLVvQiysxBwbUuSB3ceQv.jpg"
+    },
+    {
+      "title": "Another Green World",
+      "artist": "Brian Eno",
+      "releaseDate": "1975-09-01",
+      "genres": ["Art Rock", "Ambient"],
+      "id": "6uoeezh45SYEb8lcT8gDTY",
+      "cover": "hidden-gems-covers/6uoeezh45SYEb8lcT8gDTY.jpg"
+    },
+    {
+      "title": "Steve McQueen",
+      "artist": "Prefab Sprout",
+      "releaseDate": "1985-06-14",
+      "genres": ["Sophisti-Pop", "Pop Rock"],
+      "id": "07CZepJZT17AllXPFRvogL",
+      "cover": "hidden-gems-covers/07CZepJZT17AllXPFRvogL.jpg"
+    },
+    {
+      "title": "Things We Lost in the Fire",
+      "artist": "Low",
+      "releaseDate": "2001-01-22",
+      "genres": ["Slowcore", "Indie Rock"],
+      "id": "3YWmAFuOtr9YIDdqJ2Gius",
+      "cover": "hidden-gems-covers/3YWmAFuOtr9YIDdqJ2Gius.jpg"
+    },
+    {
+      "title": "The Glow Pt. 2",
+      "artist": "The Microphones",
+      "releaseDate": "2001-09-11",
+      "genres": ["Indie Folk", "Lo-Fi"],
+      "id": "6QYoRO2sXThCORAifrP4Bl",
+      "cover": "hidden-gems-covers/6QYoRO2sXThCORAifrP4Bl.jpg"
+    },
+    {
+      "title": "Solid Air",
+      "artist": "John Martyn",
+      "releaseDate": "1973-02-01",
+      "genres": ["Folk", "Jazz Folk"],
+      "id": "0QD0LEYQDkrJrtVcuRBcVp",
+      "cover": "hidden-gems-covers/0QD0LEYQDkrJrtVcuRBcVp.jpg"
+    },
+    {
+      "title": "Transaction de Novo",
+      "artist": "Bedhead",
+      "releaseDate": "1998-02-10",
+      "genres": ["Slowcore", "Indie Rock"],
+      "id": "6TomtoJpy9ssK2hsOBCj1f",
+      "cover": "hidden-gems-covers/6TomtoJpy9ssK2hsOBCj1f.jpg"
+    },
+    {
+      "title": "The Return of the Durutti Column",
+      "artist": "The Durutti Column",
+      "releaseDate": "1980-01-01",
+      "genres": ["Post-Punk", "Ambient"],
+      "id": "6ANCHHVpcvjCqQFUDUvDOW",
+      "cover": "hidden-gems-covers/6ANCHHVpcvjCqQFUDUvDOW.jpg"
+    },
+    {
+      "title": "Have You in My Wilderness",
+      "artist": "Julia Holter",
+      "releaseDate": "2015-09-25",
+      "genres": ["Art Pop", "Chamber Pop"],
+      "id": "0EiGGBzF9wzJn2X8F0Yvjh",
+      "cover": "hidden-gems-covers/0EiGGBzF9wzJn2X8F0Yvjh.jpg"
+    },
+    {
+      "title": "Ghost Tropic",
+      "artist": "Songs: Ohia",
+      "releaseDate": "2000-06-27",
+      "genres": ["Slowcore", "Alt-Country", "Indie Folk"],
+      "id": "3ioc6PkjHjAZ6p4mlIPw7T",
+      "cover": "hidden-gems-covers/3ioc6PkjHjAZ6p4mlIPw7T.jpg"
+    },
+    {
+      "title": "Deserter's Songs",
+      "artist": "Mercury Rev",
+      "releaseDate": "1998-09-29",
+      "genres": ["Neo-Psychedelia", "Dream Pop", "Chamber Pop"],
+      "id": "6MvMOhNSo3bYEu42Wj9c4e",
+      "cover": "hidden-gems-covers/6MvMOhNSo3bYEu42Wj9c4e.jpg"
+    },
+    {
+      "title": "Pink Flag",
+      "artist": "Wire",
+      "releaseDate": "1977-11-01",
+      "genres": ["Post-Punk", "Punk Rock"],
+      "id": "4WXqZZ28geJSPtqLcCF56L",
+      "cover": "hidden-gems-covers/4WXqZZ28geJSPtqLcCF56L.jpg"
+    },
+    {
+      "title": "Entertainment!",
+      "artist": "Gang of Four",
+      "releaseDate": "1979-09-25",
+      "genres": ["Post-Punk", "Funk Rock"],
+      "id": "1UMvR1rwj9EzLnbj4L6Zoy",
+      "cover": "hidden-gems-covers/1UMvR1rwj9EzLnbj4L6Zoy.jpg"
+    },
+    {
+      "title": "The Black Saint and the Sinner Lady",
+      "artist": "Charles Mingus",
+      "releaseDate": "1963-07-01",
+      "genres": ["Jazz", "Avant-Garde Jazz"],
+      "id": "6Sts4Yh7KsDFwq2yTWrGGV",
+      "cover": "hidden-gems-covers/6Sts4Yh7KsDFwq2yTWrGGV.jpg"
+    },
+    {
+      "title": "Spirit They're Gone, Spirit They've Vanished",
+      "artist": "Animal Collective",
+      "releaseDate": "2000-08-21",
+      "genres": ["Experimental", "Psychedelic Folk"],
+      "id": "0QJ5hsc4k7nbV1jSFuw0Pk",
+      "cover": "hidden-gems-covers/0QJ5hsc4k7nbV1jSFuw0Pk.jpg"
+    },
+    {
+      "title": "Painful",
+      "artist": "Yo La Tengo",
+      "releaseDate": "1993-12-07",
+      "genres": ["Indie Rock", "Noise Pop", "Dream Pop"],
+      "id": "7a4l81UqmFYs13351IyOSc",
+      "cover": "hidden-gems-covers/7a4l81UqmFYs13351IyOSc.jpg"
+    }
+  ]
+}

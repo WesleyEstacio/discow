@@ -1,4 +1,5 @@
 import firstSteps from "@/data/picks/first-steps.json"
+import hiddenGems from "@/data/picks/hidden-gems.json"
 import type { PickCollection } from "@/lib/types"
 
 type RawPickAlbum = (typeof firstSteps.albums)[number]
@@ -43,6 +44,10 @@ function toPickCollection(raw: RawPickCollection): PickCollection {
 // Static collections curated by the Discows team, shown behind "Discows
 // picks" on the library page. Unlike the rest of that page, this is fully
 // static - the album data and cover images ship in the repo
-// (src/data/picks + public/first-steps-covers) instead of coming from
-// Spotify or the database, so there's nothing to fetch or cache here.
-export const PICKS_COLLECTIONS: PickCollection[] = [toPickCollection(firstSteps)]
+// (src/data/picks + public/first-steps-covers, public/hidden-gems-covers)
+// instead of coming from Spotify or the database, so there's nothing to
+// fetch or cache here.
+export const PICKS_COLLECTIONS: PickCollection[] = [
+  toPickCollection(firstSteps),
+  toPickCollection(hiddenGems),
+]

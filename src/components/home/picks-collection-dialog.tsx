@@ -73,11 +73,13 @@ export function PicksCollectionDialog({ collection }: PicksCollectionDialogProps
 
       <DialogContent
         showCloseButton={false}
-        // A definite height (not just a cap) rather than max-h-[85vh] - the
+        // A definite height (not just a cap) rather than max-h-[70vh] - the
         // List tab's scroll area needs a real, content-independent height
         // to size against (see ListView), and this also keeps the dialog
         // from resizing when switching between the Featured and List tabs.
-        className="flex h-[min(85vh,42rem)] w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl"
+        // Expressed purely as a viewport fraction (no rem cap) so it scales
+        // with the window instead of settling on one fixed pixel size.
+        className="flex h-[70vh] min-h-max w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl"
       >
         <DialogTitle className="sr-only">{collection.title}</DialogTitle>
         <DialogDescription className="sr-only">
@@ -152,7 +154,7 @@ function FeaturedView({ collection }: { collection: PickCollection }) {
   if (!album) return null
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-6 p-4 sm:p-6">
+    <div className="flex min-h-0 flex-1 flex-col justify-between gap-4 p-4 sm:p-6">
       <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start">
           <Link
             href={`/album/${album.id}`}
@@ -208,10 +210,7 @@ function FeaturedView({ collection }: { collection: PickCollection }) {
       </div>
 
       {total > 1 ? (
-        // mt-auto pushes this whole group (prev/next + thumbnails) down to
-        // the bottom of the panel, while the info row above stays put at
-        // the top instead of everything being bottom-anchored together.
-        <div className="mt-auto flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-center gap-2">
             <Button
               type="button"
