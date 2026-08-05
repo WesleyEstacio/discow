@@ -47,3 +47,5 @@ next-env.d.ts
 # committed; delete the file locally once you're done using it
 check_db.mjs
 *.local.mjs
+# scratch folder used when applying agent-authored patches locally
+_to_delete/

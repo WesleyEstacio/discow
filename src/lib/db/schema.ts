@@ -1,6 +1,7 @@
 import type { AdapterAccountType } from "next-auth/adapters"
 import {
   boolean,
+  index,
   integer,
   pgTable,
   primaryKey,
@@ -168,5 +169,43 @@ export const reviews = pgTable(
   },
   (review) => [
     unique("review_user_album_unique").on(review.userId, review.spotifyId),
+  ]
+)
+
+// One row per album Discover has rolled for a signed-in listener (see
+// src/lib/discover-server.ts). Album fields are denormalized straight onto
+// the row - same choice as `review` above - so rendering a listener's
+// Discover history never needs a Spotify lookup, even if the album is later
+// removed from Spotify's catalogue. Guests get the same history, but kept
+// client-side (localStorage, see src/lib/discover.ts) instead of here, since
+// there's no account to key it by.
+export const discoverPicks = pgTable(
+  "discover_pick",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    spotifyId: text("spotify_id").notNull(),
+    albumName: text("album_name").notNull(),
+    artists: text("artists").array().notNull(),
+    imageUrl: text("image_url"),
+    releaseDate: text("release_date"),
+    spotifyUrl: text("spotify_url").notNull(),
+    // What the roll that found this album actually landed on - always the
+    // real album's own genre/decade, not just the filters that were locked
+    // when it was rolled. See rollDiscoverAlbum() in discover-server.ts.
+    genre: text("genre").notNull(),
+    decadeStartYear: integer("decade_start_year").notNull(),
+    artist: text("artist"),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+  },
+  (discoverPick) => [
+    index("discover_pick_user_id_created_at_idx").on(
+      discoverPick.userId,
+      discoverPick.createdAt
+    ),
   ]
 )

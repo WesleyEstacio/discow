@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
 import {
+  CompassIcon,
   LibraryIcon,
   LogOutIcon,
   SunMoonIcon,
@@ -28,6 +29,7 @@ import { signOutUser } from "@/lib/auth-actions"
 import { cn } from "@/lib/utils"
 
 const libraryLink = { href: "/library", label: "Library", icon: LibraryIcon }
+const discoverLink = { href: "/discover", label: "Discover", icon: CompassIcon }
 const profileLink = { href: "/profile", label: "Profile", icon: UserIcon, requiresAuth: true }
 
 export type AppHeaderUser = {
@@ -60,7 +62,7 @@ export function AppHeader({ userPromise }: AppHeaderProps) {
         {/* Nav links and search are grouped as one unit so they move as a
             block and keep their own spacing, instead of each being spread
             out independently by justify-between. Order is deliberately
-            Library, Search, Profile. */}
+            Library, Discover, Search, Profile. */}
         <div className="flex items-center gap-1">
           <NavLinkButton
             href={libraryLink.href}
@@ -70,11 +72,19 @@ export function AppHeader({ userPromise }: AppHeaderProps) {
             disabled={false}
           />
 
+          <NavLinkButton
+            href={discoverLink.href}
+            label={discoverLink.label}
+            icon={discoverLink.icon}
+            active={pathname.startsWith(discoverLink.href)}
+            disabled={false}
+          />
+
           <HeaderSearch />
 
           {/* Only the "Profile" link's href and disabled state depend on the
               session, so it's the only one that needs to read `userPromise` -
-              Library renders immediately. */}
+              Library and Discover render immediately. */}
           <Suspense
             fallback={
               <NavLinkButton

@@ -139,13 +139,34 @@ type SpotifyArtistRaw = {
   images: { url: string; height: number | null; width: number | null }[]
 }
 
+function mapArtistSummary(artist: SpotifyArtistRaw): ArtistSummary {
+  return {
+    id: artist.id,
+    name: artist.name,
+    imageUrl: pickImageUrl(artist.images),
+    genres: artist.genres ?? [],
+  }
+}
+
 export async function searchAlbums(
   query: string,
   limit = SEARCH_LIMIT_MAX,
   offset = 0
 ): Promise<AlbumSummary[]> {
+  const { albums } = await searchAlbumsPage(query, { limit, offset })
+  return albums
+}
+
+// Same search as searchAlbums(), but also returns Spotify's reported total
+// hit count - used by Discover (src/lib/discover-server.ts) to pick a
+// genuinely random offset into the result set instead of always showing the
+// same first page.
+export async function searchAlbumsPage(
+  query: string,
+  { limit = SEARCH_LIMIT_MAX, offset = 0 }: { limit?: number; offset?: number } = {}
+): Promise<{ albums: AlbumSummary[]; total: number }> {
   const trimmed = query.trim()
-  if (!trimmed) return []
+  if (!trimmed) return { albums: [], total: 0 }
 
   const params = new URLSearchParams({
     q: trimmed,
@@ -155,44 +176,70 @@ export async function searchAlbums(
   })
 
   const data = await spotifyFetch<{
-    albums: { items: SpotifyAlbumRaw[] }
+    albums: { items: SpotifyAlbumRaw[]; total: number }
   }>(`/search?${params.toString()}`)
 
-  return data.albums.items.filter(Boolean).map(mapAlbumSummary)
+  return {
+    albums: data.albums.items.filter(Boolean).map(mapAlbumSummary),
+    total: data.albums.total,
+  }
 }
 
 export async function searchArtists(
   query: string,
   limit = SEARCH_LIMIT_MAX
 ): Promise<ArtistSummary[]> {
+  const { artists } = await searchArtistsPage(query, { limit })
+  return artists
+}
+
+// Same search as searchArtists(), but also returns Spotify's reported total
+// hit count - used by Discover's genre-based roll (see
+// src/lib/discover-server.ts) to sample a random page of artists for a
+// genre instead of always the same first page. Spotify's `genre:` search
+// filter only works for type=artist/track, never type=album (see the
+// dedicated comment in discover-server.ts), which is why Discover finds a
+// genre match through an artist first, then that artist's own albums.
+export async function searchArtistsPage(
+  query: string,
+  { limit = SEARCH_LIMIT_MAX, offset = 0 }: { limit?: number; offset?: number } = {}
+): Promise<{ artists: ArtistSummary[]; total: number }> {
   const trimmed = query.trim()
-  if (!trimmed) return []
+  if (!trimmed) return { artists: [], total: 0 }
 
   const params = new URLSearchParams({
     q: trimmed,
     type: "artist",
     limit: String(Math.min(Math.max(limit, 1), SEARCH_LIMIT_MAX)),
+    offset: String(Math.max(offset, 0)),
   })
 
   const data = await spotifyFetch<{
-    artists: { items: SpotifyArtistRaw[] }
+    artists: { items: SpotifyArtistRaw[]; total: number }
   }>(`/search?${params.toString()}`)
 
-  return data.artists.items.filter(Boolean).map((artist) => ({
-    id: artist.id,
-    name: artist.name,
-    imageUrl: pickImageUrl(artist.images),
-    genres: artist.genres ?? [],
-  }))
+  return {
+    artists: data.artists.items.filter(Boolean).map(mapArtistSummary),
+    total: data.artists.total,
+  }
 }
+
+// Spotify's docs list 50 as the max for /artists/{id}/albums, but - like
+// /search above - the API actually rejects anything past 10 with a 400
+// "Invalid limit" error in practice. Kept as its own named constant rather
+// than reusing SEARCH_LIMIT_MAX since they're different endpoints that
+// happen to share the same real ceiling right now; discover-server.ts
+// compensates for the smaller per-artist sample by checking more candidate
+// artists per genre roll.
+const ARTIST_ALBUMS_LIMIT_MAX = 10
 
 export async function getArtistAlbums(
   artistId: string,
-  limit = SEARCH_LIMIT_MAX
+  limit = ARTIST_ALBUMS_LIMIT_MAX
 ): Promise<AlbumSummary[]> {
   const params = new URLSearchParams({
     include_groups: "album",
-    limit: String(Math.min(Math.max(limit, 1), SEARCH_LIMIT_MAX)),
+    limit: String(Math.min(Math.max(limit, 1), ARTIST_ALBUMS_LIMIT_MAX)),
   })
 
   const data = await spotifyFetch<{ items: SpotifyAlbumRaw[] }>(
