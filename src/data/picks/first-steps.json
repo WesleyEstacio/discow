@@ -1,0 +1,409 @@
+{
+  "id": "first-steps",
+  "title": "First Steps",
+  "description": "Essential albums to start exploring music.",
+  "createdBy": "Discows",
+  "cover": null,
+  "albums": [
+    {
+      "title": "Abbey Road",
+      "artist": "The Beatles",
+      "releaseDate": "1969-09-26",
+      "genres": ["Rock", "Pop Rock"],
+      "id": "0ETFjACtuP2ADo6LFhL6HN",
+      "cover": "first-steps-covers/0ETFjACtuP2ADo6LFhL6HN.jpg"
+    },
+    {
+      "title": "Thriller",
+      "artist": "Michael Jackson",
+      "releaseDate": "1982-11-30",
+      "genres": ["Pop", "R&B"],
+      "id": "2ANVost0y2y52ema1E9xAZ",
+      "cover": "first-steps-covers/2ANVost0y2y52ema1E9xAZ.jpg"
+    },
+    {
+      "title": "The Dark Side of the Moon",
+      "artist": "Pink Floyd",
+      "releaseDate": "1973-03-01",
+      "genres": ["Progressive Rock", "Psychedelic Rock"],
+      "id": "4LH4d3cOWNNsVw41Gqt2kv",
+      "cover": "first-steps-covers/4LH4d3cOWNNsVw41Gqt2kv.jpg"
+    },
+    {
+      "title": "Rumours",
+      "artist": "Fleetwood Mac",
+      "releaseDate": "1977-02-04",
+      "genres": ["Rock", "Soft Rock"],
+      "id": "1bt6q2SruMsBtcerNVtpZB",
+      "cover": "first-steps-covers/1bt6q2SruMsBtcerNVtpZB.jpg"
+    },
+    {
+      "title": "OK Computer",
+      "artist": "Radiohead",
+      "releaseDate": "1997-05-21",
+      "genres": ["Alternative Rock", "Art Rock"],
+      "id": "6dVIqQ8qmQ5GBnJ9shOYGE",
+      "cover": "first-steps-covers/6dVIqQ8qmQ5GBnJ9shOYGE.jpg"
+    },
+    {
+      "title": "Nevermind",
+      "artist": "Nirvana",
+      "releaseDate": "1991-09-24",
+      "genres": ["Grunge", "Alternative Rock"],
+      "id": "2UJcKiJxNryhL050F5Z1Fk",
+      "cover": "first-steps-covers/2UJcKiJxNryhL050F5Z1Fk.jpg"
+    },
+    {
+      "title": "To Pimp a Butterfly",
+      "artist": "Kendrick Lamar",
+      "releaseDate": "2015-03-15",
+      "genres": ["Hip Hop", "Jazz Rap"],
+      "id": "7ycBtnsMtyVbbwTfJwRjSP",
+      "cover": "first-steps-covers/7ycBtnsMtyVbbwTfJwRjSP.jpg"
+    },
+    {
+      "title": "The Miseducation of Lauryn Hill",
+      "artist": "Lauryn Hill",
+      "releaseDate": "1998-08-25",
+      "genres": ["Hip Hop", "Neo Soul", "R&B"],
+      "id": "1BZoqf8Zje5nGdwZhOjAtD",
+      "cover": "first-steps-covers/1BZoqf8Zje5nGdwZhOjAtD.jpg"
+    },
+    {
+      "title": "Purple Rain",
+      "artist": "Prince",
+      "releaseDate": "1984-06-25",
+      "genres": ["Pop", "Rock", "Funk"],
+      "id": "2umoqwMrmjBBPeaqgYu6J9",
+      "cover": "first-steps-covers/2umoqwMrmjBBPeaqgYu6J9.jpg"
+    },
+    {
+      "title": "Songs in the Key of Life",
+      "artist": "Stevie Wonder",
+      "releaseDate": "1976-09-28",
+      "genres": ["Soul", "R&B", "Funk"],
+      "id": "6YUCc2RiXcEKS9ibuZxjt0",
+      "cover": "first-steps-covers/6YUCc2RiXcEKS9ibuZxjt0.jpg"
+    },
+    {
+      "title": "The Rise and Fall of Ziggy Stardust and the Spididers from Mars",
+      "artist": "Davidid Bowie",
+      "releaseDate": "1972-06-16",
+      "genres": ["Rock", "Glam Rock"],
+      "id": "48D1hRORqJq52qsnUYZX56",
+      "cover": "first-steps-covers/48D1hRORqJq52qsnUYZX56.jpg"
+    },
+    {
+      "title": "Pet Sounds",
+      "artist": "The Beach Boys",
+      "releaseDate": "1966-05-16",
+      "genres": ["Pop", "Baroque Pop"],
+      "id": "2CNEkSE8TADXRT2AzcEt1b",
+      "cover": "first-steps-covers/2CNEkSE8TADXRT2AzcEt1b.jpg"
+    },
+    {
+      "title": "Kind of Blue",
+      "artist": "Miles Davis",
+      "releaseDate": "1959-08-17",
+      "genres": ["Jazz"],
+      "id": "1weenld61qoidwYuZ1GESA",
+      "cover": "first-steps-covers/1weenld61qoidwYuZ1GESA.jpg"
+    },
+    {
+      "title": "Blue",
+      "artist": "Joni Mitchell",
+      "releaseDate": "1971-06-22",
+      "genres": ["Folk", "Singer-Songwriter"],
+      "id": "1vz94WpXDVYIEGja8cjFNa",
+      "cover": "first-steps-covers/1vz94WpXDVYIEGja8cjFNa.jpg"
+    },
+    {
+      "title": "The Velvet Underground & Nico",
+      "artist": "The Velvet Underground",
+      "releaseDate": "1967-03-12",
+      "genres": ["Rock", "Art Rock"],
+      "id": "4xwx0x7k6c5VuThz5qVqmV",
+      "cover": "first-steps-covers/4xwx0x7k6c5VuThz5qVqmV.jpg"
+    },
+    {
+      "title": "Illmatic",
+      "artist": "Nas",
+      "releaseDate": "1994-04-19",
+      "genres": ["Hip Hop"],
+      "id": "3kEtdS2pH6hKcMU9Wioob1",
+      "cover": "first-steps-covers/3kEtdS2pH6hKcMU9Wioob1.jpg"
+    },
+    {
+      "title": "Back to Black",
+      "artist": "Amy Winehouse",
+      "releaseDate": "2006-10-27",
+      "genres": ["Soul", "R&B", "Jazz"],
+      "id": "097eYvf9NKjFnv4xA9s2oV",
+      "cover": "first-steps-covers/097eYvf9NKjFnv4xA9s2oV.jpg"
+    },
+    {
+      "title": "My Beautiful Dark Twisted Fantasy",
+      "artist": "Kanye West",
+      "releaseDate": "2010-11-22",
+      "genres": ["Hip Hop", "Rap"],
+      "id": "20r762YmB5HeofjMCiPMLv",
+      "cover": "first-steps-covers/20r762YmB5HeofjMCiPMLv.jpg"
+    },
+    {
+      "title": "Blond",
+      "artist": "Frank Ocean",
+      "releaseDate": "2016-08-20",
+      "genres": ["Alternative R&B", "Soul"],
+      "id": "3mH6qwIy9crq0I9YQbOuDf",
+      "cover": "first-steps-covers/3mH6qwIy9crq0I9YQbOuDf.jpg"
+    },
+    {
+      "title": "The Queen Is Dead",
+      "artist": "The Smiths",
+      "releaseDate": "1986-06-16",
+      "genres": ["Alternative Rock", "Indie Rock"],
+      "id": "5Y0p2XCgRRIjna91aQE8q7",
+      "cover": "first-steps-covers/5Y0p2XCgRRIjna91aQE8q7.jpg"
+    },
+    {
+      "title": "London Calling",
+      "artist": "The Clash",
+      "releaseDate": "1979-12-14",
+      "genres": ["Punk Rock", "Rock"],
+      "id": "6FCzvataOZh68j8OKzOt9a",
+      "cover": "first-steps-covers/6FCzvataOZh68j8OKzOt9a.jpg"
+    },
+    {
+      "title": "Is This It",
+      "artist": "The Strokes",
+      "releaseDate": "2001-07-30",
+      "genres": ["Indie Rock", "Garage Rock"],
+      "id": "2yNaksHgeMQM9Quse463b5",
+      "cover": "first-steps-covers/2yNaksHgeMQM9Quse463b5.jpg"
+    },
+    {
+      "title": "Dummy",
+      "artist": "Portishead",
+      "releaseDate": "1994-08-22",
+      "genres": ["Trip Hop", "Electronic"],
+      "id": "3539EbNgIdEDGBKkUf4wno",
+      "cover": "first-steps-covers/3539EbNgIdEDGBKkUf4wno.jpg"
+    },
+    {
+      "title": "Mezzanine",
+      "artist": "Massive Attack",
+      "releaseDate": "1998-04-20",
+      "genres": ["Trip Hop", "Electronic"],
+      "id": "49MNmJhZQewjt06rpwp6QR",
+      "cover": "first-steps-covers/49MNmJhZQewjt06rpwp6QR.jpg"
+    },
+    {
+      "title": "Clube da Esquina",
+      "artist": "Milton Nascimento & Lô Borges",
+      "releaseDate": "1972-03-01",
+      "genres": ["MPB", "Brazilian Popular Music"],
+      "id": "5risYG7klZCSLMNxB9dZhf",
+      "cover": "first-steps-covers/5risYG7klZCSLMNxB9dZhf.jpg"
+    },
+    {
+      "title": "Acabou Chorare",
+      "artist": "Novos Baianos",
+      "releaseDate": "1972-01-01",
+      "genres": ["MPB", "Tropicália"],
+      "id": "76iTNsPU1yhKWcQrTc2qdA",
+      "cover": "first-steps-covers/76iTNsPU1yhKWcQrTc2qdA.jpg"
+    },
+    {
+      "title": "Random Access Memories",
+      "artist": "Daft Punk",
+      "releaseDate": "2013-05-17",
+      "genres": ["Electronic", "Disco", "Funk"],
+      "id": "4m2880jivSbbyEGAKfITCa",
+      "cover": "first-steps-covers/4m2880jivSbbyEGAKfITCa.jpg"
+    },
+    {
+      "title": "In Rainbows",
+      "artist": "Radiohead",
+      "releaseDate": "2007-10-10",
+      "genres": ["Alternative Rock", "Art Rock"],
+      "id": "5vkqYmiPBYLaalcmjujWxK",
+      "cover": "first-steps-covers/5vkqYmiPBYLaalcmjujWxK.jpg"
+    },
+    {
+      "title": "A Love Supreme",
+      "artist": "John Coltrane",
+      "releaseDate": "1965-02-01",
+      "genres": ["Jazz", "Spiritual Jazz"],
+      "id": "7Eoz7hJvaX1eFkbpQxC5PA",
+      "cover": "first-steps-covers/7Eoz7hJvaX1eFkbpQxC5PA.jpg"
+    },
+    {
+      "title": "Master of Puppets",
+      "artist": "Metallica",
+      "releaseDate": "1986-03-03",
+      "genres": ["Thrash Metal", "Heavy Metal"],
+      "id": "2Lq2qX3hYhiuPckC8Flj21",
+      "cover": "first-steps-covers/2Lq2qX3hYhiuPckC8Flj21.jpg"
+    },
+    {
+      "title": "Blood on the Tracks",
+      "artist": "Bob Dylan",
+      "releaseDate": "1975-01-20",
+      "genres": ["Folk Rock", "Singer-Songwriter"],
+      "id": "4WD4pslu83FF6oMa1e19mF",
+      "cover": "first-steps-covers/4WD4pslu83FF6oMa1e19mF.jpg"
+    },
+    {
+      "title": "Hounds of Love",
+      "artist": "Kate Bush",
+      "releaseDate": "1985-09-16",
+      "genres": ["Art Pop", "Progressive Pop"],
+      "id": "5G5UwqPsxDKpxJLX4xsyuh",
+      "cover": "first-steps-covers/5G5UwqPsxDKpxJLX4xsyuh.jpg"
+    },
+    {
+      "title": "Loveless",
+      "artist": "My Bloody Valentine",
+      "releaseDate": "1991-11-04",
+      "genres": ["Shoegaze", "Dream Pop"],
+      "id": "3USQKOw0se5pBNEndu82Rb",
+      "cover": "first-steps-covers/3USQKOw0se5pBNEndu82Rb.jpg"
+    },
+    {
+      "title": "Doolittle",
+      "artist": "Pixies",
+      "releaseDate": "1989-04-17",
+      "genres": ["Alternative Rock", "Indie Rock"],
+      "id": "0DQyTVcDhK9wm0f6RaErWO",
+      "cover": "first-steps-covers/0DQyTVcDhK9wm0f6RaErWO.jpg"
+    },
+    {
+      "title": "Enter the Wu-Tang (36 Chambers)",
+      "artist": "Wu-Tang Clan",
+      "releaseDate": "1993-11-09",
+      "genres": ["Hip Hop", "East Coast Hip Hop"],
+      "id": "3tQd5mwBtVyxCoEo4htGAV",
+      "cover": "first-steps-covers/3tQd5mwBtVyxCoEo4htGAV.jpg"
+    },
+    {
+      "title": "Madvillainy",
+      "artist": "Madvillain",
+      "releaseDate": "2004-03-23",
+      "genres": ["Hip Hop", "Abstract Hip Hop"],
+      "id": "19bQiwEKhXUBJWY6oV3KZk",
+      "cover": "first-steps-covers/19bQiwEKhXUBJWY6oV3KZk.jpg"
+    },
+    {
+      "title": "The Low End Theory",
+      "artist": "A Tribe Called Quest",
+      "releaseDate": "1991-09-24",
+      "genres": ["Hip Hop", "Jazz Rap"],
+      "id": "1p12OAWwudgMqfMzjMvl2a",
+      "cover": "first-steps-covers/1p12OAWwudgMqfMzjMvl2a.jpg"
+    },
+    {
+      "title": "Remain in Light",
+      "artist": "Talking Heads",
+      "releaseDate": "1980-10-08",
+      "genres": ["New Wave", "Art Rock", "Post-Punk"],
+      "id": "1JvXxLsm0PxlGH4LXzqMGq",
+      "cover": "first-steps-covers/1JvXxLsm0PxlGH4LXzqMGq.jpg"
+    },
+    {
+      "title": "Selected Ambient Works 85–92",
+      "artist": "Aphex Twin",
+      "releaseDate": "1992-11-09",
+      "genres": ["Ambient", "Electronic", "IDM"],
+      "id": "7aNclGRxTysfh6z0d8671k",
+      "cover": "first-steps-covers/7aNclGRxTysfh6z0d8671k.jpg"
+    },
+    {
+      "title": "Music Has the Right to Children",
+      "artist": "Boards of Canada",
+      "releaseDate": "1998-04-20",
+      "genres": ["Electronic", "Ambient", "Downtempo"],
+      "id": "6LZiNXaDvhzvnXUubVOmNU",
+      "cover": "first-steps-covers/6LZiNXaDvhzvnXUubVOmNU.jpg"
+    },
+    {
+      "title": "Lemonade",
+      "artist": "Beyoncé",
+      "releaseDate": "2016-04-23",
+      "genres": ["Pop", "R&B"],
+      "id": "7dK54iZuOxXFarGhXwEXfF",
+      "cover": "first-steps-covers/7dK54iZuOxXFarGhXwEXfF.jpg"
+    },
+    {
+      "title": "Funeral",
+      "artist": "Arcade Fire",
+      "releaseDate": "2004-09-14",
+      "genres": ["Indie Rock", "Art Rock"],
+      "id": "6ZB8qaR9JNuS0Q0bG1nbcH",
+      "cover": "first-steps-covers/6ZB8qaR9JNuS0Q0bG1nbcH.jpg"
+    },
+    {
+      "title": "Paranoid",
+      "artist": "Black Sabbath",
+      "releaseDate": "1970-09-18",
+      "genres": ["Heavy Metal", "Hard Rock"],
+      "id": "7LGVdC9fFwgWYaIrZwsSv6",
+      "cover": "first-steps-covers/7LGVdC9fFwgWYaIrZwsSv6.jpg"
+    },
+    {
+      "title": "Chega de Saudade",
+      "artist": "João Gilberto",
+      "releaseDate": "1959-03-10",
+      "genres": ["Bossa Nova", "MPB"],
+      "id": "2Huvsv5hVOHeua1vWfIpg7",
+      "cover": "first-steps-covers/2Huvsv5hVOHeua1vWfIpg7.jpg"
+    },
+    {
+      "title": "Construção",
+      "artist": "Chico Buarque",
+      "releaseDate": "1971-01-01",
+      "genres": ["MPB"],
+      "id": "7yrRo2o4XzDfv3mNnkPRE5",
+      "cover": "first-steps-covers/7yrRo2o4XzDfv3mNnkPRE5.jpg"
+    },
+    {
+      "title": "Transa",
+      "artist": "Caetano Veloso",
+      "releaseDate": "1972-01-01",
+      "genres": ["MPB", "Tropicália"],
+      "id": "4NIGwEvudtT3KZrYPymOmz",
+      "cover": "first-steps-covers/4NIGwEvudtT3KZrYPymOmz.jpg"
+    },
+    {
+      "title": "Grace",
+      "artist": "Jeff Buckley",
+      "releaseDate": "1994-08-23",
+      "genres": ["Alternative Rock", "Singer-Songwriter"],
+      "id": "7yQtjAjhtNi76KRu05XWFS",
+      "cover": "first-steps-covers/7yQtjAjhtNi76KRu05XWFS.jpg"
+    },
+    {
+      "title": "Homogenic",
+      "artist": "Björk",
+      "releaseDate": "1997-09-22",
+      "genres": ["Art Pop", "Electronic"],
+      "id": "0h19Ty9F2Ma8pKkRdx17UT",
+      "cover": "first-steps-covers/0h19Ty9F2Ma8pKkRdx17UT.jpg"
+    },
+    {
+      "title": "Harry's House",
+      "artist": "Harry Styles",
+      "releaseDate": "2022-05-20",
+      "genres": ["Pop", "Pop Rock"],
+      "id": "5r36AJ6VOJtp00oxSkBZ5h",
+      "cover": "first-steps-covers/5r36AJ6VOJtp00oxSkBZ5h.jpg"
+    },
+    {
+      "title": "Back in Black",
+      "artist": "AC/DC",
+      "releaseDate": "1980-07-25",
+      "genres": ["Hard Rock", "Rock"],
+      "id": "6mUdeDZCsExyJLMdAfDuwh",
+      "cover": "first-steps-covers/6mUdeDZCsExyJLMdAfDuwh.jpg"
+    }
+  ]
+}

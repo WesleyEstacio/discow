@@ -73,3 +73,25 @@ export type CommunityActivityItem = {
   reviewerUsername: string | null
 }
 
+// A hand-curated collection behind "Discows picks" on the library page
+// (src/lib/picks.ts). Unlike AlbumSummary, these albums come from a static
+// JSON file bundled in the repo rather than the Spotify API - `id` is still
+// a real Spotify album id (so it links straight into /album/[id]), but
+// there's no imageUrl/spotifyUrl round-trip since the cover ships locally.
+export type PickAlbum = {
+  id: string
+  title: string
+  artist: string
+  releaseDate: string
+  genres: string[]
+  cover: string
+}
+
+export type PickCollection = {
+  id: string
+  title: string
+  description: string
+  createdBy: string
+  cover: string | null
+  albums: PickAlbum[]
+}
