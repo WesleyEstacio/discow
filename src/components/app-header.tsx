@@ -29,7 +29,7 @@ import { signOutUser } from "@/lib/auth-actions"
 import { cn } from "@/lib/utils"
 
 const libraryLink = { href: "/library", label: "Library", icon: LibraryIcon }
-const discoverLink = { href: "/discover", label: "Discover", icon: CompassIcon }
+const discoverLink = { href: "/discowver", label: "DISCOWver", icon: CompassIcon }
 const profileLink = { href: "/profile", label: "Profile", icon: UserIcon, requiresAuth: true }
 
 export type AppHeaderUser = {

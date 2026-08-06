@@ -9,10 +9,10 @@ import {
 import type { DiscoverHistoryEntry } from "@/lib/discover"
 
 export const metadata: Metadata = {
-  title: "Discover",
+  title: "DISCOWver",
   description:
-    "Roll the dice for a new album pick and browse every album Discover has shown you on Discows.",
-  alternates: { canonical: "/discover" },
+    "Roll the dice for a new album pick and browse every album DISCOWver has shown you on Discows.",
+  alternates: { canonical: "/discowver" },
 }
 
 const NO_FILTERS = { genre: null, decadeStartYear: null }
