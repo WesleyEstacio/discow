@@ -12,6 +12,9 @@ export type SaveReviewInput = {
   artists: string[]
   imageUrl: string | null
   releaseDate: string | null
+  // How many tracks the release has on Spotify - decides album vs track in
+  // profile stats (see resolveReleaseKind() in src/lib/release-kind.ts).
+  totalTracks: number
   rating: number
   text: string
 }
@@ -55,6 +58,7 @@ export async function saveReview(
       artists: input.artists,
       imageUrl: input.imageUrl,
       releaseDate: input.releaseDate,
+      totalTracks: input.totalTracks,
       rating: input.rating,
       reviewText: input.text.trim(),
       updatedAt: new Date(),
@@ -66,6 +70,7 @@ export async function saveReview(
         artists: input.artists,
         imageUrl: input.imageUrl,
         releaseDate: input.releaseDate,
+        totalTracks: input.totalTracks,
         rating: input.rating,
         reviewText: input.text.trim(),
         updatedAt: new Date(),

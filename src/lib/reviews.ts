@@ -11,6 +11,7 @@ function toReview(row: typeof reviewsTable.$inferSelect): Review {
     artists: row.artists,
     imageUrl: row.imageUrl,
     releaseDate: row.releaseDate,
+    totalTracks: row.totalTracks,
     rating: row.rating,
     text: row.reviewText,
     listenedAt: row.listenedAt.toISOString(),

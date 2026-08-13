@@ -5,7 +5,9 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   Disc3Icon,
-  StarIcon,
+  LayoutGridIcon,
+  ListIcon,
+  Music2Icon,
   UserCheckIcon,
   UsersIcon,
   type LucideIcon,
@@ -27,9 +29,11 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { getMoreFollowersAction, getMoreFollowingAction } from "@/lib/follow-actions"
 import { formatRating } from "@/lib/format"
 import type { FollowCounts } from "@/lib/follows"
+import { resolveReleaseKind } from "@/lib/release-kind"
 import { resolveDisplayTag } from "@/lib/tag-utils"
 import type { ProfileTag } from "@/lib/tags"
 import type { Review, UserSummary } from "@/lib/types"
@@ -83,11 +87,20 @@ export function ProfileView({
   })
   const [tag, setTag] = useState(displayTag)
   const [followerCount, setFollowerCount] = useState(followCounts.followers)
+  // Grid vs. list is a display preference, not tied to which kind of
+  // release is showing - one ToggleGroup drives both the Albums and Tracks
+  // tabs below instead of each tab having its own.
+  const [view, setView] = useState<"grid" | "list">("grid")
 
-  const average =
-    reviews.length > 0
-      ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
-      : 0
+  // Split by release kind (see resolveReleaseKind() in
+  // src/lib/release-kind.ts) so the header - and the tabs further down -
+  // show albums and tracks separately instead of one combined list.
+  const albumReviews = reviews.filter(
+    (review) => resolveReleaseKind(review.totalTracks) === "album"
+  )
+  const trackReviews = reviews.filter(
+    (review) => resolveReleaseKind(review.totalTracks) === "track"
+  )
 
   const displayName = profile.name ?? profile.username ?? "Discows listener"
   const initials = displayName.slice(0, 2).toUpperCase()
@@ -161,12 +174,8 @@ export function ProfileView({
               {/* Instagram-style counts: just the number and the label, a
                   small icon alongside instead of a big card. */}
               <div className="mt-1 flex flex-wrap items-center gap-x-5 gap-y-1.5">
-                <StatInline icon={Disc3Icon} value={String(reviews.length)} label="Albums" />
-                <StatInline
-                  icon={StarIcon}
-                  value={reviews.length ? formatRating(average) : "—"}
-                  label="Avg rating"
-                />
+                <StatInline icon={Disc3Icon} value={String(albumReviews.length)} label="Albums" />
+                <StatInline icon={Music2Icon} value={String(trackReviews.length)} label="Tracks" />
                 <FollowListDialog
                   title="Followers"
                   users={followers}
@@ -247,71 +256,140 @@ export function ProfileView({
           ) : null}
         </Empty>
       ) : (
-        <Tabs defaultValue="grid">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="font-heading text-lg font-semibold tracking-tight sm:text-xl">
-              Albums
-              <span className="ml-2 font-sans text-sm font-normal text-muted-foreground">
-                {reviews.length}
-              </span>
-            </h2>
+        <Tabs defaultValue="albums">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <TabsList>
-              <TabsTrigger value="grid">Grid</TabsTrigger>
-              <TabsTrigger value="list">List</TabsTrigger>
+              <TabsTrigger value="albums">
+                Albums
+                <span className="ml-1.5 font-sans text-xs font-normal text-muted-foreground">
+                  {albumReviews.length}
+                </span>
+              </TabsTrigger>
+              <TabsTrigger value="tracks">
+                Tracks
+                <span className="ml-1.5 font-sans text-xs font-normal text-muted-foreground">
+                  {trackReviews.length}
+                </span>
+              </TabsTrigger>
             </TabsList>
+            {/* Grid vs. list is shared across both tabs above (see the `view`
+                state) - switching it here keeps whichever tab is open. */}
+            <ToggleGroup
+              variant="outline"
+              size="sm"
+              value={[view]}
+              onValueChange={(values) => {
+                const next = values[0]
+                if (next === "grid" || next === "list") setView(next)
+              }}
+              aria-label="Layout"
+            >
+              <ToggleGroupItem value="grid" aria-label="Grid view">
+                <LayoutGridIcon />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="list" aria-label="List view">
+                <ListIcon />
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
-          <TabsContent value="grid" className="pt-4">
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-              {reviews.map((review) => (
-                <AlbumCard
-                  key={review.spotifyId}
-                  album={{
-                    id: review.spotifyId,
-                    name: review.albumName,
-                    artists: review.artists,
-                    releaseDate: review.releaseDate ?? review.listenedAt.slice(0, 4),
-                    totalTracks: 0,
-                    imageUrl: review.imageUrl,
-                    spotifyUrl: `https://open.spotify.com/album/${review.spotifyId}`,
-                  }}
-                  rating={review.rating}
-                />
-              ))}
-            </div>
+          <TabsContent value="albums" className="pt-4">
+            <ReviewsTabPanel
+              reviews={albumReviews}
+              view={view}
+              emptyMessage={
+                isOwnProfile
+                  ? "You haven't rated any albums yet."
+                  : `${displayName} hasn't rated any albums yet.`
+              }
+            />
           </TabsContent>
-          <TabsContent value="list" className="pt-4">
-            <ul className="flex flex-col divide-y rounded-xl border">
-              {reviews.map((review) => (
-                <li key={review.spotifyId}>
-                  <Link
-                    href={`/album/${review.spotifyId}`}
-                    className="flex items-start gap-4 p-4 transition-colors hover:bg-muted/50"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium">{review.albumName}</p>
-                      <p className="truncate text-sm text-muted-foreground">
-                        {review.artists.join(", ")}
-                      </p>
-                      {review.text ? (
-                        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                          {review.text}
-                        </p>
-                      ) : null}
-                    </div>
-                    <div className="flex shrink-0 flex-col items-end gap-1">
-                      <StarRatingDisplay value={review.rating} size="sm" />
-                      <span className="text-xs text-muted-foreground">
-                        {formatRating(review.rating)}
-                      </span>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <TabsContent value="tracks" className="pt-4">
+            <ReviewsTabPanel
+              reviews={trackReviews}
+              view={view}
+              emptyMessage={
+                isOwnProfile
+                  ? "You haven't rated any tracks yet."
+                  : `${displayName} hasn't rated any tracks yet.`
+              }
+            />
           </TabsContent>
         </Tabs>
       )}
     </div>
+  )
+}
+
+type ReviewsTabPanelProps = {
+  reviews: Review[]
+  view: "grid" | "list"
+  emptyMessage: string
+}
+
+// One tab's worth of reviews (either all-albums or all-tracks, decided by
+// the caller) - shows a short empty message instead of the grid/list when
+// this particular kind is empty, so an account with only albums doesn't see
+// a blank Tracks tab with no explanation.
+function ReviewsTabPanel({ reviews, view, emptyMessage }: ReviewsTabPanelProps) {
+  if (reviews.length === 0) {
+    return <p className="py-10 text-center text-sm text-muted-foreground">{emptyMessage}</p>
+  }
+
+  return view === "grid" ? <ReviewsGrid reviews={reviews} /> : <ReviewsList reviews={reviews} />
+}
+
+function ReviewsGrid({ reviews }: { reviews: Review[] }) {
+  return (
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      {reviews.map((review) => (
+        <AlbumCard
+          key={review.spotifyId}
+          album={{
+            id: review.spotifyId,
+            name: review.albumName,
+            artists: review.artists,
+            releaseDate: review.releaseDate ?? review.listenedAt.slice(0, 4),
+            totalTracks: review.totalTracks ?? 0,
+            imageUrl: review.imageUrl,
+            spotifyUrl: `https://open.spotify.com/album/${review.spotifyId}`,
+          }}
+          rating={review.rating}
+        />
+      ))}
+    </div>
+  )
+}
+
+function ReviewsList({ reviews }: { reviews: Review[] }) {
+  return (
+    <ul className="flex flex-col divide-y rounded-xl border">
+      {reviews.map((review) => (
+        <li key={review.spotifyId}>
+          <Link
+            href={`/album/${review.spotifyId}`}
+            className="flex items-start gap-4 p-4 transition-colors hover:bg-muted/50"
+          >
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium">{review.albumName}</p>
+              <p className="truncate text-sm text-muted-foreground">
+                {review.artists.join(", ")}
+              </p>
+              {review.text ? (
+                <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                  {review.text}
+                </p>
+              ) : null}
+            </div>
+            <div className="flex shrink-0 flex-col items-end gap-1">
+              <StarRatingDisplay value={review.rating} size="sm" />
+              <span className="text-xs text-muted-foreground">
+                {formatRating(review.rating)}
+              </span>
+            </div>
+          </Link>
+        </li>
+      ))}
+    </ul>
   )
 }
 

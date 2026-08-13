@@ -74,6 +74,7 @@ function ReviewFormFields({ album, initialReview }: ReviewFormFieldsProps) {
         artists: album.artists,
         imageUrl: album.imageUrl,
         releaseDate: album.releaseDate,
+        totalTracks: album.totalTracks,
         rating,
         text,
       })

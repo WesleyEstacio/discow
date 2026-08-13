@@ -48,6 +48,10 @@ export type Review = {
   artists: string[]
   imageUrl: string | null
   releaseDate: string | null
+  // How many tracks the reviewed release has - null for reviews saved before
+  // this was tracked (see resolveReleaseKind() in src/lib/release-kind.ts,
+  // which decides album vs track and treats null as an album).
+  totalTracks: number | null
   rating: number
   text: string
   listenedAt: string

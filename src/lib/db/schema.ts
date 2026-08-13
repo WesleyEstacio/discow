@@ -162,6 +162,14 @@ export const reviews = pgTable(
     artists: text("artists").array().notNull(),
     imageUrl: text("image_url"),
     releaseDate: text("release_date"),
+    // How many tracks the reviewed release has on Spotify - denormalized at
+    // review time just like albumName/artists above. Backs the album/track
+    // split in profile stats (see resolveReleaseKind() in
+    // src/lib/release-kind.ts): more than 1 track counts as an album, exactly
+    // 1 counts as a track. Nullable only for rows written before this column
+    // existed - see scripts/backfill-review-total-tracks.mjs - and treated as
+    // an album (the pre-existing behavior) until backfilled.
+    totalTracks: integer("total_tracks"),
     rating: real("rating").notNull(),
     reviewText: text("review_text").notNull().default(""),
     listenedAt: timestamp("listened_at", { mode: "date" }).notNull().defaultNow(),
