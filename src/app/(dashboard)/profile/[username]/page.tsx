@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { auth } from "@/auth"
 import { ProfileView } from "@/components/profile-view"
+import { getFavoriteAlbums } from "@/lib/favorites"
 import { getFollowCounts, getFollowers, getFollowing, isFollowing } from "@/lib/follows"
 import { getReviewsForUser } from "@/lib/reviews"
 import { resolveDisplayTag } from "@/lib/tag-utils"
@@ -49,15 +50,23 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
   const isOwnProfile = session?.user?.id === profileUser.id
   // Independent of each other, so they run concurrently.
-  const [reviews, availableTags, followCounts, followers, following, viewerIsFollowing] =
-    await Promise.all([
-      getReviewsForUser(profileUser.id),
-      getProfileTags(profileUser.id),
-      getFollowCounts(profileUser.id),
-      getFollowers(profileUser.id),
-      getFollowing(profileUser.id),
-      isOwnProfile ? Promise.resolve(false) : isFollowing(session?.user?.id, profileUser.id),
-    ])
+  const [
+    reviews,
+    favorites,
+    availableTags,
+    followCounts,
+    followers,
+    following,
+    viewerIsFollowing,
+  ] = await Promise.all([
+    getReviewsForUser(profileUser.id),
+    getFavoriteAlbums(profileUser.id),
+    getProfileTags(profileUser.id),
+    getFollowCounts(profileUser.id),
+    getFollowers(profileUser.id),
+    getFollowing(profileUser.id),
+    isOwnProfile ? Promise.resolve(false) : isFollowing(session?.user?.id, profileUser.id),
+  ])
 
   const displayTag = resolveDisplayTag(availableTags, profileUser.displayTagKey)
 
@@ -66,6 +75,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
       <ProfileView
         user={profileUser}
         reviews={reviews}
+        favorites={favorites}
         displayTag={displayTag}
         availableTags={availableTags}
         isOwnProfile={isOwnProfile}

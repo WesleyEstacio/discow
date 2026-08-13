@@ -82,6 +82,20 @@ export type CommunityActivityItem = {
 // JSON file bundled in the repo rather than the Spotify API - `id` is still
 // a real Spotify album id (so it links straight into /album/[id]), but
 // there's no imageUrl/spotifyUrl round-trip since the cover ships locally.
+// One row per album a listener has marked as a favorite (see
+// src/lib/favorites.ts and the "Favorite albums" section in
+// src/components/profile-view.tsx). Denormalized the same way as `Review`,
+// so a favorite doesn't depend on that album having a review too.
+export type FavoriteAlbum = {
+  spotifyId: string
+  albumName: string
+  artists: string[]
+  imageUrl: string | null
+  releaseDate: string | null
+  totalTracks: number | null
+  createdAt: string
+}
+
 export type PickAlbum = {
   id: string
   title: string

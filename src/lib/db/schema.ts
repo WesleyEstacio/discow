@@ -187,6 +187,42 @@ export const reviews = pgTable(
 // removed from Spotify's catalogue. Guests get the same history, but kept
 // client-side (localStorage, see src/lib/discover.ts) instead of here, since
 // there's no account to key it by.
+// Up to MAX_FAVORITE_ALBUMS (src/lib/favorite-constants.ts) rows per user -
+// the "Favorite albums" section on the profile (src/components/profile-
+// view.tsx). Album fields are denormalized straight onto the row, same
+// choice as `review`/`discover_pick` above, so a favorite doesn't depend on
+// a review existing for that album. (userId, spotifyId) is unique so
+// favoriting the same album twice is a safe no-op instead of a duplicate
+// row.
+export const favoriteAlbums = pgTable(
+  "favorite_album",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    spotifyId: text("spotify_id").notNull(),
+    albumName: text("album_name").notNull(),
+    artists: text("artists").array().notNull(),
+    imageUrl: text("image_url"),
+    releaseDate: text("release_date"),
+    totalTracks: integer("total_tracks"),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+  },
+  (favoriteAlbum) => [
+    unique("favorite_album_user_album_unique").on(
+      favoriteAlbum.userId,
+      favoriteAlbum.spotifyId
+    ),
+    index("favorite_album_user_id_created_at_idx").on(
+      favoriteAlbum.userId,
+      favoriteAlbum.createdAt
+    ),
+  ]
+)
+
 export const discoverPicks = pgTable(
   "discover_pick",
   {

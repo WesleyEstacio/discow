@@ -5,11 +5,13 @@ import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import { Disc3Icon, ExternalLinkIcon } from "lucide-react"
 import { auth } from "@/auth"
+import { FavoriteButton } from "@/components/favorite-button"
 import { ReviewForm } from "@/components/review-form"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
+import { isFavoriteAlbum } from "@/lib/favorites"
 import { formatDuration, formatReleaseYear } from "@/lib/format"
 import { getReviewForAlbum } from "@/lib/reviews"
 import { getAlbum } from "@/lib/spotify"
@@ -72,6 +74,9 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
               <Disc3Icon className="size-12" />
             </div>
           )}
+          <Suspense fallback={null}>
+            <AlbumFavoriteButtonData album={album} />
+          </Suspense>
         </div>
 
         <div className="flex flex-col gap-4">
@@ -159,6 +164,34 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
         </Link>
       </p>
     </main>
+  )
+}
+
+// Isolated in its own Suspense boundary (see the cover art JSX above) so the
+// `priority` cover image isn't held back by the session lookup - same
+// reasoning as ReviewFormData below, just for the heart instead of the
+// review form. Renders nothing for guests, matching how ReviewForm/
+// FollowButton also just omit themselves rather than showing a disabled
+// state.
+async function AlbumFavoriteButtonData({ album }: { album: AlbumDetail }) {
+  const session = await auth()
+  if (!session?.user?.id) return null
+
+  const favorited = await isFavoriteAlbum(session.user.id, album.id)
+
+  return (
+    <FavoriteButton
+      album={{
+        spotifyId: album.id,
+        albumName: album.name,
+        artists: album.artists,
+        imageUrl: album.imageUrl,
+        releaseDate: album.releaseDate,
+        totalTracks: album.totalTracks,
+      }}
+      initialFavorited={favorited}
+      className="absolute top-2 right-2 z-10"
+    />
   )
 }
 
