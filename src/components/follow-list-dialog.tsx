@@ -85,6 +85,7 @@ export function FollowListDialog({
                         className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-muted/50"
                       />
                     }
+                    nativeButton={false}
                   >
                     <Avatar size="sm">
                       {user.image ? (

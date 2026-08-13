@@ -177,29 +177,29 @@ export function ProfileView({
                 <StatInline icon={Disc3Icon} value={String(albumReviews.length)} label="Albums" />
                 <StatInline icon={Music2Icon} value={String(trackReviews.length)} label="Tracks" />
                 <FollowListDialog
-                  title="Followers"
+                  title="Cows"
                   users={followers}
                   loadMore={(offset) => getMoreFollowersAction(user.id, offset)}
                   emptyMessage={
-                    isOwnProfile ? "No followers yet." : `${displayName} has no followers yet.`
+                    isOwnProfile ? "No Cows yet." : `${displayName} has no Cows yet.`
                   }
                 >
-                  <StatInline icon={UsersIcon} value={String(followerCount)} label="Followers" />
+                  <StatInline icon={UsersIcon} value={String(followerCount)} label="Cows" />
                 </FollowListDialog>
                 <FollowListDialog
-                  title="Following"
+                  title="Herd"
                   users={following}
                   loadMore={(offset) => getMoreFollowingAction(user.id, offset)}
                   emptyMessage={
                     isOwnProfile
-                      ? "You aren't following anyone yet."
-                      : `${displayName} isn't following anyone yet.`
+                      ? "You don't have a Herd yet."
+                      : `${displayName} doesn't have a Herd yet.`
                   }
                 >
                   <StatInline
                     icon={UserCheckIcon}
                     value={String(followCounts.following)}
-                    label="Following"
+                    label="Herd"
                   />
                 </FollowListDialog>
               </div>
