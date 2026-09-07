@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Dice5Icon, SparklesIcon } from "lucide-react"
+import { ArtistNames } from "@/components/artist-names"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
@@ -164,7 +165,10 @@ export function SurpriseMeButton({ filters, excludeIds, onRolled }: SurpriseMeBu
                 </div>
                 <p className="font-heading text-lg font-medium">{result.album.name}</p>
                 <p className="text-sm text-muted-foreground">
-                  {result.album.artists.join(", ")}
+                  <ArtistNames
+                    names={result.album.artists}
+                    artistIds={result.album.artistIds}
+                  />
                 </p>
               </motion.div>
             ) : null}

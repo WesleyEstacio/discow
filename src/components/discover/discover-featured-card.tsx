@@ -1,5 +1,6 @@
 import Image from "next/image"
 import { Disc3Icon, ExternalLinkIcon } from "lucide-react"
+import { ArtistNames } from "@/components/artist-names"
 import { SurpriseMeButton } from "@/components/discover/surprise-me-button"
 import { StarRatingDisplay } from "@/components/star-rating-display"
 import { Badge } from "@/components/ui/badge"
@@ -64,7 +65,9 @@ export function DiscoverFeaturedCard({
           <h2 className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
             {album.name}
           </h2>
-          <p className="text-muted-foreground">{album.artists.join(", ")}</p>
+          <p className="text-muted-foreground">
+            <ArtistNames names={album.artists} artistIds={album.artistIds} />
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
