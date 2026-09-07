@@ -12,6 +12,14 @@ export type AlbumSummary = {
   totalTracks: number
   imageUrl: string | null
   spotifyUrl: string
+  // Spotify artist id per entry in `artists` (same order/length), when
+  // known - lets a display like AlbumCard link each artist name to
+  // /artist/[id]. Only ever set when this came straight from a live Spotify
+  // call (see mapAlbumSummary in src/lib/spotify.ts); anything rebuilt from a
+  // DB row (reviews, favorite_album, discover_pick) only ever denormalized
+  // artist *names* (see ROADMAP.md), so it's left undefined there and the
+  // artist name just renders as plain text instead of a link.
+  artistIds?: string[]
 }
 
 export type ArtistSummary = {
@@ -34,12 +42,45 @@ export type Track = {
   trackNumber: number
   durationMs: number
   artists: string[]
+  // Same idea as AlbumSummary.artistIds - lets the album page's tracklist
+  // link a track's (co-)artists to /artist/[id].
+  artistIds?: string[]
 }
 
 export type AlbumDetail = AlbumSummary & {
   label: string | null
   genres: string[]
   tracks: Track[]
+}
+
+export type ArtistDetail = {
+  id: string
+  name: string
+  imageUrl: string | null
+  genres: string[]
+  followers: number
+  popularity: number
+  spotifyUrl: string
+}
+
+export type ArtistTopTrack = {
+  id: string
+  name: string
+  durationMs: number
+  imageUrl: string | null
+  albumId: string
+  albumName: string
+  spotifyUrl: string
+}
+
+// One row per artist a listener has favorited from the artist page (see
+// src/lib/favorite-artists.ts). Denormalized the same way as `FavoriteAlbum`.
+export type FavoriteArtist = {
+  spotifyId: string
+  name: string
+  imageUrl: string | null
+  genres: string[]
+  createdAt: string
 }
 
 export type Review = {
@@ -56,6 +97,11 @@ export type Review = {
   text: string
   listenedAt: string
   updatedAt: string
+  // Resolved separately, on demand, by resolveArtistIdsByAlbumId() in
+  // src/lib/spotify.ts (a live Spotify lookup keyed off `spotifyId`, since
+  // the review row itself only ever stored artist *names*) - undefined
+  // unless the page that loaded this review specifically asked for it.
+  artistIds?: string[]
 }
 
 export type PopularAlbum = {
@@ -94,6 +140,8 @@ export type FavoriteAlbum = {
   releaseDate: string | null
   totalTracks: number | null
   createdAt: string
+  // Same as Review.artistIds above - resolved on demand, not stored.
+  artistIds?: string[]
 }
 
 export type PickAlbum = {
@@ -103,6 +151,13 @@ export type PickAlbum = {
   releaseDate: string
   genres: string[]
   cover: string
+  // Resolved on demand by getPicksCollections() in src/lib/picks.ts (a live
+  // Spotify lookup keyed off `id`) - the curated JSON only ever names the
+  // artist, never their Spotify id. Singular, unlike AlbumSummary/Track's
+  // `artistIds[]`, because the curated data itself only ever credits one
+  // display name per album (see src/data/picks/*.json) - this is that
+  // name's primary artist on Spotify, not necessarily the only one.
+  artistId?: string
 }
 
 export type PickCollection = {

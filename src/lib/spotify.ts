@@ -1,5 +1,12 @@
 import { cache } from "react"
-import type { AlbumDetail, AlbumSummary, ArtistSummary, Track } from "@/lib/types"
+import type {
+  AlbumDetail,
+  AlbumSummary,
+  ArtistDetail,
+  ArtistSummary,
+  ArtistTopTrack,
+  Track,
+} from "@/lib/types"
 
 const TOKEN_URL = "https://accounts.spotify.com/api/token"
 const API_BASE = "https://api.spotify.com/v1"
@@ -11,7 +18,7 @@ type TokenCache = {
 
 let tokenCache: TokenCache | null = null
 
-type SpotifyArtist = { name: string }
+type SpotifyArtist = { id: string; name: string }
 
 type SpotifyAlbumRaw = {
   id: string
@@ -112,6 +119,7 @@ function mapAlbumSummary(album: SpotifyAlbumRaw): AlbumSummary {
     id: album.id,
     name: album.name,
     artists: album.artists.map((artist) => artist.name),
+    artistIds: album.artists.map((artist) => artist.id),
     releaseDate: album.release_date,
     totalTracks: album.total_tracks,
     imageUrl: pickImageUrl(album.images),
@@ -126,6 +134,7 @@ function mapTracks(album: SpotifyAlbumRaw): Track[] {
     trackNumber: track.track_number,
     durationMs: track.duration_ms,
     artists: track.artists.map((artist) => artist.name),
+    artistIds: track.artists.map((artist) => artist.id),
   }))
 }
 
@@ -224,31 +233,6 @@ export async function searchArtistsPage(
   }
 }
 
-// Spotify's docs list 50 as the max for /artists/{id}/albums, but - like
-// /search above - the API actually rejects anything past 10 with a 400
-// "Invalid limit" error in practice. Kept as its own named constant rather
-// than reusing SEARCH_LIMIT_MAX since they're different endpoints that
-// happen to share the same real ceiling right now; discover-server.ts
-// compensates for the smaller per-artist sample by checking more candidate
-// artists per genre roll.
-const ARTIST_ALBUMS_LIMIT_MAX = 10
-
-export async function getArtistAlbums(
-  artistId: string,
-  limit = ARTIST_ALBUMS_LIMIT_MAX
-): Promise<AlbumSummary[]> {
-  const params = new URLSearchParams({
-    include_groups: "album",
-    limit: String(Math.min(Math.max(limit, 1), ARTIST_ALBUMS_LIMIT_MAX)),
-  })
-
-  const data = await spotifyFetch<{ items: SpotifyAlbumRaw[] }>(
-    `/artists/${artistId}/albums?${params.toString()}`
-  )
-
-  return uniqueById(data.items.filter(Boolean).map(mapAlbumSummary))
-}
-
 function uniqueById(albums: AlbumSummary[]): AlbumSummary[] {
   const seen = new Set<string>()
   return albums.filter((album) => {
@@ -271,3 +255,144 @@ export const getAlbum = cache(async (id: string): Promise<AlbumDetail> => {
     tracks: mapTracks(album),
   }
 })
+
+// Best-effort lookup for pages that only have a denormalized album (a DB
+// row - review/favorite_album/discover_pick - or a static pick from
+// src/lib/picks.ts) and want to link its artist name(s) to /artist/[id]
+// anyway. Those rows only ever stored the artist *name* (see ROADMAP.md), so
+// this re-fetches each album from Spotify (already cache()'d + Next
+// fetch-cached for 5 minutes via getAlbum, so repeat callers within that
+// window cost nothing) purely to recover its real artist ids. A failed
+// lookup (album pulled from Spotify, rate limited, etc.) just leaves that
+// one album out of the returned map instead of failing the whole batch -
+// callers treat a missing entry the same as "no ids available".
+export async function resolveArtistIdsByAlbumId(
+  albumIds: string[]
+): Promise<Record<string, string[]>> {
+  const uniqueIds = [...new Set(albumIds)]
+
+  const entries = await Promise.all(
+    uniqueIds.map(async (albumId) => {
+      try {
+        const album = await getAlbum(albumId)
+        return [albumId, album.artistIds] as const
+      } catch {
+        return [albumId, null] as const
+      }
+    })
+  )
+
+  return Object.fromEntries(
+    entries.filter((entry): entry is [string, string[]] => entry[1] !== null)
+  )
+}
+
+type SpotifyArtistDetailRaw = SpotifyArtistRaw & {
+  // Both optional in practice, not just in the type: Spotify omits
+  // `popularity` and `followers` entirely from this response for apps
+  // without extended API access (confirmed against the live API - it's not
+  // documented anywhere, the official docs still show them as always
+  // present). Missing them used to throw inside this function and get
+  // swallowed by the artist page's `catch { notFound() }`, so every artist
+  // page 404'd - default to 0 instead of trusting they're there.
+  popularity?: number
+  followers?: { total: number }
+}
+
+function mapArtistDetail(artist: SpotifyArtistDetailRaw): ArtistDetail {
+  return {
+    id: artist.id,
+    name: artist.name,
+    imageUrl: pickImageUrl(artist.images),
+    genres: artist.genres ?? [],
+    followers: artist.followers?.total ?? 0,
+    popularity: artist.popularity ?? 0,
+    spotifyUrl: `https://open.spotify.com/artist/${artist.id}`,
+  }
+}
+
+// Wrapped in cache() for the same reason as getAlbum() above - the artist
+// page's generateMetadata and page body both need the same artist.
+export const getArtist = cache(async (id: string): Promise<ArtistDetail> => {
+  const artist = await spotifyFetch<SpotifyArtistDetailRaw>(`/artists/${id}`)
+  return mapArtistDetail(artist)
+})
+
+// Spotify's docs list 50 as the max for /artists/{id}/albums, but - like
+// /search above - the API actually rejects anything past 10 with a 400
+// "Invalid limit" error in practice. Kept as its own named constant rather
+// than reusing SEARCH_LIMIT_MAX since they're different endpoints that
+// happen to share the same real ceiling right now; discover-server.ts
+// compensates for the smaller per-artist sample by checking more candidate
+// artists per genre roll.
+export const ARTIST_ALBUMS_LIMIT_MAX = 10
+
+export async function getArtistAlbums(
+  artistId: string,
+  limit = ARTIST_ALBUMS_LIMIT_MAX,
+  // "album" for the main discography section, "single" for singles/EPs (see
+  // src/app/(dashboard)/artist/[id]/page.tsx) - a plain string rather than a
+  // union so callers can pass Spotify's own include_groups values directly.
+  includeGroups = "album"
+): Promise<AlbumSummary[]> {
+  const params = new URLSearchParams({
+    include_groups: includeGroups,
+    limit: String(Math.min(Math.max(limit, 1), ARTIST_ALBUMS_LIMIT_MAX)),
+  })
+
+  const data = await spotifyFetch<{ items: SpotifyAlbumRaw[] }>(
+    `/artists/${artistId}/albums?${params.toString()}`
+  )
+
+  return uniqueById(data.items.filter(Boolean).map(mapAlbumSummary))
+}
+
+type SpotifyTopTracksRaw = {
+  tracks: {
+    id: string
+    name: string
+    duration_ms: number
+    album: {
+      id: string
+      name: string
+      images: { url: string; height: number | null; width: number | null }[]
+    }
+    external_urls: { spotify: string }
+  }[]
+}
+
+// Requires a `market` since this endpoint has no notion of "the current
+// user's market" under the client-credentials flow this app uses (there's no
+// signed-in Spotify user token to derive one from) - hardcoded to the US
+// storefront, same simplification most client-credentials-only apps make.
+export async function getArtistTopTracks(
+  artistId: string,
+  market = "US"
+): Promise<ArtistTopTrack[]> {
+  const data = await spotifyFetch<SpotifyTopTracksRaw>(
+    `/artists/${artistId}/top-tracks?market=${market}`
+  )
+
+  return data.tracks.map((track) => ({
+    id: track.id,
+    name: track.name,
+    durationMs: track.duration_ms,
+    imageUrl: pickImageUrl(track.album.images),
+    albumId: track.album.id,
+    albumName: track.album.name,
+    spotifyUrl: track.external_urls.spotify,
+  }))
+}
+
+// Spotify restricted this endpoint in November 2024 to apps that already had
+// extended API access approved - a fresh app in development mode gets a 403
+// here. Callers should treat a thrown error as "no related artists to show"
+// (see the artist page, which catches this and simply omits the section)
+// rather than a hard failure.
+export async function getRelatedArtists(artistId: string): Promise<ArtistSummary[]> {
+  const data = await spotifyFetch<{ artists: SpotifyArtistRaw[] }>(
+    `/artists/${artistId}/related-artists`
+  )
+
+  return data.artists.filter(Boolean).map(mapArtistSummary)
+}
