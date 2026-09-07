@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { AddFavoriteDialog, type FavoriteCandidate } from "@/components/add-favorite-dialog"
 import { AlbumCard } from "@/components/album-card"
+import { ArtistNames } from "@/components/artist-names"
 import { FavoriteButton } from "@/components/favorite-button"
 import { FollowButton } from "@/components/follow-button"
 import { FollowListDialog } from "@/components/follow-list-dialog"
@@ -486,6 +487,7 @@ function ReviewsGrid({
             id: review.spotifyId,
             name: review.albumName,
             artists: review.artists,
+            artistIds: review.artistIds,
             releaseDate: review.releaseDate ?? review.listenedAt.slice(0, 4),
             totalTracks: review.totalTracks ?? 0,
             imageUrl: review.imageUrl,
@@ -515,33 +517,40 @@ function ReviewsGrid({
   )
 }
 
+// Not one big row-wide Link like before - the album title and each artist
+// name now link to two different destinations, and a Link can't nest inside
+// another Link. The title stays the primary click target (same styling
+// weight it had before); the artist line gets its own, separate links.
 function ReviewsList({ reviews }: { reviews: Review[] }) {
   return (
     <ul className="flex flex-col divide-y rounded-xl border">
       {reviews.map((review) => (
-        <li key={review.spotifyId}>
-          <Link
-            href={`/album/${review.spotifyId}`}
-            className="flex items-start gap-4 p-4 transition-colors hover:bg-muted/50"
-          >
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-medium">{review.albumName}</p>
-              <p className="truncate text-sm text-muted-foreground">
-                {review.artists.join(", ")}
+        <li
+          key={review.spotifyId}
+          className="flex items-start gap-4 p-4 transition-colors hover:bg-muted/50"
+        >
+          <div className="min-w-0 flex-1">
+            <Link
+              href={`/album/${review.spotifyId}`}
+              className="block truncate font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              {review.albumName}
+            </Link>
+            <p className="truncate text-sm text-muted-foreground">
+              <ArtistNames names={review.artists} artistIds={review.artistIds} />
+            </p>
+            {review.text ? (
+              <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                {review.text}
               </p>
-              {review.text ? (
-                <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                  {review.text}
-                </p>
-              ) : null}
-            </div>
-            <div className="flex shrink-0 flex-col items-end gap-1">
-              <StarRatingDisplay value={review.rating} size="sm" />
-              <span className="text-xs text-muted-foreground">
-                {formatRating(review.rating)}
-              </span>
-            </div>
-          </Link>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            <StarRatingDisplay value={review.rating} size="sm" />
+            <span className="text-xs text-muted-foreground">
+              {formatRating(review.rating)}
+            </span>
+          </div>
         </li>
       ))}
     </ul>
@@ -583,6 +592,7 @@ function FavoriteShelf({
               id: favorite.spotifyId,
               name: favorite.albumName,
               artists: favorite.artists,
+              artistIds: favorite.artistIds,
               releaseDate: favorite.releaseDate ?? favorite.createdAt.slice(0, 4),
               totalTracks: favorite.totalTracks ?? 0,
               imageUrl: favorite.imageUrl,

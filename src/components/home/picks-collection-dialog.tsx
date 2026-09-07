@@ -11,6 +11,7 @@ import {
   SparklesIcon,
   XIcon,
 } from "lucide-react"
+import { ArtistNames } from "@/components/artist-names"
 import { Badge } from "@/components/ui/badge"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
@@ -178,7 +179,12 @@ function FeaturedView({ collection }: { collection: PickCollection }) {
               <p className="font-heading text-lg font-semibold sm:text-xl">
                 {album.title}
               </p>
-              <p className="text-sm text-muted-foreground">{album.artist}</p>
+              <p className="text-sm text-muted-foreground">
+                <ArtistNames
+                  names={[album.artist]}
+                  artistIds={album.artistId ? [album.artistId] : undefined}
+                />
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5">
@@ -324,7 +330,12 @@ function PickAlbumRow({ album, rank }: { album: PickAlbum; rank: number }) {
       </Link>
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium leading-tight">{album.title}</p>
-        <p className="truncate text-sm text-muted-foreground">{album.artist}</p>
+        <p className="truncate text-sm text-muted-foreground">
+          <ArtistNames
+            names={[album.artist]}
+            artistIds={album.artistId ? [album.artistId] : undefined}
+          />
+        </p>
         <p className="truncate text-xs text-muted-foreground">
           {formatReleaseYear(album.releaseDate)} · {album.genres.join(", ")}
         </p>

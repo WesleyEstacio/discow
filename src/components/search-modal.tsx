@@ -18,13 +18,14 @@ const MODAL_MAX_VISIBLE_ROWS = 8
 /**
  * Command-palette-style search shared by both search entry points in the
  * app (the header trigger and the library hero trigger): a modal with a
- * prominent input up top and the combined album+user results directly
- * below it, instead of a small inline dropdown anchored to the trigger.
+ * prominent input up top and the combined album+artist+user results
+ * directly below it, instead of a small inline dropdown anchored to the
+ * trigger.
  */
 export function SearchModal({ open, onOpenChange }: SearchModalProps) {
   const router = useRouter()
   const [query, setQuery] = useState("")
-  // Album/user limits use the hook's defaults (6 and 4).
+  // Album/artist/user limits use the hook's defaults (6, 4, and 4).
   const { debouncedQuery, state } = useCombinedSearch(query)
 
   function close() {
@@ -35,6 +36,11 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
   function handleSelectAlbum(albumId: string) {
     close()
     router.push(`/album/${albumId}`)
+  }
+
+  function handleSelectArtist(artistId: string) {
+    close()
+    router.push(`/artist/${artistId}`)
   }
 
   function handleSelectUser(username: string) {
@@ -53,7 +59,7 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
         showCloseButton={false}
         className="top-[15%] max-w-[calc(100%-2rem)] translate-y-0 gap-0 overflow-hidden p-0 sm:max-w-xl"
       >
-        <DialogTitle className="sr-only">Search albums or users</DialogTitle>
+        <DialogTitle className="sr-only">Search albums, artists, or users</DialogTitle>
 
         <div className="relative border-b">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -61,7 +67,7 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
             autoFocus
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search albums or @username..."
+            placeholder="Search albums, artists, or @username..."
             autoComplete="off"
             role="combobox"
             aria-expanded={debouncedQuery.length > 0}
@@ -76,12 +82,13 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
             query={debouncedQuery}
             state={state}
             onSelectAlbum={handleSelectAlbum}
+            onSelectArtist={handleSelectArtist}
             onSelectUser={handleSelectUser}
             maxVisibleRows={MODAL_MAX_VISIBLE_ROWS}
           />
         ) : (
           <p className="px-4 py-8 text-center text-sm text-muted-foreground">
-            Start typing to search albums or users.
+            Start typing to search albums, artists, or users.
           </p>
         )}
       </DialogContent>
