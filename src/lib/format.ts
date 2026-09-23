@@ -17,17 +17,6 @@ export function formatRating(rating: number) {
   return rating % 1 === 0 ? rating.toFixed(0) : rating.toFixed(1)
 }
 
-const compactNumberFormatter = new Intl.NumberFormat("en", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-})
-
-// Formats a large count (e.g. Spotify follower totals) as "1.2M" instead of
-// the full digit string - see the artist page header.
-export function formatCompactNumber(value: number) {
-  return compactNumberFormatter.format(value)
-}
-
 const RELATIVE_TIME_DIVISIONS: {
   amountInUnit: number
   unit: Intl.RelativeTimeFormatUnit

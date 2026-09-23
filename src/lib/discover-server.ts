@@ -16,14 +16,7 @@ import {
   type DiscoverRollResult,
 } from "@/lib/discover"
 import { formatReleaseYear } from "@/lib/format"
-import {
-  getAlbum,
-  getArtistAlbums,
-  resolveArtistIdsByAlbumId,
-  searchAlbumsPage,
-  searchArtists,
-  searchArtistsPage,
-} from "@/lib/spotify"
+import { getAlbum, getArtistAlbums, searchAlbumsPage, searchArtists, searchArtistsPage } from "@/lib/spotify"
 import type { AlbumDetail, AlbumSummary } from "@/lib/types"
 
 function shuffle<T>(items: readonly T[]): T[] {
@@ -233,7 +226,6 @@ function toAlbumSummary(detail: AlbumDetail): AlbumSummary {
     id: detail.id,
     name: detail.name,
     artists: detail.artists,
-    artistIds: detail.artistIds,
     releaseDate: detail.releaseDate,
     totalTracks: detail.totalTracks,
     imageUrl: detail.imageUrl,
@@ -345,20 +337,7 @@ export async function getAccountDiscoverHistory(userId: string): Promise<Discove
     .orderBy(desc(discoverPicks.createdAt))
     .limit(MAX_DISCOVER_HISTORY_ENTRIES)
 
-  const entries = rows.reverse().map(rowToHistoryEntry)
-
-  // `discover_pick` only ever denormalized the artist *name* - resolve each
-  // album's real Spotify artist ids (one live lookup per unique album, see
-  // resolveArtistIdsByAlbumId in src/lib/spotify.ts) so the history grid can
-  // link the artist credit to /artist/[id].
-  const artistIdsByAlbumId = await resolveArtistIdsByAlbumId(
-    entries.map((entry) => entry.album.id)
-  )
-
-  return entries.map((entry) => ({
-    ...entry,
-    album: { ...entry.album, artistIds: artistIdsByAlbumId[entry.album.id] },
-  }))
+  return rows.reverse().map(rowToHistoryEntry)
 }
 
 // Saves one pick for a signed-in listener - a plain insert, unlike the

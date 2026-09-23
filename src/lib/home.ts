@@ -3,7 +3,7 @@ import { desc, eq, gte, inArray, ne, sql } from "drizzle-orm"
 import { unstable_cache } from "next/cache"
 import { db } from "@/lib/db"
 import { reviews as reviewsTable, users } from "@/lib/db/schema"
-import { resolveArtistIdsByAlbumId, searchAlbums } from "@/lib/spotify"
+import { searchAlbums } from "@/lib/spotify"
 import type { AlbumSummary, CommunityActivityItem, PopularAlbum } from "@/lib/types"
 
 // Spotify's search "tag:new" filter (albums released in the last two weeks)
@@ -109,36 +109,16 @@ async function queryMostReviewedAlbums(
   })
 }
 
-// Attaches each album's real Spotify artist ids (see
-// resolveArtistIdsByAlbumId in src/lib/spotify.ts) so "Popular this week"
-// can link the artist name, even though `review` only ever denormalized the
-// artist *name*.
-async function withArtistIds(popularAlbums: PopularAlbum[]): Promise<PopularAlbum[]> {
-  if (popularAlbums.length === 0) return popularAlbums
-
-  const artistIdsByAlbumId = await resolveArtistIdsByAlbumId(
-    popularAlbums.map((popularAlbum) => popularAlbum.album.id)
-  )
-
-  return popularAlbums.map((popularAlbum) => ({
-    ...popularAlbum,
-    album: {
-      ...popularAlbum.album,
-      artistIds: artistIdsByAlbumId[popularAlbum.album.id],
-    },
-  }))
-}
-
 async function getPopularAlbumsThisWeekUncached(limit: number): Promise<PopularAlbum[]> {
   const recentAlbums = await queryMostReviewedAlbums(
     limit,
     new Date(Date.now() - POPULAR_WINDOW_MS)
   )
-  if (recentAlbums.length > 0) return withArtistIds(recentAlbums)
+  if (recentAlbums.length > 0) return recentAlbums
 
   // Not enough activity in the last 7 days yet (e.g. a brand-new community) -
   // fall back to all-time so the section isn't empty by default.
-  return withArtistIds(await queryMostReviewedAlbums(limit))
+  return queryMostReviewedAlbums(limit)
 }
 
 export const getPopularAlbumsThisWeek = unstable_cache(

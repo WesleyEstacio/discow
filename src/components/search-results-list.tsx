@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import type { ReactNode } from "react"
-import { Disc3Icon, Loader2Icon, UserRoundIcon } from "lucide-react"
+import { Disc3Icon, Loader2Icon } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { formatReleaseYear } from "@/lib/format"
@@ -13,7 +13,6 @@ type SearchResultsListProps = {
   query: string
   state: CombinedSearchState
   onSelectAlbum: (albumId: string) => void
-  onSelectArtist: (artistId: string) => void
   onSelectUser: (username: string) => void
   maxVisibleRows?: number
 }
@@ -28,18 +27,17 @@ const DEFAULT_MAX_VISIBLE_ROWS = 5
 
 /**
  * Shared dropdown body for every search surface in the app (header +
- * library hero): albums, then artists, then users, each section only
- * rendered when it actually has matches - so a query with no user matches
- * just shows albums and artists, and so on, instead of an empty "Users"
- * heading. Typing a leading "@" is treated as an explicit "I'm looking for a
- * person" signal, so that flips the order and shows Users first.
+ * library hero): albums first, then users, each section only rendered when
+ * it actually has matches - so a query with no user matches just shows
+ * albums, and vice versa, instead of an empty "Users" heading. Typing a
+ * leading "@" is treated as an explicit "I'm looking for a person" signal,
+ * so that flips the order and shows Users first.
  */
 export function SearchResultsList({
   listboxId,
   query,
   state,
   onSelectAlbum,
-  onSelectArtist,
   onSelectUser,
   maxVisibleRows = DEFAULT_MAX_VISIBLE_ROWS,
 }: SearchResultsListProps) {
@@ -58,9 +56,9 @@ export function SearchResultsList({
 
   if (state.status !== "success") return null
 
-  const { albums, artists, users } = state
+  const { albums, users } = state
 
-  if (albums.length === 0 && artists.length === 0 && users.length === 0) {
+  if (albums.length === 0 && users.length === 0) {
     return (
       <p className="px-3 py-4 text-sm text-muted-foreground">
         No results for &ldquo;{query}&rdquo;.
@@ -68,17 +66,14 @@ export function SearchResultsList({
     )
   }
 
-  const rowCount = albums.length + artists.length + users.length
-  const labelCount =
-    (albums.length > 0 ? 1 : 0) +
-    (artists.length > 0 ? 1 : 0) +
-    (users.length > 0 ? 1 : 0)
+  const rowCount = albums.length + users.length
+  const labelCount = (albums.length > 0 ? 1 : 0) + (users.length > 0 ? 1 : 0)
   const visibleRowCount = Math.min(rowCount, maxVisibleRows)
   const prioritizeUsers = query.trim().startsWith("@")
 
   // Each section is a flat array of <li> siblings (a label followed by its
   // rows) rather than a nested <ul>, so the listbox keeps a single flat list
-  // of options - only the *order* the arrays are concatenated in changes
+  // of options - only the *order* the two arrays are concatenated in changes
   // based on `prioritizeUsers`.
   const albumRows =
     albums.length > 0
@@ -120,48 +115,6 @@ export function SearchResultsList({
         ]
       : []
 
-  const artistRows =
-    artists.length > 0
-      ? [
-          <SectionLabel key="artists-label">Artists</SectionLabel>,
-          ...artists.map((artist) => (
-            <li key={`artist-${artist.id}`}>
-              <button
-                type="button"
-                role="option"
-                aria-selected={false}
-                onClick={() => onSelectArtist(artist.id)}
-                className="flex w-full cursor-pointer items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-accent hover:text-accent-foreground"
-              >
-                <div className="relative size-10 shrink-0 overflow-hidden rounded-full bg-muted">
-                  {artist.imageUrl ? (
-                    <Image
-                      src={artist.imageUrl}
-                      alt=""
-                      fill
-                      sizes="40px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex size-full items-center justify-center text-muted-foreground">
-                      <UserRoundIcon className="size-4" />
-                    </div>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{artist.name}</p>
-                  {artist.genres.length > 0 ? (
-                    <p className="truncate text-xs text-muted-foreground">
-                      {artist.genres.slice(0, 2).join(", ")}
-                    </p>
-                  ) : null}
-                </div>
-              </button>
-            </li>
-          )),
-        ]
-      : []
-
   const userRows =
     users.length > 0
       ? [
@@ -196,8 +149,8 @@ export function SearchResultsList({
       : []
 
   const orderedRows = prioritizeUsers
-    ? [...userRows, ...albumRows, ...artistRows]
-    : [...albumRows, ...artistRows, ...userRows]
+    ? [...userRows, ...albumRows]
+    : [...albumRows, ...userRows]
 
   return (
     <ScrollArea

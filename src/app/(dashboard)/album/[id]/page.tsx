@@ -5,7 +5,6 @@ import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import { Disc3Icon, ExternalLinkIcon } from "lucide-react"
 import { auth } from "@/auth"
-import { ArtistNames } from "@/components/artist-names"
 import { FavoriteButton } from "@/components/favorite-button"
 import { ReviewForm } from "@/components/review-form"
 import { Badge } from "@/components/ui/badge"
@@ -87,7 +86,7 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
               {album.name}
             </h1>
             <p className="text-lg text-muted-foreground">
-              <ArtistNames names={album.artists} artistIds={album.artistIds} />
+              {album.artists.join(", ")}
             </p>
           </div>
 
@@ -138,7 +137,7 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{track.name}</p>
                   <p className="truncate text-sm text-muted-foreground">
-                    <ArtistNames names={track.artists} artistIds={track.artistIds} />
+                    {track.artists.join(", ")}
                   </p>
                 </div>
                 <span className="shrink-0 text-sm text-muted-foreground">

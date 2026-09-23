@@ -5,10 +5,8 @@ import { ProfileView } from "@/components/profile-view"
 import { getFavoriteAlbums } from "@/lib/favorites"
 import { getFollowCounts, getFollowers, getFollowing, isFollowing } from "@/lib/follows"
 import { getReviewsForUser } from "@/lib/reviews"
-import { resolveArtistIdsByAlbumId } from "@/lib/spotify"
 import { resolveDisplayTag } from "@/lib/tag-utils"
 import { getProfileTags } from "@/lib/tags"
-import type { FavoriteAlbum, Review } from "@/lib/types"
 import { getUserByUsername } from "@/lib/users"
 
 type PublicProfilePageProps = {
@@ -72,37 +70,12 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
   const displayTag = resolveDisplayTag(availableTags, profileUser.displayTagKey)
 
-  // Reviews and favorites only ever denormalize the artist *name* (see
-  // ROADMAP.md), so this resolves each distinct album's real Spotify artist
-  // ids (one live lookup per unique album, cached 5 minutes - see
-  // resolveArtistIdsByAlbumId in src/lib/spotify.ts) purely so the profile
-  // can link the artist credit to /artist/[id]. Capped to the most recently
-  // updated reviews (getReviewsForUser already orders newest-first) rather
-  // than every review an account has ever written - a heavy reviewer could
-  // otherwise turn one profile visit into hundreds of parallel Spotify
-  // calls. Reviews past the cap simply keep showing a plain-text artist
-  // name instead of a link, same graceful fallback as anywhere else this
-  // lookup can't resolve.
-  const PROFILE_ARTIST_LINK_LIMIT = 40
-  const artistIdsByAlbumId = await resolveArtistIdsByAlbumId([
-    ...reviews.slice(0, PROFILE_ARTIST_LINK_LIMIT).map((review) => review.spotifyId),
-    ...favorites.map((favorite) => favorite.spotifyId),
-  ])
-  const reviewsWithArtistIds: Review[] = reviews.map((review) => ({
-    ...review,
-    artistIds: artistIdsByAlbumId[review.spotifyId],
-  }))
-  const favoritesWithArtistIds: FavoriteAlbum[] = favorites.map((favorite) => ({
-    ...favorite,
-    artistIds: artistIdsByAlbumId[favorite.spotifyId],
-  }))
-
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10">
       <ProfileView
         user={profileUser}
-        reviews={reviewsWithArtistIds}
-        favorites={favoritesWithArtistIds}
+        reviews={reviews}
+        favorites={favorites}
         displayTag={displayTag}
         availableTags={availableTags}
         isOwnProfile={isOwnProfile}

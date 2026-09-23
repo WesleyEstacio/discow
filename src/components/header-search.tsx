@@ -22,7 +22,7 @@ export function HeaderSearch() {
         type="button"
         variant="ghost"
         size="icon-sm"
-        aria-label="Search albums, artists, or users"
+        aria-label="Search albums or users"
         onClick={() => setOpen(true)}
         className="sm:hidden"
       >
@@ -33,7 +33,7 @@ export function HeaderSearch() {
         type="button"
         variant="ghost"
         size="sm"
-        aria-label="Search albums, artists, or users"
+        aria-label="Search albums or users"
         onClick={() => setOpen(true)}
         className="hidden sm:inline-flex"
       >

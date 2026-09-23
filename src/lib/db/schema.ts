@@ -223,39 +223,6 @@ export const favoriteAlbums = pgTable(
   ]
 )
 
-// One row per artist a listener has favorited from the artist page (see
-// src/lib/favorite-artists.ts and the heart on src/app/(dashboard)/artist/
-// [id]/page.tsx). Denormalized the same way as `favorite_album` above, so
-// rendering a favorite never needs a fresh Spotify lookup. (userId,
-// spotifyId) is unique so favoriting the same artist twice is a safe no-op
-// instead of a duplicate row.
-export const favoriteArtists = pgTable(
-  "favorite_artist",
-  {
-    id: text("id")
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
-    userId: text("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    spotifyId: text("spotify_id").notNull(),
-    name: text("name").notNull(),
-    imageUrl: text("image_url"),
-    genres: text("genres").array().notNull(),
-    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
-  },
-  (favoriteArtist) => [
-    unique("favorite_artist_user_artist_unique").on(
-      favoriteArtist.userId,
-      favoriteArtist.spotifyId
-    ),
-    index("favorite_artist_user_id_created_at_idx").on(
-      favoriteArtist.userId,
-      favoriteArtist.createdAt
-    ),
-  ]
-)
-
 export const discoverPicks = pgTable(
   "discover_pick",
   {

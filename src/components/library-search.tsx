@@ -22,7 +22,7 @@ export function LibrarySearch({ autoFocus = false }: LibrarySearchProps) {
       <FieldGroup className="w-full">
         <Field>
           <FieldLabel htmlFor="library-search-trigger" className="sr-only">
-            Search albums, artists, or users
+            Search albums or users
           </FieldLabel>
           <button
             id="library-search-trigger"
@@ -32,7 +32,7 @@ export function LibrarySearch({ autoFocus = false }: LibrarySearchProps) {
             className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg border border-input bg-transparent px-3 text-left text-muted-foreground outline-none transition-colors hover:border-ring/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <SearchIcon className="size-4 shrink-0" />
-            <span className="truncate text-sm">Search albums, artists, or @username...</span>
+            <span className="truncate text-sm">Search albums or @username...</span>
           </button>
         </Field>
       </FieldGroup>
