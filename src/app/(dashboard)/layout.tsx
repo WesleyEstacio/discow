@@ -5,7 +5,7 @@ import { AppHeader, type AppHeaderUser } from "@/components/app-header"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toast"
 import { baseMetadata } from "@/lib/seo"
-import { isStudioAdminEmail } from "@/lib/studio/admin"
+import { isStudioAdmin } from "@/lib/studio/admin"
 import "../globals.css"
 
 // This is its own root layout, independent from app/(marketing)/layout.tsx -
@@ -35,7 +35,7 @@ export default function DashboardLayout({
   // account-specific slot inside it suspends on the session lookup.
   const userPromise: Promise<AppHeaderUser | null> = auth().then((session) =>
     session?.user
-      ? { ...session.user, isStudioAdmin: isStudioAdminEmail(session.user.email) }
+      ? { ...session.user, isStudioAdmin: isStudioAdmin(session.user) }
       : null
   )
 

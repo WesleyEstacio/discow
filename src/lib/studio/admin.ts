@@ -1,24 +1,27 @@
 import "server-only"
+import { eq, sql } from "drizzle-orm"
 import { notFound } from "next/navigation"
+import type { Session } from "next-auth"
 import { auth } from "@/auth"
+import { db } from "@/lib/db"
+import { users } from "@/lib/db/schema"
 
 export type StudioAdmin = {
   userId: string
   email: string
 }
 
-function readAdminEmails(): Set<string> {
-  return new Set(
-    (process.env.ADMIN_EMAILS ?? "")
-      .split(",")
-      .map((email) => email.trim().toLowerCase())
-      .filter(Boolean)
-  )
+export function isStudioAdmin(user: Session["user"] | null | undefined): boolean {
+  return user?.role === "admin"
 }
 
-export function isStudioAdminEmail(email: string | null | undefined): boolean {
-  if (!email) return false
-  return readAdminEmails().has(email.toLowerCase())
+export async function countStudioAdmins(): Promise<number> {
+  const [adminCountRow] = await db
+    .select({ count: sql<number>`count(*)`.mapWith(Number) })
+    .from(users)
+    .where(eq(users.role, "admin"))
+
+  return adminCountRow?.count ?? 0
 }
 
 export async function getStudioAdmin(): Promise<StudioAdmin | null> {
@@ -26,7 +29,7 @@ export async function getStudioAdmin(): Promise<StudioAdmin | null> {
   const userId = session?.user?.id
   const email = session?.user?.email
 
-  if (!userId || !email || !isStudioAdminEmail(email)) return null
+  if (!userId || !email || !isStudioAdmin(session.user)) return null
   return { userId, email }
 }
 
