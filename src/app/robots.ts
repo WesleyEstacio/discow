@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // JSON endpoints, not content - nothing useful for a crawler to index.
-      disallow: ["/api/"],
+      disallow: ["/api/", "/studio"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   }

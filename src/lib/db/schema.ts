@@ -1,8 +1,11 @@
 import type { AdapterAccountType } from "next-auth/adapters"
+import type { PostLanguage, PostStatus } from "@/lib/studio/post-status"
+import type { StudioSlide } from "@/lib/studio/slides"
 import {
   boolean,
   index,
   integer,
+  jsonb,
   pgTable,
   primaryKey,
   real,
@@ -251,5 +254,82 @@ export const discoverPicks = pgTable(
       discoverPick.userId,
       discoverPick.createdAt
     ),
+  ]
+)
+
+// Discows Studio (src/app/(studio)): internal, admin-only tables for planning
+// and exporting Instagram carousels. Kept apart from the listener-facing
+// tables above - nothing here is ever read by a public page or endpoint.
+
+export type StudioAlbumSource = "spotify" | "musicbrainz" | "manual"
+export type StudioCoverSource = "spotify" | "cover-art-archive" | "custom"
+
+// The reusable music library. (externalSource, externalId) is unique so
+// saving the same Spotify/MusicBrainz release twice updates nothing instead
+// of creating a duplicate; manual entries have no externalId and are never
+// deduplicated. Fields an API didn't return stay null for manual filling
+// rather than being guessed.
+export const studioAlbums = pgTable(
+  "studio_album",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    title: text("title").notNull(),
+    artistNames: text("artist_names").array().notNull(),
+    releaseYear: integer("release_year"),
+    coverImageUrl: text("cover_image_url"),
+    coverSource: text("cover_source").$type<StudioCoverSource>(),
+    dominantColorHex: text("dominant_color_hex"),
+    genres: text("genres").array().notNull().default([]),
+    tags: text("tags").array().notNull().default([]),
+    editorialDescription: text("editorial_description").notNull().default(""),
+    editorialNotes: text("editorial_notes").notNull().default(""),
+    spotifyUrl: text("spotify_url"),
+    externalSource: text("external_source").$type<StudioAlbumSource>().notNull(),
+    externalId: text("external_id"),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
+  },
+  (studioAlbum) => [
+    unique("studio_album_external_unique").on(
+      studioAlbum.externalSource,
+      studioAlbum.externalId
+    ),
+    index("studio_album_created_at_idx").on(studioAlbum.createdAt),
+  ]
+)
+
+// One Instagram carousel. Slides live in a jsonb column (validated by
+// studioSlidesSchema in src/lib/studio/slides.ts) because the editor always
+// reads and saves the whole carousel at once; albumIds mirrors the albums
+// the slides use so the overview can list recently used albums cheaply.
+export const studioPosts = pgTable(
+  "studio_post",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    title: text("title").notNull(),
+    templateKey: text("template_key").notNull(),
+    status: text("status").$type<PostStatus>().notNull().default("draft"),
+    language: text("language").$type<PostLanguage>().notNull().default("pt"),
+    settings: jsonb("settings").$type<Record<string, string>>().notNull().default({}),
+    slides: jsonb("slides").$type<StudioSlide[]>().notNull(),
+    albumIds: text("album_ids").array().notNull().default([]),
+    caption: text("caption").notNull().default(""),
+    notes: text("notes").notNull().default(""),
+    scheduledFor: timestamp("scheduled_for", { mode: "date" }),
+    publishedAt: timestamp("published_at", { mode: "date" }),
+    createdByUserId: text("created_by_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
+  },
+  (studioPost) => [
+    index("studio_post_status_idx").on(studioPost.status),
+    index("studio_post_scheduled_for_idx").on(studioPost.scheduledFor),
+    index("studio_post_updated_at_idx").on(studioPost.updatedAt),
   ]
 )

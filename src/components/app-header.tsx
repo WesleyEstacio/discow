@@ -8,6 +8,7 @@ import {
   CompassIcon,
   LibraryIcon,
   LogOutIcon,
+  PenToolIcon,
   SunMoonIcon,
   UserIcon,
 } from "lucide-react"
@@ -37,6 +38,7 @@ export type AppHeaderUser = {
   email?: string | null
   image?: string | null
   username?: string | null
+  isStudioAdmin?: boolean
 }
 
 type AppHeaderProps = {
@@ -211,6 +213,12 @@ function AccountSlot({ userPromise }: { userPromise: Promise<AppHeaderUser | nul
           <UserIcon />
           Profile
         </DropdownMenuLinkItem>
+        {user.isStudioAdmin ? (
+          <DropdownMenuLinkItem render={<a href="/studio" />} closeOnClick>
+            <PenToolIcon />
+            Discows Studio
+          </DropdownMenuLinkItem>
+        ) : null}
         <DropdownMenuItem onClick={handleToggleTheme}>
           <SunMoonIcon />
           Toggle theme
