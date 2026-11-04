@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react"
 import {
   ArrowDownIcon,
   ArrowUpIcon,
+  ChevronDownIcon,
   CopyIcon,
   DownloadIcon,
   FileArchiveIcon,
@@ -29,6 +30,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/toast"
+import type { StudioImageSummary } from "@/lib/studio/background-images"
 import { savePostAction } from "@/lib/studio/post-actions"
 import { MAX_CAPTION_LENGTH, type StudioPostDraft } from "@/lib/studio/post-input"
 import {
@@ -47,6 +49,7 @@ import {
   MAX_SLIDES_PER_POST,
   SLIDE_LAYOUT_LABELS,
   SLIDE_LAYOUTS,
+  type SlideBackgroundImage,
   type StudioSlide,
 } from "@/lib/studio/slides"
 import { cn } from "@/lib/utils"
@@ -57,6 +60,7 @@ type PostEditorProps = {
   initialDraft: StudioPostDraft
   albums: EditorAlbumOption[]
   coverSourcesByAlbumId: Record<string, SlideCanvasAlbum["coverSource"]>
+  initialUploadedImages: StudioImageSummary[]
 }
 
 function moveItem<Item>(items: Item[], fromIndex: number, toIndex: number): Item[] {
@@ -67,8 +71,16 @@ function moveItem<Item>(items: Item[], fromIndex: number, toIndex: number): Item
   return reorderedItems
 }
 
-export function PostEditor({ postId, templateName, initialDraft, albums, coverSourcesByAlbumId }: PostEditorProps) {
+export function PostEditor({
+  postId,
+  templateName,
+  initialDraft,
+  albums,
+  coverSourcesByAlbumId,
+  initialUploadedImages,
+}: PostEditorProps) {
   const [draft, setDraft] = useState<StudioPostDraft>(initialDraft)
+  const [uploadedImages, setUploadedImages] = useState(initialUploadedImages)
   const [savedDraftSnapshot, setSavedDraftSnapshot] = useState(() => JSON.stringify(initialDraft))
   const [selectedSlideId, setSelectedSlideId] = useState(initialDraft.slides[0]?.id ?? "")
   const [isSaving, startSaving] = useTransition()
@@ -138,16 +150,42 @@ export function PostEditor({ postId, templateName, initialDraft, albums, coverSo
     updateSlides((slides) => moveItem(slides, selectedSlideIndex, selectedSlideIndex + direction))
   }
 
+  function applyBackgroundImageToAllSlides(backgroundImage: SlideBackgroundImage | null) {
+    updateSlides((slides) => slides.map((slide) => ({ ...slide, backgroundImage })))
+    toast.add({ title: backgroundImage ? "Fundo aplicado a todos os slides" : "Fundo removido de todos os slides", type: "success" })
+  }
+
+  async function persistDraft(draftBeingSaved: StudioPostDraft): Promise<boolean> {
+    const result = await savePostAction(postId, draftBeingSaved)
+    if (!result.success) {
+      toast.add({ title: "Não foi possível salvar", description: result.error, type: "error" })
+      return false
+    }
+    setSavedDraftSnapshot(JSON.stringify(draftBeingSaved))
+    return true
+  }
+
   function saveDraft() {
     const draftBeingSaved = draft
     startSaving(async () => {
-      const result = await savePostAction(postId, draftBeingSaved)
-      if (!result.success) {
-        toast.add({ title: "Não foi possível salvar", description: result.error, type: "error" })
-        return
-      }
-      setSavedDraftSnapshot(JSON.stringify(draftBeingSaved))
-      toast.add({ title: "Publicação salva", type: "success" })
+      if (await persistDraft(draftBeingSaved)) toast.add({ title: "Publicação salva", type: "success" })
+    })
+  }
+
+  function startDownload(downloadUrl: string) {
+    window.location.assign(downloadUrl)
+    toast.add({ title: "Gerando os slides…", description: "O download começa em alguns segundos." })
+  }
+
+  // The export reads the saved post, so pending edits are saved first.
+  function saveAndDownload(downloadUrl: string) {
+    if (!hasUnsavedChanges) {
+      startDownload(downloadUrl)
+      return
+    }
+    const draftBeingSaved = draft
+    startSaving(async () => {
+      if (await persistDraft(draftBeingSaved)) startDownload(downloadUrl)
     })
   }
 
@@ -166,7 +204,8 @@ export function PostEditor({ postId, templateName, initialDraft, albums, coverSo
   }))
   const selectedSlideIssues = slidesWithIssues[selectedSlideIndex]!
   const captionHasPlaceholders = /\[[^\]]+\]/.test(draft.caption)
-  const exportDisabledReason = hasUnsavedChanges ? "Salve as alterações antes de exportar" : null
+  const carouselZipUrl = `/api/studio/posts/${postId}/export`
+  const selectedSlidePngUrl = `/api/studio/posts/${postId}/slides/${selectedSlideIndex + 1}?download=1`
 
   return (
     <div className="flex flex-col">
@@ -198,32 +237,35 @@ export function PostEditor({ postId, templateName, initialDraft, albums, coverSo
           </SelectContent>
         </Select>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={<Button variant="outline" disabled={Boolean(exportDisabledReason)} />}
-            title={exportDisabledReason ?? undefined}
-          >
-            <DownloadIcon data-icon="inline-start" />
-            Exportar
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem render={<a href={`/api/studio/posts/${postId}/export`} download />}>
-              <FileArchiveIcon />
-              Todos os slides (.zip)
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              render={<a href={`/api/studio/posts/${postId}/slides/${selectedSlideIndex + 1}?download=1`} download />}
-            >
-              <DownloadIcon />
-              Slide atual (.png)
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <Button onClick={saveDraft} disabled={isSaving || !hasUnsavedChanges}>
+        <Button variant="outline" onClick={saveDraft} disabled={isSaving || !hasUnsavedChanges}>
           <SaveIcon data-icon="inline-start" />
           {isSaving ? "Salvando…" : "Salvar"}
         </Button>
+
+        <div className="flex items-center">
+          <Button onClick={() => saveAndDownload(carouselZipUrl)} disabled={isSaving} className="rounded-r-none">
+            <FileArchiveIcon data-icon="inline-start" />
+            {hasUnsavedChanges ? "Salvar e baixar" : "Baixar carrossel"}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={<Button size="icon" disabled={isSaving} className="rounded-l-none border-l border-primary-foreground/20" />}
+              aria-label="Mais opções de download"
+            >
+              <ChevronDownIcon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => saveAndDownload(carouselZipUrl)}>
+                <FileArchiveIcon />
+                Todos os slides + legenda (.zip)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => saveAndDownload(selectedSlidePngUrl)}>
+                <DownloadIcon />
+                Só o slide {selectedSlideIndex + 1} (.png)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <div className="grid gap-8 px-6 py-8 md:px-10 xl:grid-cols-[200px_minmax(0,1fr)_360px]">
@@ -329,7 +371,15 @@ export function PostEditor({ postId, templateName, initialDraft, albums, coverSo
           <h2 className="text-sm font-medium">
             Slide {selectedSlideIndex + 1} de {draft.slides.length}
           </h2>
-          <SlideInspector key={selectedSlide.id} slide={selectedSlide} albums={albums} onChange={updateSelectedSlide} />
+          <SlideInspector
+            key={selectedSlide.id}
+            slide={selectedSlide}
+            albums={albums}
+            uploadedImages={uploadedImages}
+            onChange={updateSelectedSlide}
+            onImageUploaded={(image) => setUploadedImages((currentImages) => [image, ...currentImages])}
+            onApplyBackgroundImageToAllSlides={applyBackgroundImageToAllSlides}
+          />
         </section>
       </div>
 
@@ -426,8 +476,7 @@ export function PostEditor({ postId, templateName, initialDraft, albums, coverSo
               <div className="flex flex-col gap-2 rounded-lg border border-border p-4 text-sm text-muted-foreground">
                 <p className="font-medium text-foreground">Para publicar no Instagram</p>
                 <ol className="list-decimal space-y-1 pl-5">
-                  <li>Revise e mude o status para <Badge variant="secondary">Aprovada</Badge>.</li>
-                  <li>Exporte os slides (.zip) e copie a legenda.</li>
+                  <li>Clique em <span className="font-medium text-foreground">Baixar carrossel</span>. O .zip traz os slides e a legenda.</li>
                   <li>Publique manualmente pelo app do Instagram.</li>
                   <li>Volte aqui e marque como <Badge variant="secondary">Publicada</Badge>.</li>
                 </ol>
