@@ -36,6 +36,10 @@ export function editorPlaceholder(language: PostLanguage, portugueseText: string
   return `[${language === "pt" ? portugueseText : englishText}]`
 }
 
+export function joinCaptionParagraphs(paragraphs: (string | null | undefined | false)[]): string {
+  return paragraphs.filter((paragraph): paragraph is string => Boolean(paragraph && paragraph.trim())).join("\n\n")
+}
+
 export function chunkAlbums<Item>(items: Item[], chunkSize: number): Item[][] {
   const chunks: Item[][] = []
   for (let index = 0; index < items.length; index += chunkSize) {
