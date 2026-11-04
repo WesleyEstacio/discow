@@ -1,5 +1,5 @@
 import { SlideCanvas, type SlideCanvasAlbum } from "@/components/studio/slide-canvas"
-import { SLIDE_HEIGHT, SLIDE_WIDTH, type StudioSlide } from "@/lib/studio/slides"
+import { SLIDE_HEIGHT, SLIDE_WIDTH, studioImageUrl, type StudioSlide } from "@/lib/studio/slides"
 import { cn } from "@/lib/utils"
 
 type SlidePreviewProps = {
@@ -28,6 +28,8 @@ export function SlidePreview({ slide, albumsById, slideNumber, slideCount, displ
           slideNumber={slideNumber}
           slideCount={slideCount}
           fontFamily="var(--font-sans), sans-serif"
+          backgroundImageSrc={slide.backgroundImage ? studioImageUrl(slide.backgroundImage.imageId) : null}
+          backgroundEffectsMode="css"
         />
       </div>
     </div>

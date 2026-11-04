@@ -1,7 +1,8 @@
 import type { AdapterAccountType } from "next-auth/adapters"
 import type { PostLanguage, PostStatus } from "@/lib/studio/post-status"
-import type { StudioSlide } from "@/lib/studio/slides"
+import type { StoredStudioSlide } from "@/lib/studio/slides"
 import {
+  customType,
   boolean,
   index,
   integer,
@@ -315,7 +316,7 @@ export const studioPosts = pgTable(
     status: text("status").$type<PostStatus>().notNull().default("draft"),
     language: text("language").$type<PostLanguage>().notNull().default("pt"),
     settings: jsonb("settings").$type<Record<string, string>>().notNull().default({}),
-    slides: jsonb("slides").$type<StudioSlide[]>().notNull(),
+    slides: jsonb("slides").$type<StoredStudioSlide[]>().notNull(),
     albumIds: text("album_ids").array().notNull().default([]),
     caption: text("caption").notNull().default(""),
     notes: text("notes").notNull().default(""),
@@ -332,4 +333,43 @@ export const studioPosts = pgTable(
     index("studio_post_scheduled_for_idx").on(studioPost.scheduledFor),
     index("studio_post_updated_at_idx").on(studioPost.updatedAt),
   ]
+)
+
+// Drizzle has no built-in bytea column. The Neon HTTP driver sends
+// parameters as JSON, so bytes go in as Postgres' hex text format and may
+// come back either as a Buffer or as that same hex text.
+const byteaColumn = customType<{ data: Buffer; driverData: Buffer | string }>({
+  dataType() {
+    return "bytea"
+  },
+  toDriver(bytes) {
+    return `\\x${bytes.toString("hex")}`
+  },
+  fromDriver(storedValue) {
+    if (typeof storedValue !== "string") return Buffer.from(storedValue)
+    return Buffer.from(storedValue.replace(/^\\x/, ""), "hex")
+  },
+})
+
+// Background images uploaded in the Studio editor. Stored re-encoded as
+// JPEG (see src/lib/studio/background-images.ts) so they stay small and free
+// of camera metadata. Slides reference them by id; rows are never mutated,
+// which lets the image route cache them forever.
+export const studioImages = pgTable(
+  "studio_image",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    contentType: text("content_type").notNull(),
+    bytes: byteaColumn("bytes").notNull(),
+    width: integer("width").notNull(),
+    height: integer("height").notNull(),
+    byteSize: integer("byte_size").notNull(),
+    createdByUserId: text("created_by_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+  },
+  (studioImage) => [index("studio_image_created_at_idx").on(studioImage.createdAt)]
 )

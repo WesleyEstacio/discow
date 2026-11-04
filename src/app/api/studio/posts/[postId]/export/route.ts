@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit"
 import { getStudioAdmin } from "@/lib/studio/admin"
 import { getStudioAlbumsByIds } from "@/lib/studio/albums"
+import { buildRenderableBackgrounds } from "@/lib/studio/background-images"
 import { getStudioPost } from "@/lib/studio/posts"
 import {
   buildExportFileBaseName,
@@ -27,11 +28,14 @@ export async function GET(request: Request, context: RouteContext) {
   const post = await getStudioPost(postId)
   if (!post) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-  const albumsById = await buildRenderableAlbums(await getStudioAlbumsByIds(post.albumIds))
+  const [albumsById, backgroundsBySlideId] = await Promise.all([
+    getStudioAlbumsByIds(post.albumIds).then(buildRenderableAlbums),
+    buildRenderableBackgrounds(post.slides),
+  ])
 
   const slideImages = await Promise.all(
     post.slides.map(async (_slide, slideIndex) => {
-      const slideImage = await renderSlideImage(post.slides, slideIndex, albumsById)
+      const slideImage = await renderSlideImage(post.slides, slideIndex, albumsById, backgroundsBySlideId)
       return [buildSlideFileName(post.title, slideIndex), new Uint8Array(await slideImage.arrayBuffer())] as const
     })
   )

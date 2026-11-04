@@ -80,6 +80,7 @@ export async function renderSlideImage(
   slides: StudioSlide[],
   slideIndex: number,
   albumsById: Record<string, SlideCanvasAlbum>,
+  backgroundsBySlideId: Record<string, string>,
   headers?: Record<string, string>
 ): Promise<ImageResponse> {
   const slide = slides[slideIndex]
@@ -93,6 +94,8 @@ export async function renderSlideImage(
         slideNumber={slideIndex + 1}
         slideCount={slides.length}
         fontFamily={SLIDE_FONT_FAMILY}
+        backgroundImageSrc={backgroundsBySlideId[slide.id] ?? null}
+        backgroundEffectsMode="prerendered"
       />
     ),
     { width: SLIDE_WIDTH, height: SLIDE_HEIGHT, fonts: await loadSlideFonts(), headers }
