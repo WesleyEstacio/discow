@@ -1,6 +1,7 @@
 import type { AdapterAccountType } from "next-auth/adapters"
 import type { PostLanguage, PostStatus } from "@/lib/studio/post-status"
 import type { StoredStudioSlide } from "@/lib/studio/slides"
+import type { UserRole } from "@/lib/user-role"
 import {
   customType,
   boolean,
@@ -42,6 +43,8 @@ export const users = pgTable("user", {
   // rows get backfilled to the migration's run date, so pre-launch accounts
   // are all treated as one early cohort.
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+  // "admin" unlocks the Discows Studio (see src/lib/studio/admin.ts).
+  role: text("role").$type<UserRole>().notNull().default("user"),
 })
 
 export const accounts = pgTable(

@@ -110,8 +110,22 @@
     {
       "idx": 15,
       "version": "7",
+      "when": 1793106005658,
+      "tag": "0015_add_user_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793106009263,
+      "tag": "0016_promote_studio_admins",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
       "when": 1793811236634,
-      "tag": "0015_add_studio_images",
+      "tag": "0017_add_studio_images",
       "breakpoints": true
     }
   ]

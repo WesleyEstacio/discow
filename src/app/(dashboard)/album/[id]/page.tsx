@@ -208,6 +208,7 @@ async function ReviewFormData({ album }: { album: AlbumDetail }) {
       album={album}
       initialReview={initialReview}
       isSignedIn={Boolean(session?.user)}
+      username={session?.user?.username ?? null}
     />
   )
 }

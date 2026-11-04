@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { Trash2Icon } from "lucide-react"
+import { ShareReviewButton } from "@/components/share-review-button"
 import { SignInButton } from "@/components/sign-in-button"
 import { StarRating } from "@/components/star-rating"
 import { Button } from "@/components/ui/button"
@@ -20,15 +21,26 @@ type ReviewFormProps = {
   album: AlbumDetail
   initialReview: Review | null
   isSignedIn: boolean
+  username: string | null
 }
 
-export function ReviewForm({ album, initialReview, isSignedIn }: ReviewFormProps) {
+export function ReviewForm({
+  album,
+  initialReview,
+  isSignedIn,
+  username,
+}: ReviewFormProps) {
   if (!isSignedIn) {
     return <SignInPrompt />
   }
 
   return (
-    <ReviewFormFields key={album.id} album={album} initialReview={initialReview} />
+    <ReviewFormFields
+      key={album.id}
+      album={album}
+      initialReview={initialReview}
+      username={username}
+    />
   )
 }
 
@@ -49,12 +61,16 @@ function SignInPrompt() {
 type ReviewFormFieldsProps = {
   album: AlbumDetail
   initialReview: Review | null
+  username: string | null
 }
 
-function ReviewFormFields({ album, initialReview }: ReviewFormFieldsProps) {
+function ReviewFormFields({ album, initialReview, username }: ReviewFormFieldsProps) {
   const [rating, setRating] = useState(initialReview?.rating ?? 0)
   const [text, setText] = useState(initialReview?.text ?? "")
   const [hasReview, setHasReview] = useState(initialReview !== null)
+  const [savedReviewVersion, setSavedReviewVersion] = useState(
+    initialReview?.updatedAt ?? ""
+  )
   const [isPending, startTransition] = useTransition()
 
   function handleSave() {
@@ -89,6 +105,7 @@ function ReviewFormFields({ album, initialReview }: ReviewFormFieldsProps) {
       }
 
       setHasReview(true)
+      setSavedReviewVersion(new Date().toISOString())
       toast.add({
         title: "Review saved",
         description: `${album.name} is now in your catalog.`,
@@ -165,6 +182,14 @@ function ReviewFormFields({ album, initialReview }: ReviewFormFieldsProps) {
                 <Trash2Icon data-icon="inline-start" />
                 Remove
               </Button>
+            ) : null}
+            {hasReview && username ? (
+              <ShareReviewButton
+                username={username}
+                spotifyId={album.id}
+                albumName={album.name}
+                reviewVersion={savedReviewVersion}
+              />
             ) : null}
           </div>
         </Field>

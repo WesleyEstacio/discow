@@ -1,7 +1,7 @@
 import { CheckCircle2Icon, CircleDashedIcon, CircleMinusIcon } from "lucide-react"
 import { StudioPageHeader } from "@/components/studio/studio-page-header"
 import { Badge } from "@/components/ui/badge"
-import { requireStudioAdmin } from "@/lib/studio/admin"
+import { countStudioAdmins, requireStudioAdmin } from "@/lib/studio/admin"
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/studio/slides"
 import { DISCOWS_WEBSITE } from "@/lib/studio/templates/template-helpers"
 
@@ -28,7 +28,7 @@ function hasEnvironmentValue(...variableNames: string[]): boolean {
 
 export default async function StudioSettingsPage() {
   const admin = await requireStudioAdmin()
-  const adminCount = (process.env.ADMIN_EMAILS ?? "").split(",").filter((email) => email.trim()).length
+  const adminCount = await countStudioAdmins()
 
   // Only whether each secret exists is read here - values never leave the server.
   const integrations: IntegrationStatus[] = [
@@ -101,8 +101,8 @@ export default async function StudioSettingsPage() {
           <section aria-labelledby="access" className="flex flex-col gap-3">
             <h2 id="access" className="font-heading text-lg font-medium">Acesso</h2>
             <p className="text-sm text-muted-foreground">
-              Entrou como <span className="text-foreground">{admin.email}</span>. {adminCount} e-mail(s) autorizado(s) em
-              ADMIN_EMAILS. Quem não está na lista recebe uma página 404.
+              Entrou como <span className="text-foreground">{admin.email}</span>. {adminCount} conta(s) com papel
+              de admin. Quem não é admin recebe uma página 404.
             </p>
           </section>
 

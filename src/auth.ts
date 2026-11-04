@@ -4,14 +4,21 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { db } from "@/lib/db"
 import { accounts, sessions, users, verificationTokens } from "@/lib/db/schema"
 import { ensureJoinedTag } from "@/lib/tags"
+import { isUserRole, type UserRole } from "@/lib/user-role"
 import { ensureUsername } from "@/lib/username"
 
 // The Auth.js `AdapterUser` type doesn't know about our custom `username`
-// column, even though the Drizzle adapter reads it from the database - so we
-// read it off with a small local cast instead of fighting the library types.
+// and `role` columns, even though the Drizzle adapter reads them from the
+// database - so we read them off with a small local cast instead of fighting
+// the library types.
 function readUsername(user: object): string | null {
   const value = (user as { username?: unknown }).username
   return typeof value === "string" ? value : null
+}
+
+function readRole(user: object): UserRole {
+  const value = (user as { role?: unknown }).role
+  return isUserRole(value) ? value : "user"
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -32,6 +39,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     session({ session, user }) {
       session.user.id = user.id
       session.user.username = readUsername(user)
+      session.user.role = readRole(user)
       return session
     },
   },
