@@ -45,22 +45,24 @@ export default async function CreatePostPage() {
           ))}
         </ul>
 
-        <section aria-labelledby="planned-templates" className="flex flex-col gap-4">
-          <h2 id="planned-templates" className="text-sm font-medium text-muted-foreground">
-            Próximos formatos
-          </h2>
-          <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {PLANNED_STUDIO_TEMPLATES.map((template) => (
-              <li key={template.key} className="flex flex-col gap-2 rounded-xl border border-dashed border-border p-4 text-muted-foreground">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-medium text-foreground/80">{template.name}</p>
-                  <Badge variant="outline">Fase 2</Badge>
-                </div>
-                <p className="text-sm">{template.tagline}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {PLANNED_STUDIO_TEMPLATES.length > 0 ? (
+          <section aria-labelledby="planned-templates" className="flex flex-col gap-4">
+            <h2 id="planned-templates" className="text-sm font-medium text-muted-foreground">
+              Próximos formatos
+            </h2>
+            <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {PLANNED_STUDIO_TEMPLATES.map((template) => (
+                <li key={template.key} className="flex flex-col gap-2 rounded-xl border border-dashed border-border p-4 text-muted-foreground">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-medium text-foreground/80">{template.name}</p>
+                    <Badge variant="outline">Fase 2</Badge>
+                  </div>
+                  <p className="text-sm">{template.tagline}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </div>
     </>
   )

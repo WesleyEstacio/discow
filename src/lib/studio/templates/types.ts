@@ -25,13 +25,20 @@ export type TemplateAlbumSlot = {
   minAlbums: number
   maxAlbums: number
   sortByColorSetting?: string
+  isOrdered?: boolean
+}
+
+export type TemplateSettingOption = {
+  value: string
+  label: string
 }
 
 export type TemplateSettingField = {
   key: string
   label: string
   description?: string
-  kind: "text" | "textarea" | "color"
+  kind: "text" | "textarea" | "color" | "select"
+  options?: TemplateSettingOption[]
   placeholder?: string
   required?: boolean
   defaultValue?: string

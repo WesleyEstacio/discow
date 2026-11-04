@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import Link from "next/link"
-import { CopyIcon, MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react"
+import { CopyIcon, FileArchiveIcon, MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +38,10 @@ export function PostRowActions({ postId, postTitle }: { postId: string; postTitl
           <DropdownMenuLinkItem render={<Link href={`/studio/posts/${postId}`} />} closeOnClick>
             <PencilIcon />
             Abrir no editor
+          </DropdownMenuLinkItem>
+          <DropdownMenuLinkItem render={<a href={`/api/studio/posts/${postId}/export`} download />} closeOnClick>
+            <FileArchiveIcon />
+            Baixar carrossel (.zip)
           </DropdownMenuLinkItem>
           <DropdownMenuItem disabled={isWorking} onClick={() => startWorking(() => duplicatePostAction(postId))}>
             <CopyIcon />

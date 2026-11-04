@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit"
 import { getStudioAdmin } from "@/lib/studio/admin"
 import { getStudioAlbumsByIds } from "@/lib/studio/albums"
+import { buildRenderableBackgrounds } from "@/lib/studio/background-images"
 import { getStudioPost } from "@/lib/studio/posts"
 import { buildRenderableAlbums, buildSlideFileName, renderSlideImage } from "@/lib/studio/render-slides"
 
@@ -25,10 +26,13 @@ export async function GET(request: Request, context: RouteContext) {
   }
 
   const slide = post.slides[slideIndex]!
-  const albumsById = await buildRenderableAlbums(await getStudioAlbumsByIds(slide.albumIds))
+  const [albumsById, backgroundsBySlideId] = await Promise.all([
+    getStudioAlbumsByIds(slide.albumIds).then(buildRenderableAlbums),
+    buildRenderableBackgrounds([slide]),
+  ])
   const shouldDownload = new URL(request.url).searchParams.get("download") === "1"
 
-  return renderSlideImage(post.slides, slideIndex, albumsById, {
+  return renderSlideImage(post.slides, slideIndex, albumsById, backgroundsBySlideId, {
     "Cache-Control": "private, no-store",
     "Content-Disposition": `${shouldDownload ? "attachment" : "inline"}; filename="${buildSlideFileName(post.title, slideIndex)}"`,
   })

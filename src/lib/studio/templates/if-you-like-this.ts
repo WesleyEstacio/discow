@@ -89,6 +89,7 @@ export const ifYouLikeThisTemplate: StudioTemplate = {
         kicker: copy.coverKicker,
         headline: coverHeadline,
         body: copy.coverBody,
+        albumIds: [referenceAlbum, ...recommendedAlbums].slice(0, 3).map((album) => album.id),
         backgroundKey: "ink",
       }),
       createEmptySlide("album", {

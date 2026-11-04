@@ -83,6 +83,7 @@ export const colorMeDiscowsTemplate: StudioTemplate = {
         kicker: copy.coverKicker,
         headline: colorName,
         body: copy.coverBody,
+        albumIds: approvedAlbums.slice(0, 3).map((album) => album.id),
         customBackgroundHex: colorHex,
       }),
       ...chunkAlbums(approvedAlbums, MAX_ALBUMS_PER_GRID_SLIDE).map((albumsOnSlide) =>

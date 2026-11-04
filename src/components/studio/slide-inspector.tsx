@@ -1,21 +1,33 @@
 "use client"
 
 import { useState } from "react"
-import { AlignCenterIcon, AlignLeftIcon, XIcon } from "lucide-react"
+import { AlignCenterIcon, AlignLeftIcon, ArrowDownIcon, ArrowUpIcon, RotateCcwIcon, XIcon } from "lucide-react"
+import { SlideBackgroundImageField } from "@/components/studio/slide-background-image-field"
 import { StudioCoverImage } from "@/components/studio/studio-cover-image"
 import { Button } from "@/components/ui/button"
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import type { StudioImageSummary } from "@/lib/studio/background-images"
 import {
-  MAX_ALBUMS_PER_GRID_SLIDE,
+  BACKGROUND_STYLE_LABELS,
+  BACKGROUND_STYLES,
+  CONTENT_POSITION_LABELS,
+  CONTENT_POSITIONS,
+  HEADLINE_SIZE_LABELS,
+  HEADLINE_SIZES,
+  MAX_ALBUMS_BY_LAYOUT,
+  resolveSlideColors,
   SLIDE_BACKGROUND_KEYS,
   SLIDE_BACKGROUNDS,
   SLIDE_LAYOUT_LABELS,
   SLIDE_LAYOUTS,
   SLIDE_TEXT_LIMITS,
+  type ContentPosition,
+  type SlideBackgroundImage,
   type SlideLayout,
   type StudioSlide,
 } from "@/lib/studio/slides"
@@ -33,13 +45,16 @@ export type EditorAlbumOption = {
 type SlideInspectorProps = {
   slide: StudioSlide
   albums: EditorAlbumOption[]
+  uploadedImages: StudioImageSummary[]
   onChange: (patch: Partial<StudioSlide>) => void
+  onImageUploaded: (image: StudioImageSummary) => void
+  onApplyBackgroundImageToAllSlides: (backgroundImage: SlideBackgroundImage | null) => void
 }
 
-function maxAlbumsForLayout(layout: SlideLayout): number {
-  if (layout === "album") return 1
-  if (layout === "album-grid") return MAX_ALBUMS_PER_GRID_SLIDE
-  return 0
+const LAYOUTS_WITH_SOURCE_NOTE = new Set<SlideLayout>(["album", "ranked-album", "text", "quote"])
+
+const BODY_LABELS: Partial<Record<SlideLayout, string>> = {
+  quote: "Autor da citação",
 }
 
 function CharacterCounter({ length, limit }: { length: number; limit: number }) {
@@ -51,129 +66,293 @@ function CharacterCounter({ length, limit }: { length: number; limit: number }) 
   )
 }
 
-export function SlideInspector({ slide, albums, onChange }: SlideInspectorProps) {
+function readNumberInput(value: string): number | null {
+  const parsedNumber = Number.parseInt(value, 10)
+  if (!Number.isInteger(parsedNumber)) return null
+  return Math.min(99, Math.max(1, parsedNumber))
+}
+
+export function SlideInspector({
+  slide,
+  albums,
+  uploadedImages,
+  onChange,
+  onImageUploaded,
+  onApplyBackgroundImageToAllSlides,
+}: SlideInspectorProps) {
   const limits = SLIDE_TEXT_LIMITS[slide.layout]
-  const maxAlbums = maxAlbumsForLayout(slide.layout)
+  const maxAlbums = MAX_ALBUMS_BY_LAYOUT[slide.layout]
+  const currentAccentColor = resolveSlideColors(slide).accent
 
   function changeLayout(nextLayout: SlideLayout) {
-    onChange({ layout: nextLayout, albumIds: slide.albumIds.slice(0, maxAlbumsForLayout(nextLayout)) })
+    onChange({ layout: nextLayout, albumIds: slide.albumIds.slice(0, MAX_ALBUMS_BY_LAYOUT[nextLayout]) })
   }
 
   return (
-    <FieldGroup className="gap-5">
-      <Field>
-        <FieldLabel htmlFor="slide-layout">Layout</FieldLabel>
-        <Select value={slide.layout} onValueChange={(value) => changeLayout(value as SlideLayout)}>
-          <SelectTrigger id="slide-layout" className="w-full">
-            <SelectValue>{(value: SlideLayout) => SLIDE_LAYOUT_LABELS[value]}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {SLIDE_LAYOUTS.map((layout) => (
-              <SelectItem key={layout} value={layout}>
-                {SLIDE_LAYOUT_LABELS[layout]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </Field>
+    <FieldGroup className="gap-6">
+      <FieldSet className="gap-5">
+        <FieldLegend variant="label" className="sr-only">Conteúdo</FieldLegend>
+        <Field>
+          <FieldLabel htmlFor="slide-layout">Layout</FieldLabel>
+          <Select value={slide.layout} onValueChange={(value) => changeLayout(value as SlideLayout)}>
+            <SelectTrigger id="slide-layout" className="w-full">
+              <SelectValue>{(value: SlideLayout) => SLIDE_LAYOUT_LABELS[value]}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {SLIDE_LAYOUTS.map((layout) => (
+                <SelectItem key={layout} value={layout}>
+                  {SLIDE_LAYOUT_LABELS[layout]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
 
-      <Field>
-        <div className="flex items-center gap-2">
-          <FieldLabel htmlFor="slide-kicker">Rótulo</FieldLabel>
-          <CharacterCounter length={slide.kicker.length} limit={limits.kicker} />
-        </div>
-        <Input id="slide-kicker" value={slide.kicker} onChange={(event) => onChange({ kicker: event.target.value })} />
-      </Field>
-
-      <Field>
-        <div className="flex items-center gap-2">
-          <FieldLabel htmlFor="slide-headline">Título</FieldLabel>
-          <CharacterCounter length={slide.headline.length} limit={limits.headline} />
-        </div>
-        <Textarea id="slide-headline" rows={2} value={slide.headline} onChange={(event) => onChange({ headline: event.target.value })} />
-        {slide.layout === "album" ? (
-          <FieldDescription>Vazio = usa o título do álbum.</FieldDescription>
-        ) : null}
-      </Field>
-
-      {slide.layout !== "album-grid" ? (
         <Field>
           <div className="flex items-center gap-2">
-            <FieldLabel htmlFor="slide-body">Texto</FieldLabel>
-            <CharacterCounter length={slide.body.length} limit={limits.body} />
+            <FieldLabel htmlFor="slide-kicker">Rótulo</FieldLabel>
+            <CharacterCounter length={slide.kicker.length} limit={limits.kicker} />
           </div>
-          <Textarea id="slide-body" rows={5} value={slide.body} onChange={(event) => onChange({ body: event.target.value })} />
+          <Input id="slide-kicker" value={slide.kicker} onChange={(event) => onChange({ kicker: event.target.value })} />
         </Field>
-      ) : null}
 
-      {maxAlbums > 0 ? (
-        <SlideAlbumPicker
-          albums={albums}
-          selectedAlbumIds={slide.albumIds}
-          maxAlbums={maxAlbums}
-          onChange={(albumIds) => onChange({ albumIds })}
-          onUseDescription={slide.layout === "album" ? (description) => onChange({ body: description }) : undefined}
-        />
-      ) : null}
+        <Field>
+          <div className="flex items-center gap-2">
+            <FieldLabel htmlFor="slide-headline">{slide.layout === "quote" ? "Citação" : "Título"}</FieldLabel>
+            <CharacterCounter length={slide.headline.length} limit={limits.headline} />
+          </div>
+          <Textarea
+            id="slide-headline"
+            rows={slide.layout === "quote" ? 4 : 2}
+            value={slide.headline}
+            onChange={(event) => onChange({ headline: event.target.value })}
+          />
+          {slide.layout === "album" || slide.layout === "ranked-album" ? (
+            <FieldDescription>Vazio = usa o título do álbum.</FieldDescription>
+          ) : null}
+        </Field>
 
-      <Field>
-        <FieldLabel>Fundo</FieldLabel>
-        <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label="Cor de fundo">
-          {SLIDE_BACKGROUND_KEYS.map((backgroundKey) => {
-            const isSelected = !slide.customBackgroundHex && slide.backgroundKey === backgroundKey
-            return (
-              <button
-                key={backgroundKey}
-                type="button"
-                role="radio"
-                aria-checked={isSelected}
-                aria-label={SLIDE_BACKGROUNDS[backgroundKey].label}
-                title={SLIDE_BACKGROUNDS[backgroundKey].label}
-                onClick={() => onChange({ backgroundKey, customBackgroundHex: null })}
-                className={cn(
-                  "size-8 rounded-full border border-border outline-none transition-transform focus-visible:ring-3 focus-visible:ring-ring/50",
-                  isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                )}
-                style={{ backgroundColor: SLIDE_BACKGROUNDS[backgroundKey].background }}
-              />
-            )
-          })}
-          <label className="flex items-center gap-2 text-sm text-muted-foreground">
-            <input
-              type="color"
-              aria-label="Cor personalizada"
-              value={slide.customBackgroundHex ?? "#c2268f"}
-              onChange={(event) => onChange({ customBackgroundHex: event.target.value })}
-              className={cn(
-                "h-8 w-10 cursor-pointer rounded-md border border-input bg-transparent p-0.5",
-                slide.customBackgroundHex && "ring-2 ring-primary ring-offset-2 ring-offset-background"
-              )}
+        {limits.body > 0 ? (
+          <Field>
+            <div className="flex items-center gap-2">
+              <FieldLabel htmlFor="slide-body">{BODY_LABELS[slide.layout] ?? "Texto"}</FieldLabel>
+              <CharacterCounter length={slide.body.length} limit={limits.body} />
+            </div>
+            {slide.layout === "quote" ? (
+              <Input id="slide-body" value={slide.body} onChange={(event) => onChange({ body: event.target.value })} />
+            ) : (
+              <Textarea id="slide-body" rows={5} value={slide.body} onChange={(event) => onChange({ body: event.target.value })} />
+            )}
+          </Field>
+        ) : null}
+
+        {slide.layout === "ranked-album" || slide.layout === "album-list" ? (
+          <Field>
+            <FieldLabel htmlFor="slide-rank-number">{slide.layout === "ranked-album" ? "Posição no ranking" : "Numerar a partir de"}</FieldLabel>
+            <Input
+              id="slide-rank-number"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={99}
+              className="w-28"
+              value={slide.rankNumber ?? ""}
+              onChange={(event) => onChange({ rankNumber: readNumberInput(event.target.value) })}
             />
-            Personalizada
-          </label>
-        </div>
-      </Field>
+            {slide.layout === "album-list" ? <FieldDescription>Vazio = lista sem números.</FieldDescription> : null}
+          </Field>
+        ) : null}
 
-      <Field>
-        <FieldLabel>Alinhamento</FieldLabel>
-        <ToggleGroup
-          variant="outline"
-          size="sm"
-          value={[slide.textAlign]}
-          onValueChange={(values) => {
-            const nextAlignment = values[0]
-            if (nextAlignment === "left" || nextAlignment === "center") onChange({ textAlign: nextAlignment })
-          }}
-          aria-label="Alinhamento do texto"
-        >
-          <ToggleGroupItem value="left" aria-label="Alinhar à esquerda">
-            <AlignLeftIcon />
-          </ToggleGroupItem>
-          <ToggleGroupItem value="center" aria-label="Centralizar">
-            <AlignCenterIcon />
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </Field>
+        {LAYOUTS_WITH_SOURCE_NOTE.has(slide.layout) || slide.requiresSource ? (
+          <Field>
+            <FieldLabel htmlFor="slide-source">
+              Fonte{slide.requiresSource ? <span className="text-muted-foreground"> (obrigatória)</span> : null}
+            </FieldLabel>
+            <Input
+              id="slide-source"
+              placeholder="Ex.: entrevista à Rolling Stone, 1998"
+              value={slide.sourceNote}
+              onChange={(event) => onChange({ sourceNote: event.target.value })}
+            />
+            <Field orientation="horizontal" className="mt-1">
+              <Checkbox
+                id="slide-requires-source"
+                checked={slide.requiresSource}
+                onCheckedChange={(isChecked) => onChange({ requiresSource: isChecked })}
+              />
+              <FieldLabel htmlFor="slide-requires-source" className="font-normal">
+                Sinalizar se estiver sem fonte
+              </FieldLabel>
+            </Field>
+          </Field>
+        ) : null}
+
+        {maxAlbums > 0 ? (
+          <SlideAlbumPicker
+            albums={albums}
+            selectedAlbumIds={slide.albumIds}
+            maxAlbums={maxAlbums}
+            onChange={(albumIds) => onChange({ albumIds })}
+            onUseDescription={
+              slide.layout === "album" || slide.layout === "ranked-album" ? (description) => onChange({ body: description }) : undefined
+            }
+          />
+        ) : null}
+      </FieldSet>
+
+      <FieldSeparator />
+
+      <FieldSet className="gap-5">
+        <FieldLegend variant="label">Visual</FieldLegend>
+
+        <Field>
+          <FieldLabel>Cor de fundo</FieldLabel>
+          <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label="Cor de fundo">
+            {SLIDE_BACKGROUND_KEYS.map((backgroundKey) => {
+              const isSelected = !slide.customBackgroundHex && slide.backgroundKey === backgroundKey
+              return (
+                <button
+                  key={backgroundKey}
+                  type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  aria-label={SLIDE_BACKGROUNDS[backgroundKey].label}
+                  title={SLIDE_BACKGROUNDS[backgroundKey].label}
+                  onClick={() => onChange({ backgroundKey, customBackgroundHex: null })}
+                  className={cn(
+                    "size-8 rounded-full border border-border outline-none transition-transform focus-visible:ring-3 focus-visible:ring-ring/50",
+                    isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                  )}
+                  style={{ backgroundColor: SLIDE_BACKGROUNDS[backgroundKey].background }}
+                />
+              )
+            })}
+            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+              <input
+                type="color"
+                aria-label="Cor de fundo personalizada"
+                value={slide.customBackgroundHex ?? "#c2268f"}
+                onChange={(event) => onChange({ customBackgroundHex: event.target.value })}
+                className={cn(
+                  "h-8 w-10 cursor-pointer rounded-md border border-input bg-transparent p-0.5",
+                  slide.customBackgroundHex && "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                )}
+              />
+              Outra
+            </label>
+          </div>
+        </Field>
+
+        <Field>
+          <FieldLabel>Textura do fundo</FieldLabel>
+          <ToggleGroup
+            variant="outline"
+            size="sm"
+            value={[slide.backgroundStyle]}
+            onValueChange={(values) => {
+              const nextStyle = BACKGROUND_STYLES.find((style) => style === values[0])
+              if (nextStyle) onChange({ backgroundStyle: nextStyle })
+            }}
+            aria-label="Textura do fundo"
+          >
+            {BACKGROUND_STYLES.map((style) => (
+              <ToggleGroupItem key={style} value={style}>
+                {BACKGROUND_STYLE_LABELS[style]}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="slide-accent">Cor de destaque</FieldLabel>
+          <div className="flex items-center gap-2">
+            <input
+              id="slide-accent"
+              type="color"
+              value={currentAccentColor.startsWith("#") ? currentAccentColor : "#e879c9"}
+              onChange={(event) => onChange({ accentHex: event.target.value })}
+              className="h-8 w-10 cursor-pointer rounded-md border border-input bg-transparent p-0.5"
+            />
+            {slide.accentHex ? (
+              <Button variant="ghost" size="sm" onClick={() => onChange({ accentHex: null })}>
+                <RotateCcwIcon data-icon="inline-start" />
+                Usar a cor do tema
+              </Button>
+            ) : (
+              <span className="text-xs text-muted-foreground">Rótulo, números e detalhes</span>
+            )}
+          </div>
+        </Field>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Field>
+            <FieldLabel>Tamanho do título</FieldLabel>
+            <ToggleGroup
+              variant="outline"
+              size="sm"
+              value={[slide.headlineSize]}
+              onValueChange={(values) => {
+                const nextSize = HEADLINE_SIZES.find((size) => size === values[0])
+                if (nextSize) onChange({ headlineSize: nextSize })
+              }}
+              aria-label="Tamanho do título"
+            >
+              {HEADLINE_SIZES.map((size) => (
+                <ToggleGroupItem key={size} value={size} aria-label={`Título ${HEADLINE_SIZE_LABELS[size]}`}>
+                  {HEADLINE_SIZE_LABELS[size]}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </Field>
+
+          <Field>
+            <FieldLabel>Alinhamento</FieldLabel>
+            <ToggleGroup
+              variant="outline"
+              size="sm"
+              value={[slide.textAlign]}
+              onValueChange={(values) => {
+                const nextAlignment = values[0]
+                if (nextAlignment === "left" || nextAlignment === "center") onChange({ textAlign: nextAlignment })
+              }}
+              aria-label="Alinhamento do texto"
+            >
+              <ToggleGroupItem value="left" aria-label="Alinhar à esquerda">
+                <AlignLeftIcon />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="center" aria-label="Centralizar">
+                <AlignCenterIcon />
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </Field>
+        </div>
+
+        <Field>
+          <FieldLabel htmlFor="slide-content-position">Posição do conteúdo</FieldLabel>
+          <Select value={slide.contentPosition} onValueChange={(value) => onChange({ contentPosition: value as ContentPosition })}>
+            <SelectTrigger id="slide-content-position" className="w-full">
+              <SelectValue>{(value: ContentPosition) => CONTENT_POSITION_LABELS[value]}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {CONTENT_POSITIONS.map((position) => (
+                <SelectItem key={position} value={position}>
+                  {CONTENT_POSITION_LABELS[position]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+      </FieldSet>
+
+      <FieldSeparator />
+
+      <SlideBackgroundImageField
+        backgroundImage={slide.backgroundImage}
+        uploadedImages={uploadedImages}
+        onChange={(backgroundImage) => onChange({ backgroundImage })}
+        onImageUploaded={onImageUploaded}
+        onApplyToAllSlides={() => onApplyBackgroundImageToAllSlides(slide.backgroundImage)}
+      />
     </FieldGroup>
   )
 }
@@ -184,6 +363,14 @@ type SlideAlbumPickerProps = {
   maxAlbums: number
   onChange: (albumIds: string[]) => void
   onUseDescription?: (description: string) => void
+}
+
+function moveAlbum(albumIds: string[], fromIndex: number, toIndex: number): string[] {
+  if (toIndex < 0 || toIndex >= albumIds.length) return albumIds
+  const reorderedAlbumIds = [...albumIds]
+  const [movedAlbumId] = reorderedAlbumIds.splice(fromIndex, 1)
+  reorderedAlbumIds.splice(toIndex, 0, movedAlbumId!)
+  return reorderedAlbumIds
 }
 
 function SlideAlbumPicker({ albums, selectedAlbumIds, maxAlbums, onChange, onUseDescription }: SlideAlbumPickerProps) {
@@ -210,8 +397,9 @@ function SlideAlbumPicker({ albums, selectedAlbumIds, maxAlbums, onChange, onUse
       </FieldLabel>
 
       <ul className="flex flex-col gap-2">
-        {selectedAlbumIds.map((albumId) => {
+        {selectedAlbumIds.map((albumId, albumIndex) => {
           const album = albumsById.get(albumId)
+          const albumName = album?.title ?? "álbum"
           return (
             <li key={albumId} className="flex items-center gap-3 rounded-lg border border-border p-2">
               <StudioCoverImage coverImageUrl={album?.coverImageUrl ?? null} albumTitle={album?.title ?? "Álbum removido"} className="size-10" />
@@ -228,11 +416,35 @@ function SlideAlbumPicker({ albums, selectedAlbumIds, maxAlbums, onChange, onUse
                   </button>
                 ) : null}
               </div>
+              {maxAlbums > 1 ? (
+                <div className="flex">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={`Mover ${albumName} para cima`}
+                    disabled={albumIndex === 0}
+                    onClick={() => onChange(moveAlbum(selectedAlbumIds, albumIndex, albumIndex - 1))}
+                  >
+                    <ArrowUpIcon />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={`Mover ${albumName} para baixo`}
+                    disabled={albumIndex === selectedAlbumIds.length - 1}
+                    onClick={() => onChange(moveAlbum(selectedAlbumIds, albumIndex, albumIndex + 1))}
+                  >
+                    <ArrowDownIcon />
+                  </Button>
+                </div>
+              ) : null}
               <Button
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label={`Remover ${album?.title ?? "álbum"} do slide`}
+                aria-label={`Remover ${albumName} do slide`}
                 onClick={() => onChange(selectedAlbumIds.filter((selectedId) => selectedId !== albumId))}
               >
                 <XIcon />

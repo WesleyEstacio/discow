@@ -3,8 +3,9 @@ import { and, asc, desc, eq, gte, inArray, isNotNull, lt, sql, type SQL } from "
 import { db } from "@/lib/db"
 import { studioAlbums, studioPosts } from "@/lib/db/schema"
 import type { PostLanguage, PostStatus } from "@/lib/studio/post-status"
+import { normalizeStoredSlides, type StudioSlide } from "@/lib/studio/slides"
 
-export type StudioPost = typeof studioPosts.$inferSelect
+export type StudioPost = Omit<typeof studioPosts.$inferSelect, "slides"> & { slides: StudioSlide[] }
 
 export type StudioPostSummary = Pick<
   StudioPost,
@@ -49,7 +50,7 @@ export async function listStudioPosts(filters: StudioPostFilters = {}): Promise<
 
 export async function getStudioPost(postId: string): Promise<StudioPost | null> {
   const [post] = await db.select().from(studioPosts).where(eq(studioPosts.id, postId)).limit(1)
-  return post ?? null
+  return post ? { ...post, slides: normalizeStoredSlides(post.slides) } : null
 }
 
 export async function countStudioPostsByStatus(): Promise<Record<PostStatus, number>> {

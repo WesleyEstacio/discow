@@ -5,6 +5,7 @@ import Link from "next/link"
 import { SearchIcon, SparklesIcon } from "lucide-react"
 import { FormSubmitButton } from "@/components/studio/form-submit-button"
 import { StudioCoverImage } from "@/components/studio/studio-cover-image"
+import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -235,16 +236,22 @@ function AlbumSlotPicker({
           const isUsedElsewhere = disabledAlbumIds.has(album.id)
           const isAtLimit = !isSelected && slot.maxAlbums > 1 && selectedAlbumIds.length >= slot.maxAlbums
           const checkboxId = `${slot.key}-${album.id}`
+          const selectionPosition = selectedAlbumIds.indexOf(album.id) + 1
           return (
             <li key={album.id}>
               <label
                 htmlFor={checkboxId}
                 className={cn(
-                  "flex cursor-pointer flex-col gap-2 rounded-lg border border-transparent p-2 transition-colors hover:bg-muted/60 has-focus-visible:ring-3 has-focus-visible:ring-ring/50",
+                  "relative flex cursor-pointer flex-col gap-2 rounded-lg border border-transparent p-2 transition-colors hover:bg-muted/60 has-focus-visible:ring-3 has-focus-visible:ring-ring/50",
                   isSelected && "border-primary bg-primary/10",
                   (isUsedElsewhere || isAtLimit) && "cursor-not-allowed opacity-45"
                 )}
               >
+                {slot.isOrdered && selectionPosition > 0 ? (
+                  <Badge className="absolute top-3 left-3 z-10 tabular-nums" aria-label={`Posição ${selectionPosition}`}>
+                    {selectionPosition}º
+                  </Badge>
+                ) : null}
                 <StudioCoverImage coverImageUrl={album.coverImageUrl} albumTitle={album.title} className="w-full" />
                 <span className="flex items-start gap-2">
                   <Checkbox
@@ -298,6 +305,24 @@ function SettingInput({
       </FieldLabel>
       {field.kind === "textarea" ? (
         <Textarea id={inputId} name={inputName} value={value} placeholder={field.placeholder} onChange={(event) => onChange(event.target.value)} />
+      ) : field.kind === "select" ? (
+        <>
+          <input type="hidden" name={inputName} value={value} />
+          <Select value={value} onValueChange={(nextValue) => onChange(String(nextValue))}>
+            <SelectTrigger id={inputId} className="w-full sm:w-96">
+              <SelectValue>
+                {(selectedValue: string) => field.options?.find((option) => option.value === selectedValue)?.label ?? selectedValue}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {field.options?.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </>
       ) : field.kind === "color" ? (
         <div className="flex items-center gap-3">
           <input
