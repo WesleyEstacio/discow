@@ -20,16 +20,27 @@ import {
   CONTENT_POSITIONS,
   HEADLINE_SIZE_LABELS,
   HEADLINE_SIZES,
+  KICKER_STYLE_LABELS,
+  KICKER_STYLES,
   MAX_ALBUM_COVER_RADIUS_PERCENT,
   MAX_ALBUMS_BY_LAYOUT,
+  pickSlideElementToggles,
   resolveSlideColors,
+  resolveSlideComposition,
   SLIDE_BACKGROUND_KEYS,
   SLIDE_BACKGROUNDS,
+  SLIDE_COMPOSITION_LABELS,
+  SLIDE_COMPOSITIONS_BY_LAYOUT,
+  SLIDE_ELEMENT_TOGGLE_LABELS,
+  SLIDE_ELEMENT_TOGGLES,
   SLIDE_LAYOUT_LABELS,
   SLIDE_LAYOUTS,
   SLIDE_TEXT_LIMITS,
+  TYPE_STYLE_LABELS,
+  TYPE_STYLES,
   type ContentPosition,
-  type SlideBackgroundImage,
+  type SlideComposition,
+  type SlideElementToggle,
   type SlideLayout,
   type StudioSlide,
 } from "@/lib/studio/slides"
@@ -50,8 +61,7 @@ type SlideInspectorProps = {
   uploadedImages: StudioImageSummary[]
   onChange: (patch: Partial<StudioSlide>) => void
   onImageUploaded: (image: StudioImageSummary) => void
-  onApplyBackgroundImageToAllSlides: (backgroundImage: SlideBackgroundImage | null) => void
-  onApplyAlbumCoverRadiusToAllSlides: (albumCoverRadius: number) => void
+  onApplyToAllSlides: (patch: Partial<StudioSlide>, confirmationMessage: string) => void
   onDefaultBackgroundChanged: (imageId: string, isDefaultBackground: boolean) => void
 }
 
@@ -82,16 +92,21 @@ export function SlideInspector({
   uploadedImages,
   onChange,
   onImageUploaded,
-  onApplyBackgroundImageToAllSlides,
-  onApplyAlbumCoverRadiusToAllSlides,
+  onApplyToAllSlides,
   onDefaultBackgroundChanged,
 }: SlideInspectorProps) {
   const limits = SLIDE_TEXT_LIMITS[slide.layout]
   const maxAlbums = MAX_ALBUMS_BY_LAYOUT[slide.layout]
-  const currentAccentColor = resolveSlideColors(slide).accent
+  const currentColors = resolveSlideColors(slide)
+  const currentAccentColor = currentColors.accent
+  const availableCompositions: readonly SlideComposition[] = SLIDE_COMPOSITIONS_BY_LAYOUT[slide.layout]
 
   function changeLayout(nextLayout: SlideLayout) {
-    onChange({ layout: nextLayout, albumIds: slide.albumIds.slice(0, MAX_ALBUMS_BY_LAYOUT[nextLayout]) })
+    onChange({
+      layout: nextLayout,
+      albumIds: slide.albumIds.slice(0, MAX_ALBUMS_BY_LAYOUT[nextLayout]),
+      composition: SLIDE_COMPOSITIONS_BY_LAYOUT[nextLayout][0],
+    })
   }
 
   return (
@@ -113,6 +128,16 @@ export function SlideInspector({
             </SelectContent>
           </Select>
         </Field>
+
+        {availableCompositions.length > 1 ? (
+          <OptionToggleField
+            label="Composição"
+            options={availableCompositions}
+            optionLabels={SLIDE_COMPOSITION_LABELS}
+            value={resolveSlideComposition(slide)}
+            onChange={(composition) => onChange({ composition })}
+          />
+        ) : null}
 
         <Field>
           <div className="flex items-center gap-2">
@@ -260,6 +285,7 @@ export function SlideInspector({
               if (nextStyle) onChange({ backgroundStyle: nextStyle })
             }}
             aria-label="Textura do fundo"
+            className="flex-wrap"
           >
             {BACKGROUND_STYLES.map((style) => (
               <ToggleGroupItem key={style} value={style}>
@@ -289,6 +315,43 @@ export function SlideInspector({
             )}
           </div>
         </Field>
+
+        <Field>
+          <FieldLabel htmlFor="slide-text-color">Cor do texto</FieldLabel>
+          <div className="flex items-center gap-2">
+            <input
+              id="slide-text-color"
+              type="color"
+              value={currentColors.text.startsWith("#") ? currentColors.text : "#f7f5fa"}
+              onChange={(event) => onChange({ customTextHex: event.target.value })}
+              className="h-8 w-10 cursor-pointer rounded-md border border-input bg-transparent p-0.5"
+            />
+            {slide.customTextHex ? (
+              <Button variant="ghost" size="sm" onClick={() => onChange({ customTextHex: null })}>
+                <RotateCcwIcon data-icon="inline-start" />
+                Usar a cor automática
+              </Button>
+            ) : (
+              <span className="text-xs text-muted-foreground">Automática, com contraste pelo fundo</span>
+            )}
+          </div>
+        </Field>
+
+        <OptionToggleField
+          label="Estilo do título"
+          options={TYPE_STYLES}
+          optionLabels={TYPE_STYLE_LABELS}
+          value={slide.typeStyle}
+          onChange={(typeStyle) => onChange({ typeStyle })}
+        />
+
+        <OptionToggleField
+          label="Estilo do rótulo"
+          options={KICKER_STYLES}
+          optionLabels={KICKER_STYLE_LABELS}
+          value={slide.kickerStyle}
+          onChange={(kickerStyle) => onChange({ kickerStyle })}
+        />
 
         <div className="grid grid-cols-2 gap-4">
           <Field>
@@ -353,7 +416,9 @@ export function SlideInspector({
               variant="ghost"
               size="sm"
               className="w-fit"
-              onClick={() => onApplyAlbumCoverRadiusToAllSlides(slide.albumCoverRadius)}
+              onClick={() =>
+                onApplyToAllSlides({ albumCoverRadius: slide.albumCoverRadius }, "Arredondamento aplicado a todos os slides")
+              }
             >
               <CopyCheckIcon data-icon="inline-start" />
               Usar em todos os slides
@@ -380,12 +445,50 @@ export function SlideInspector({
 
       <FieldSeparator />
 
+      <FieldSet className="gap-3">
+        <FieldLegend variant="label">Elementos do slide</FieldLegend>
+        {SLIDE_ELEMENT_TOGGLES.map((elementToggle) => (
+          <Field key={elementToggle} orientation="horizontal">
+            <Checkbox
+              id={`slide-${elementToggle}`}
+              checked={slide[elementToggle]}
+              onCheckedChange={(isChecked) => {
+                const togglePatch: Partial<Pick<StudioSlide, SlideElementToggle>> = {}
+                togglePatch[elementToggle] = isChecked
+                onChange(togglePatch)
+              }}
+            />
+            <FieldLabel htmlFor={`slide-${elementToggle}`} className="font-normal">
+              {SLIDE_ELEMENT_TOGGLE_LABELS[elementToggle]}
+            </FieldLabel>
+          </Field>
+        ))}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-fit"
+          onClick={() =>
+            onApplyToAllSlides(pickSlideElementToggles(slide), "Elementos aplicados a todos os slides")
+          }
+        >
+          <CopyCheckIcon data-icon="inline-start" />
+          Usar em todos os slides
+        </Button>
+      </FieldSet>
+
+      <FieldSeparator />
+
       <SlideBackgroundImageField
         backgroundImage={slide.backgroundImage}
         uploadedImages={uploadedImages}
         onChange={(backgroundImage) => onChange({ backgroundImage })}
         onImageUploaded={onImageUploaded}
-        onApplyToAllSlides={() => onApplyBackgroundImageToAllSlides(slide.backgroundImage)}
+        onApplyToAllSlides={() =>
+          onApplyToAllSlides(
+            { backgroundImage: slide.backgroundImage },
+            slide.backgroundImage ? "Fundo aplicado a todos os slides" : "Fundo removido de todos os slides"
+          )
+        }
         onDefaultBackgroundChanged={onDefaultBackgroundChanged}
       />
     </FieldGroup>
@@ -521,6 +624,43 @@ function SlideAlbumPicker({ albums, selectedAlbumIds, maxAlbums, onChange, onUse
           ) : null}
         </>
       ) : null}
+    </Field>
+  )
+}
+
+function OptionToggleField<Option extends string>({
+  label,
+  options,
+  optionLabels,
+  value,
+  onChange,
+}: {
+  label: string
+  options: readonly Option[]
+  optionLabels: Record<Option, string>
+  value: Option
+  onChange: (option: Option) => void
+}) {
+  return (
+    <Field>
+      <FieldLabel>{label}</FieldLabel>
+      <ToggleGroup
+        variant="outline"
+        size="sm"
+        className="flex-wrap"
+        value={[value]}
+        onValueChange={(values) => {
+          const nextOption = options.find((option) => option === values[0])
+          if (nextOption) onChange(nextOption)
+        }}
+        aria-label={label}
+      >
+        {options.map((option) => (
+          <ToggleGroupItem key={option} value={option}>
+            {optionLabels[option]}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
     </Field>
   )
 }
