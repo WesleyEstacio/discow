@@ -6,6 +6,7 @@ import { StudioPageHeader } from "@/components/studio/studio-page-header"
 import { Button } from "@/components/ui/button"
 import { requireStudioAdmin } from "@/lib/studio/admin"
 import { listStudioAlbums } from "@/lib/studio/albums"
+import { listDefaultBackgroundImages } from "@/lib/studio/background-images"
 import { createPostFromTemplateAction } from "@/lib/studio/post-actions"
 import { findStudioTemplate } from "@/lib/studio/templates"
 
@@ -19,9 +20,10 @@ export default async function CreateFromTemplatePage({ params }: CreateFromTempl
   const template = findStudioTemplate(templateKey)
   if (!template) notFound()
 
-  const albums = await listStudioAlbums({}, 400)
+  const [albums, defaultBackgroundImages] = await Promise.all([listStudioAlbums({}, 400), listDefaultBackgroundImages()])
   const templateForClient = {
     key: template.key,
+    slideStructure: template.slideStructure,
     albumSlots: template.albumSlots,
     settingFields: template.settingFields,
   }
@@ -52,6 +54,7 @@ export default async function CreateFromTemplatePage({ params }: CreateFromTempl
             genres: album.genres,
             tags: album.tags,
           }))}
+          defaultBackgroundImages={defaultBackgroundImages}
           action={createPostFromTemplateAction.bind(null, template.key)}
         />
       </div>

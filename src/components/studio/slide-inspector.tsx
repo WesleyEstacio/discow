@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { AlignCenterIcon, AlignLeftIcon, ArrowDownIcon, ArrowUpIcon, RotateCcwIcon, XIcon } from "lucide-react"
+import { AlignCenterIcon, AlignLeftIcon, ArrowDownIcon, ArrowUpIcon, CopyCheckIcon, RotateCcwIcon, XIcon } from "lucide-react"
 import { SlideBackgroundImageField } from "@/components/studio/slide-background-image-field"
 import { StudioCoverImage } from "@/components/studio/studio-cover-image"
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Slider } from "@/components/ui/slider"
 import { Textarea } from "@/components/ui/textarea"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { StudioImageSummary } from "@/lib/studio/background-images"
@@ -19,6 +20,7 @@ import {
   CONTENT_POSITIONS,
   HEADLINE_SIZE_LABELS,
   HEADLINE_SIZES,
+  MAX_ALBUM_COVER_RADIUS_PERCENT,
   MAX_ALBUMS_BY_LAYOUT,
   resolveSlideColors,
   SLIDE_BACKGROUND_KEYS,
@@ -49,6 +51,8 @@ type SlideInspectorProps = {
   onChange: (patch: Partial<StudioSlide>) => void
   onImageUploaded: (image: StudioImageSummary) => void
   onApplyBackgroundImageToAllSlides: (backgroundImage: SlideBackgroundImage | null) => void
+  onApplyAlbumCoverRadiusToAllSlides: (albumCoverRadius: number) => void
+  onDefaultBackgroundChanged: (imageId: string, isDefaultBackground: boolean) => void
 }
 
 const LAYOUTS_WITH_SOURCE_NOTE = new Set<SlideLayout>(["album", "ranked-album", "text", "quote"])
@@ -79,6 +83,8 @@ export function SlideInspector({
   onChange,
   onImageUploaded,
   onApplyBackgroundImageToAllSlides,
+  onApplyAlbumCoverRadiusToAllSlides,
+  onDefaultBackgroundChanged,
 }: SlideInspectorProps) {
   const limits = SLIDE_TEXT_LIMITS[slide.layout]
   const maxAlbums = MAX_ALBUMS_BY_LAYOUT[slide.layout]
@@ -327,6 +333,34 @@ export function SlideInspector({
           </Field>
         </div>
 
+        {maxAlbums > 0 ? (
+          <Field>
+            <div className="flex items-center justify-between gap-2">
+              <FieldLabel>Arredondamento das capas</FieldLabel>
+              <span className="text-xs text-muted-foreground tabular-nums">
+                {slide.albumCoverRadius === 0 ? "Reto" : slide.albumCoverRadius === MAX_ALBUM_COVER_RADIUS_PERCENT ? "Círculo" : `${slide.albumCoverRadius}%`}
+              </span>
+            </div>
+            <Slider
+              aria-label="Arredondamento das capas dos álbuns"
+              min={0}
+              max={MAX_ALBUM_COVER_RADIUS_PERCENT}
+              step={1}
+              value={[slide.albumCoverRadius]}
+              onValueChange={(value) => onChange({ albumCoverRadius: typeof value === "number" ? value : (value[0] ?? 0) })}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-fit"
+              onClick={() => onApplyAlbumCoverRadiusToAllSlides(slide.albumCoverRadius)}
+            >
+              <CopyCheckIcon data-icon="inline-start" />
+              Usar em todos os slides
+            </Button>
+          </Field>
+        ) : null}
+
         <Field>
           <FieldLabel htmlFor="slide-content-position">Posição do conteúdo</FieldLabel>
           <Select value={slide.contentPosition} onValueChange={(value) => onChange({ contentPosition: value as ContentPosition })}>
@@ -352,6 +386,7 @@ export function SlideInspector({
         onChange={(backgroundImage) => onChange({ backgroundImage })}
         onImageUploaded={onImageUploaded}
         onApplyToAllSlides={() => onApplyBackgroundImageToAllSlides(slide.backgroundImage)}
+        onDefaultBackgroundChanged={onDefaultBackgroundChanged}
       />
     </FieldGroup>
   )

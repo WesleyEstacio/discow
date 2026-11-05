@@ -67,12 +67,14 @@ export const discographyRankingTemplate: StudioTemplate = {
     {
       key: "artistName",
       label: "Artista",
+      appearsIn: "Título da capa e legenda",
       kind: "text",
       placeholder: "Vazio = artista do 1º álbum marcado",
     },
     {
       key: "revealOrder",
       label: "Ordem dos slides",
+      appearsIn: "Sequência dos slides de álbum",
       kind: "select",
       defaultValue: "countdown",
       options: [

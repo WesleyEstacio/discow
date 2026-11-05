@@ -1,0 +1,1 @@
+ALTER TABLE "studio_image" ADD COLUMN "is_default_background" boolean DEFAULT false NOT NULL;

@@ -5,12 +5,18 @@ import {
   editorPlaceholder,
   primaryArtistName,
 } from "@/lib/studio/templates/template-helpers"
-import { COMMON_SETTING_FIELDS, type StudioTemplate } from "@/lib/studio/templates/types"
+import {
+  COMMON_SETTING_FIELDS,
+  type StudioTemplate,
+  type TemplateAlbum,
+  type TemplateAlbumSlot,
+} from "@/lib/studio/templates/types"
 
 const COPY = {
   pt: {
     coverKicker: "Se você gosta disto",
-    defaultCoverHeadline: (referenceArtist: string) => `Se você gosta de ${referenceArtist}, experimente estes discos`,
+    defaultSinglePairCoverHeadline: (referenceArtist: string) => `Se você gosta de ${referenceArtist}, experimente estes discos`,
+    defaultMultiplePairsCoverHeadline: (referenceArtists: string) => `Gosta de ${referenceArtists}? Experimente estes discos`,
     coverBody: "Uma ponte entre o que você já ouve e o que você ainda vai amar.",
     referenceKicker: "Se você gosta de",
     recommendationKicker: "Experimente",
@@ -19,14 +25,16 @@ const COPY = {
     ctaKicker: "Sua vez",
     defaultCtaHeadline: "Qual disco você colocaria nessa lista?",
     ctaBody: "Salve para ouvir depois.",
-    captionOpening: (referenceTitle: string, referenceArtist: string, count: number) =>
-      `Se ${referenceTitle}, de ${referenceArtist}, vive no seu repeat, ${count === 1 ? "este disco merece" : "estes discos merecem"} um lugar na sua próxima audição:`,
+    or: "ou",
+    captionOpening: "Do que você já ama para o que você ainda vai amar:",
+    captionPair: (referenceTitle: string, referenceArtist: string) => `Se ${referenceTitle}, de ${referenceArtist}, vive no seu repeat:`,
     captionConnection: "Escreva aqui o que liga esses discos",
     captionQuestion: "Qual você ouviria primeiro?",
   },
   en: {
     coverKicker: "If you like this",
-    defaultCoverHeadline: (referenceArtist: string) => `If you like ${referenceArtist}, try these records`,
+    defaultSinglePairCoverHeadline: (referenceArtist: string) => `If you like ${referenceArtist}, try these records`,
+    defaultMultiplePairsCoverHeadline: (referenceArtists: string) => `Into ${referenceArtists}? Try these records`,
     coverBody: "A bridge between what you already play and what you're about to love.",
     referenceKicker: "If you like",
     recommendationKicker: "Try",
@@ -35,11 +43,74 @@ const COPY = {
     ctaKicker: "Your turn",
     defaultCtaHeadline: "Which record would you add to this list?",
     ctaBody: "Save it for later.",
-    captionOpening: (referenceTitle: string, referenceArtist: string, count: number) =>
-      `If ${referenceTitle} by ${referenceArtist} lives on repeat for you, ${count === 1 ? "this record deserves" : "these records deserve"} a spot in your next listen:`,
+    or: "or",
+    captionOpening: "From what you already love to what you're about to love:",
+    captionPair: (referenceTitle: string, referenceArtist: string) => `If ${referenceTitle} by ${referenceArtist} lives on repeat for you:`,
     captionConnection: "Write what connects these records",
     captionQuestion: "Which one would you play first?",
   },
+}
+
+// Each pair = 1 reference slide + 2 slides per recommendation. These limits
+// keep the worst case (3 full pairs + cover + CTA) within MAX_SLIDES_PER_POST.
+const RECOMMENDATION_PAIRS = [
+  { referenceSlotKey: "reference", recommendationsSlotKey: "recommendations", maxRecommendations: 3 },
+  { referenceSlotKey: "reference2", recommendationsSlotKey: "recommendations2", maxRecommendations: 2 },
+  { referenceSlotKey: "reference3", recommendationsSlotKey: "recommendations3", maxRecommendations: 2 },
+] as const
+
+type RecommendationPair = {
+  referenceAlbum: TemplateAlbum
+  recommendedAlbums: TemplateAlbum[]
+}
+
+function buildPairSlots(): TemplateAlbumSlot[] {
+  return RECOMMENDATION_PAIRS.flatMap((pair, pairIndex) => {
+    const isFirstPair = pairIndex === 0
+    const minAlbums = isFirstPair ? 1 : 0
+    const group = {
+      key: `pair-${pairIndex + 1}`,
+      label: `Par ${pairIndex + 1}`,
+      description: isFirstPair
+        ? "O disco que o ouvinte já gosta e o que ele deveria ouvir a seguir."
+        : "Opcional: outro gosto e o que recomendar para ele.",
+    }
+    return [
+      {
+        key: pair.referenceSlotKey,
+        label: "Se você gosta de…",
+        description: "O álbum de referência.",
+        minAlbums,
+        maxAlbums: 1,
+        group,
+      },
+      {
+        key: pair.recommendationsSlotKey,
+        label: "…experimente",
+        description: `Até ${pair.maxRecommendations}. Cada um ganha um slide de capa e um de conexão.`,
+        minAlbums,
+        maxAlbums: pair.maxRecommendations,
+        group,
+      },
+    ]
+  })
+}
+
+function readRecommendationPairs(albumsBySlot: Record<string, TemplateAlbum[]>): RecommendationPair[] {
+  return RECOMMENDATION_PAIRS.flatMap((pair, pairIndex) => {
+    const referenceAlbum = albumsBySlot[pair.referenceSlotKey]?.[0]
+    const recommendedAlbums = albumsBySlot[pair.recommendationsSlotKey] ?? []
+    if (!referenceAlbum && recommendedAlbums.length === 0) return []
+    if (!referenceAlbum || recommendedAlbums.length === 0) {
+      throw new Error(`O par ${pairIndex + 1} precisa de um álbum de referência e de pelo menos uma recomendação.`)
+    }
+    return [{ referenceAlbum, recommendedAlbums }]
+  })
+}
+
+function joinWithOr(names: string[], orWord: string): string {
+  if (names.length <= 1) return names[0] ?? ""
+  return `${names.slice(0, -1).join(", ")} ${orWord} ${names.at(-1)}`
 }
 
 export const ifYouLikeThisTemplate: StudioTemplate = {
@@ -49,68 +120,61 @@ export const ifYouLikeThisTemplate: StudioTemplate = {
   objective: "Recomendar álbuns com base no gosto musical atual do ouvinte.",
   slideStructure: [
     "Capa com título marcante",
-    "Álbum de referência",
-    "Álbum recomendado",
-    "Conexão musical entre os dois",
-    "Recomendações adicionais (opcional)",
+    "Para cada par: álbum de referência",
+    "Para cada par: álbuns recomendados",
+    "Conexão musical entre os discos",
     "Chamada final para descoberta",
   ],
   isAvailable: true,
-  albumSlots: [
-    {
-      key: "reference",
-      label: "Álbum de referência",
-      description: "O disco que o ouvinte já conhece e gosta.",
-      minAlbums: 1,
-      maxAlbums: 1,
-    },
-    {
-      key: "recommendations",
-      label: "Recomendações",
-      description: "De 1 a 4 álbuns para experimentar. Cada um ganha um slide de conexão.",
-      minAlbums: 1,
-      maxAlbums: 4,
-    },
-  ],
+  albumSlots: buildPairSlots(),
   settingFields: COMMON_SETTING_FIELDS,
   buildCarousel({ albumsBySlot, settings, language }) {
     const copy = COPY[language]
-    const referenceAlbum = albumsBySlot.reference?.[0]
-    const recommendedAlbums = albumsBySlot.recommendations ?? []
-    if (!referenceAlbum || recommendedAlbums.length === 0) {
-      throw new Error("Escolha o álbum de referência e pelo menos uma recomendação.")
-    }
+    const recommendationPairs = readRecommendationPairs(albumsBySlot)
+    const firstPair = recommendationPairs[0]
+    if (!firstPair) throw new Error("Escolha o álbum de referência e pelo menos uma recomendação.")
 
-    const referenceArtist = primaryArtistName(referenceAlbum)
-    const coverHeadline = settings.theme?.trim() || copy.defaultCoverHeadline(referenceArtist)
+    const referenceArtists = [...new Set(recommendationPairs.map((pair) => primaryArtistName(pair.referenceAlbum)))]
+    const defaultCoverHeadline =
+      recommendationPairs.length === 1
+        ? copy.defaultSinglePairCoverHeadline(referenceArtists[0] ?? "")
+        : copy.defaultMultiplePairsCoverHeadline(joinWithOr(referenceArtists, copy.or))
+    const coverHeadline = settings.theme?.trim() || defaultCoverHeadline
+
+    const coverAlbumIds =
+      recommendationPairs.length === 1
+        ? [firstPair.referenceAlbum, ...firstPair.recommendedAlbums].slice(0, 3).map((album) => album.id)
+        : recommendationPairs.map((pair) => pair.referenceAlbum.id).concat(firstPair.recommendedAlbums[0]!.id).slice(0, 4)
 
     const slides: StudioSlide[] = [
       createEmptySlide("cover", {
         kicker: copy.coverKicker,
         headline: coverHeadline,
         body: copy.coverBody,
-        albumIds: [referenceAlbum, ...recommendedAlbums].slice(0, 3).map((album) => album.id),
+        albumIds: coverAlbumIds,
         backgroundKey: "ink",
       }),
-      createEmptySlide("album", {
-        kicker: copy.referenceKicker,
-        albumIds: [referenceAlbum.id],
-        body: referenceAlbum.editorialDescription,
-        backgroundKey: "plum",
-      }),
-      ...recommendedAlbums.flatMap((recommendedAlbum) => [
+      ...recommendationPairs.flatMap(({ referenceAlbum, recommendedAlbums }) => [
         createEmptySlide("album", {
-          kicker: copy.recommendationKicker,
-          albumIds: [recommendedAlbum.id],
-          body: recommendedAlbum.editorialDescription,
-          backgroundKey: "ink",
+          kicker: copy.referenceKicker,
+          albumIds: [referenceAlbum.id],
+          body: referenceAlbum.editorialDescription,
+          backgroundKey: "plum",
         }),
-        createEmptySlide("text", {
-          kicker: copy.connectionKicker,
-          headline: copy.connectionHeadline,
-          body: "",
-          backgroundKey: "paper",
-        }),
+        ...recommendedAlbums.flatMap((recommendedAlbum) => [
+          createEmptySlide("album", {
+            kicker: copy.recommendationKicker,
+            albumIds: [recommendedAlbum.id],
+            body: recommendedAlbum.editorialDescription,
+            backgroundKey: "ink",
+          }),
+          createEmptySlide("text", {
+            kicker: copy.connectionKicker,
+            headline: copy.connectionHeadline,
+            body: "",
+            backgroundKey: "paper",
+          }),
+        ]),
       ]),
       createEmptySlide("cta", {
         kicker: copy.ctaKicker,
@@ -121,12 +185,20 @@ export const ifYouLikeThisTemplate: StudioTemplate = {
       }),
     ]
 
+    const pairCaptionBlocks = recommendationPairs.map(({ referenceAlbum, recommendedAlbums }) =>
+      [
+        copy.captionPair(referenceAlbum.title, primaryArtistName(referenceAlbum)),
+        ...recommendedAlbums.map((album) => `→ ${describeAlbumLine(album)}`),
+      ].join("\n")
+    )
+    const allAlbums = recommendationPairs.flatMap((pair) => [pair.referenceAlbum, ...pair.recommendedAlbums])
+
     const caption = [
-      copy.captionOpening(referenceAlbum.title, referenceArtist, recommendedAlbums.length),
-      recommendedAlbums.map((album) => `→ ${describeAlbumLine(album)}`).join("\n"),
+      ...(recommendationPairs.length > 1 ? [copy.captionOpening] : []),
+      ...pairCaptionBlocks,
       editorPlaceholder(language, COPY.pt.captionConnection, COPY.en.captionConnection),
       settings.callToAction?.trim() || copy.captionQuestion,
-      buildHashtags([referenceAlbum, ...recommendedAlbums], language),
+      buildHashtags(allAlbums, language),
     ].join("\n\n")
 
     return { title: coverHeadline, slides, caption }

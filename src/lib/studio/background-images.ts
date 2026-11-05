@@ -1,5 +1,5 @@
 import "server-only"
-import { desc, eq, inArray } from "drizzle-orm"
+import { and, desc, eq, inArray } from "drizzle-orm"
 import sharp, { type Sharp } from "sharp"
 import { db } from "@/lib/db"
 import { studioImages } from "@/lib/db/schema"
@@ -19,6 +19,14 @@ export type StudioImageSummary = {
   id: string
   width: number
   height: number
+  isDefaultBackground: boolean
+}
+
+const STUDIO_IMAGE_SUMMARY_COLUMNS = {
+  id: studioImages.id,
+  width: studioImages.width,
+  height: studioImages.height,
+  isDefaultBackground: studioImages.isDefaultBackground,
 }
 
 // Re-encoding drops EXIF (location, camera) and proves the file is really
@@ -40,7 +48,7 @@ export async function storeUploadedImage(uploadedBytes: Buffer, uploadedByUserId
       byteSize: jpegBytes.byteLength,
       createdByUserId: uploadedByUserId,
     })
-    .returning({ id: studioImages.id, width: studioImages.width, height: studioImages.height })
+    .returning(STUDIO_IMAGE_SUMMARY_COLUMNS)
 
   return storedImage!
 }
@@ -54,12 +62,34 @@ export async function getStudioImageBytes(imageId: string): Promise<{ contentTyp
   return image ?? null
 }
 
-export async function listRecentStudioImages(limit = 24): Promise<StudioImageSummary[]> {
+// Default backgrounds come first, so the brand set is always in the list.
+export async function listRecentStudioImages(limit = 36): Promise<StudioImageSummary[]> {
   return db
-    .select({ id: studioImages.id, width: studioImages.width, height: studioImages.height })
+    .select(STUDIO_IMAGE_SUMMARY_COLUMNS)
     .from(studioImages)
-    .orderBy(desc(studioImages.createdAt))
+    .orderBy(desc(studioImages.isDefaultBackground), desc(studioImages.createdAt))
     .limit(limit)
+}
+
+export async function listDefaultBackgroundImages(): Promise<StudioImageSummary[]> {
+  return db
+    .select(STUDIO_IMAGE_SUMMARY_COLUMNS)
+    .from(studioImages)
+    .where(eq(studioImages.isDefaultBackground, true))
+    .orderBy(desc(studioImages.createdAt))
+}
+
+export async function isDefaultBackgroundImage(imageId: string): Promise<boolean> {
+  const [image] = await db
+    .select({ id: studioImages.id })
+    .from(studioImages)
+    .where(and(eq(studioImages.id, imageId), eq(studioImages.isDefaultBackground, true)))
+    .limit(1)
+  return Boolean(image)
+}
+
+export async function setDefaultBackgroundImage(imageId: string, isDefaultBackground: boolean): Promise<void> {
+  await db.update(studioImages).set({ isDefaultBackground }).where(eq(studioImages.id, imageId))
 }
 
 const SEPIA_MATRIX: [[number, number, number], [number, number, number], [number, number, number]] = [

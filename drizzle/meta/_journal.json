@@ -127,6 +127,13 @@
       "when": 1793811236634,
       "tag": "0017_add_studio_images",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793876628581,
+      "tag": "0018_add_default_background_images",
+      "breakpoints": true
     }
   ]
 }
