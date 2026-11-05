@@ -4,6 +4,7 @@ import { useActionState, useState } from "react"
 import Link from "next/link"
 import { PlusIcon, SearchIcon, SparklesIcon, XIcon } from "lucide-react"
 import { FormSubmitButton } from "@/components/studio/form-submit-button"
+import { IdentitySwatches } from "@/components/studio/identity-swatches"
 import { StudioCoverImage } from "@/components/studio/studio-cover-image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -18,6 +19,7 @@ import type { CreatePostFormState } from "@/lib/studio/post-actions"
 import { POST_LANGUAGE_LABELS, POST_LANGUAGES, type PostLanguage } from "@/lib/studio/post-status"
 import { studioImageUrl } from "@/lib/studio/slides"
 import type { TemplateAlbumSlot, TemplateAlbumSlotGroup, TemplateSettingField } from "@/lib/studio/templates/types"
+import { SURPRISE_IDENTITY_KEY, VISUAL_IDENTITIES } from "@/lib/studio/visual-identities"
 import { cn } from "@/lib/utils"
 
 export type CreatePostAlbumOption = {
@@ -35,6 +37,7 @@ type CreatePostFormProps = {
   template: {
     key: string
     slideStructure: string[]
+    defaultIdentityKey: string
     albumSlots: TemplateAlbumSlot[]
     settingFields: TemplateSettingField[]
   }
@@ -82,6 +85,7 @@ export function CreatePostForm({ template, albums, defaultBackgroundImages, acti
   )
   const [visibleOptionalSectionCount, setVisibleOptionalSectionCount] = useState(0)
   const [backgroundImageId, setBackgroundImageId] = useState("")
+  const [visualIdentityKey, setVisualIdentityKey] = useState(SURPRISE_IDENTITY_KEY)
   const [settingValues, setSettingValues] = useState<Record<string, string>>(() =>
     Object.fromEntries(template.settingFields.map((field) => [field.key, field.defaultValue ?? ""]))
   )
@@ -141,6 +145,7 @@ export function CreatePostForm({ template, albums, defaultBackgroundImages, acti
     <form action={formAction} className="flex flex-col gap-12">
       <input type="hidden" name="language" value={language} />
       <input type="hidden" name="backgroundImageId" value={backgroundImageId} />
+      <input type="hidden" name="visualIdentity" value={visualIdentityKey} />
 
       {albums.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
@@ -249,6 +254,12 @@ export function CreatePostForm({ template, albums, defaultBackgroundImages, acti
                 onChange={(value) => setSettingValues((currentValues) => ({ ...currentValues, [field.key]: value }))}
               />
             ))}
+
+            <VisualIdentityPicker
+              selectedIdentityKey={visualIdentityKey}
+              suggestedIdentityKey={template.defaultIdentityKey}
+              onSelectIdentity={setVisualIdentityKey}
+            />
 
             <DefaultBackgroundPicker
               images={defaultBackgroundImages}
@@ -521,6 +532,60 @@ function DefaultBackgroundPicker({ images, selectedImageId, onSelectImage }: Def
           Nenhum fundo padrão ainda. No editor, envie uma imagem e marque a estrela para guardá-la para os próximos posts.
         </FieldDescription>
       )}
+    </FieldSet>
+  )
+}
+
+type VisualIdentityPickerProps = {
+  selectedIdentityKey: string
+  suggestedIdentityKey: string
+  onSelectIdentity: (identityKey: string) => void
+}
+
+function VisualIdentityPicker({ selectedIdentityKey, suggestedIdentityKey, onSelectIdentity }: VisualIdentityPickerProps) {
+  const identityOptions = [
+    { key: SURPRISE_IDENTITY_KEY, label: "Surpresa", description: "Sorteia uma identidade diferente a cada post." },
+    ...VISUAL_IDENTITIES.map((identity) => ({ key: identity.key, label: identity.label, description: identity.description })),
+  ]
+
+  return (
+    <FieldSet>
+      <div className="flex flex-wrap items-center gap-2">
+        <FieldLegend variant="label" className="mb-0">Identidade visual</FieldLegend>
+        <Badge variant="secondary">Aparece em: cores, capa e arranjo de todos os slides</Badge>
+      </div>
+      <div role="radiogroup" aria-label="Identidade visual" className="grid gap-2 sm:grid-cols-2">
+        {identityOptions.map((option) => {
+          const isSelected = option.key === selectedIdentityKey
+          return (
+            <button
+              key={option.key}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              onClick={() => onSelectIdentity(option.key)}
+              className={cn(
+                "flex items-start gap-3 rounded-lg border border-border p-3 text-left outline-none transition-colors hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/50",
+                isSelected && "border-primary bg-primary/10"
+              )}
+            >
+              {option.key === SURPRISE_IDENTITY_KEY ? (
+                <SparklesIcon className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+              ) : (
+                <IdentitySwatches identityKey={option.key} />
+              )}
+              <span className="flex min-w-0 flex-col gap-0.5">
+                <span className="flex flex-wrap items-center gap-2 text-sm font-medium">
+                  {option.label}
+                  {option.key === suggestedIdentityKey ? <Badge variant="outline">Sugerida</Badge> : null}
+                </span>
+                <span className="text-xs text-muted-foreground">{option.description}</span>
+              </span>
+            </button>
+          )
+        })}
+      </div>
+      <FieldDescription>Textos e capas também variam a cada post. Dá para trocar a identidade depois no editor.</FieldDescription>
     </FieldSet>
   )
 }

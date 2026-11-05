@@ -12,7 +12,15 @@ import { scheduledDateToTimestamp, studioPostDraftSchema } from "@/lib/studio/po
 import { isPostLanguage, isPostStatus, type PostStatus } from "@/lib/studio/post-status"
 import { DEFAULT_BACKGROUND_IMAGE_SETTINGS, type StudioSlide } from "@/lib/studio/slides"
 import { findStudioTemplate } from "@/lib/studio/templates"
-import type { TemplateAlbum } from "@/lib/studio/templates/types"
+import { createVariantSeed } from "@/lib/studio/templates/template-helpers"
+import type { StudioTemplate, TemplateAlbum } from "@/lib/studio/templates/types"
+import {
+  applyVisualIdentity,
+  findVisualIdentity,
+  pickRandomVisualIdentity,
+  SURPRISE_IDENTITY_KEY,
+  type VisualIdentity,
+} from "@/lib/studio/visual-identities"
 
 export type CreatePostFormState = { message: string | null }
 
@@ -26,6 +34,12 @@ async function applyChosenDefaultBackground(slides: StudioSlide[], formValue: Fo
   const imageId = typeof formValue === "string" ? formValue : ""
   if (!UUID_PATTERN.test(imageId) || !(await isDefaultBackgroundImage(imageId))) return slides
   return slides.map((slide) => ({ ...slide, backgroundImage: { ...DEFAULT_BACKGROUND_IMAGE_SETTINGS, imageId } }))
+}
+
+function resolveChosenIdentity(template: StudioTemplate, formValue: FormDataEntryValue | null): VisualIdentity {
+  const chosenKey = typeof formValue === "string" ? formValue : ""
+  if (chosenKey === SURPRISE_IDENTITY_KEY) return pickRandomVisualIdentity()
+  return findVisualIdentity(chosenKey) ?? findVisualIdentity(template.defaultIdentityKey) ?? pickRandomVisualIdentity()
 }
 
 function revalidateStudioPosts(postId?: string) {
@@ -80,11 +94,13 @@ export async function createPostFromTemplateAction(
 
   let carousel
   try {
-    carousel = template.buildCarousel({ albumsBySlot, settings, language })
+    carousel = template.buildCarousel({ albumsBySlot, settings, language, variantSeed: createVariantSeed() })
   } catch (error) {
     return { message: error instanceof Error ? error.message : "Não foi possível montar o carrossel." }
   }
-  const slides = await applyChosenDefaultBackground(carousel.slides, formData.get("backgroundImageId"))
+  const identity = resolveChosenIdentity(template, formData.get("visualIdentity"))
+  const styledSlides = applyVisualIdentity(carousel.slides, identity, { keepCustomBackgrounds: true })
+  const slides = await applyChosenDefaultBackground(styledSlides, formData.get("backgroundImageId"))
 
   const [createdPost] = await db
     .insert(studioPosts)
@@ -93,7 +109,7 @@ export async function createPostFromTemplateAction(
       templateKey: template.key,
       status: "draft",
       language,
-      settings,
+      settings: { ...settings, visualIdentity: identity.key },
       slides,
       albumIds: [...new Set(slides.flatMap((slide) => slide.albumIds))],
       caption: carousel.caption,

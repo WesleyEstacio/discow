@@ -1,6 +1,7 @@
 import type { StudioCoverSource } from "@/lib/db/schema"
 import type { PostLanguage } from "@/lib/studio/post-status"
 import type { StudioSlide } from "@/lib/studio/slides"
+import type { VisualIdentityKey } from "@/lib/studio/visual-identities"
 
 // The album fields templates and slides are allowed to use. Everything here
 // is verified metadata from the music library (or typed in by the admin) -
@@ -64,6 +65,9 @@ export type BuildCarouselInput = {
   albumsBySlot: Record<string, TemplateAlbum[]>
   settings: Record<string, string>
   language: PostLanguage
+  // Picks which version of each text the post gets, so two posts of the
+  // same format don't read the same.
+  variantSeed: number
 }
 
 export type StudioTemplate = {
@@ -73,6 +77,7 @@ export type StudioTemplate = {
   objective: string
   slideStructure: string[]
   isAvailable: true
+  defaultIdentityKey: VisualIdentityKey
   albumSlots: TemplateAlbumSlot[]
   settingFields: TemplateSettingField[]
   buildCarousel: (input: BuildCarouselInput) => CarouselDraft

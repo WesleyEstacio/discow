@@ -6,14 +6,17 @@ import {
   ArrowUpIcon,
   ChevronDownIcon,
   CopyIcon,
+  PaletteIcon,
   DownloadIcon,
   FileArchiveIcon,
   PlusIcon,
   SaveIcon,
+  SparklesIcon,
   Trash2Icon,
   TriangleAlertIcon,
 } from "lucide-react"
 import type { SlideCanvasAlbum } from "@/components/studio/slide-canvas"
+import { IdentitySwatches } from "@/components/studio/identity-swatches"
 import { SlideInspector, type EditorAlbumOption } from "@/components/studio/slide-inspector"
 import { SlidePreview } from "@/components/studio/slide-preview"
 import { Badge } from "@/components/ui/badge"
@@ -47,11 +50,18 @@ import {
   findMissingSlideText,
   findTextOverLimit,
   MAX_SLIDES_PER_POST,
+  pickSlideElementToggles,
   SLIDE_LAYOUT_LABELS,
   SLIDE_LAYOUTS,
-  type SlideBackgroundImage,
   type StudioSlide,
 } from "@/lib/studio/slides"
+import {
+  applyVisualIdentity,
+  findVisualIdentity,
+  pickRandomVisualIdentity,
+  SURPRISE_IDENTITY_KEY,
+  VISUAL_IDENTITIES,
+} from "@/lib/studio/visual-identities"
 import { cn } from "@/lib/utils"
 
 type PostEditorProps = {
@@ -128,7 +138,17 @@ export function PostEditor({
   }
 
   function addSlide(layout: StudioSlide["layout"]) {
-    const newSlide = createEmptySlide(layout, { backgroundKey: selectedSlide.backgroundKey })
+    const newSlide = createEmptySlide(layout, {
+      backgroundKey: selectedSlide.backgroundKey,
+      customBackgroundHex: selectedSlide.customBackgroundHex,
+      backgroundStyle: selectedSlide.backgroundStyle,
+      accentHex: selectedSlide.accentHex,
+      customTextHex: selectedSlide.customTextHex,
+      typeStyle: selectedSlide.typeStyle,
+      kickerStyle: selectedSlide.kickerStyle,
+      albumCoverRadius: selectedSlide.albumCoverRadius,
+      ...pickSlideElementToggles(selectedSlide),
+    })
     updateSlides((slides) => [...slides.slice(0, selectedSlideIndex + 1), newSlide, ...slides.slice(selectedSlideIndex + 1)])
     setSelectedSlideId(newSlide.id)
   }
@@ -150,20 +170,22 @@ export function PostEditor({
     updateSlides((slides) => moveItem(slides, selectedSlideIndex, selectedSlideIndex + direction))
   }
 
-  function applyAlbumCoverRadiusToAllSlides(albumCoverRadius: number) {
-    updateSlides((slides) => slides.map((slide) => ({ ...slide, albumCoverRadius })))
-    toast.add({ title: "Arredondamento aplicado a todos os slides", type: "success" })
+  function applyToAllSlides(patch: Partial<StudioSlide>, confirmationMessage: string) {
+    updateSlides((slides) => slides.map((slide) => ({ ...slide, ...patch })))
+    toast.add({ title: confirmationMessage, type: "success" })
+  }
+
+  function applyIdentityToAllSlides(identityKey: string) {
+    const identity = identityKey === SURPRISE_IDENTITY_KEY ? pickRandomVisualIdentity() : findVisualIdentity(identityKey)
+    if (!identity) return
+    updateSlides((slides) => applyVisualIdentity(slides, identity, { keepCustomBackgrounds: false }))
+    toast.add({ title: `Identidade "${identity.label}" aplicada`, description: "Textos e álbuns continuam iguais.", type: "success" })
   }
 
   function markImageAsDefaultBackground(imageId: string, isDefaultBackground: boolean) {
     setUploadedImages((currentImages) =>
       currentImages.map((image) => (image.id === imageId ? { ...image, isDefaultBackground } : image))
     )
-  }
-
-  function applyBackgroundImageToAllSlides(backgroundImage: SlideBackgroundImage | null) {
-    updateSlides((slides) => slides.map((slide) => ({ ...slide, backgroundImage })))
-    toast.add({ title: backgroundImage ? "Fundo aplicado a todos os slides" : "Fundo removido de todos os slides", type: "success" })
   }
 
   async function persistDraft(draftBeingSaved: StudioPostDraft): Promise<boolean> {
@@ -247,6 +269,28 @@ export function PostEditor({
             ))}
           </SelectContent>
         </Select>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button variant="outline" />}>
+            <PaletteIcon data-icon="inline-start" />
+            Identidade visual
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-72">
+            <DropdownMenuItem onClick={() => applyIdentityToAllSlides(SURPRISE_IDENTITY_KEY)}>
+              <SparklesIcon />
+              Surpreenda-me
+            </DropdownMenuItem>
+            {VISUAL_IDENTITIES.map((identity) => (
+              <DropdownMenuItem key={identity.key} onClick={() => applyIdentityToAllSlides(identity.key)} className="items-start">
+                <IdentitySwatches identityKey={identity.key} />
+                <span className="flex flex-col">
+                  <span>{identity.label}</span>
+                  <span className="text-xs text-muted-foreground">{identity.description}</span>
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <Button variant="outline" onClick={saveDraft} disabled={isSaving || !hasUnsavedChanges}>
           <SaveIcon data-icon="inline-start" />
@@ -492,8 +536,7 @@ export function PostEditor({
             uploadedImages={uploadedImages}
             onChange={updateSelectedSlide}
             onImageUploaded={(image) => setUploadedImages((currentImages) => [image, ...currentImages])}
-            onApplyBackgroundImageToAllSlides={applyBackgroundImageToAllSlides}
-            onApplyAlbumCoverRadiusToAllSlides={applyAlbumCoverRadiusToAllSlides}
+            onApplyToAllSlides={applyToAllSlides}
             onDefaultBackgroundChanged={markImageAsDefaultBackground}
           />
         </section>

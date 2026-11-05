@@ -40,17 +40,114 @@ export const SLIDE_BACKGROUNDS = {
   ember: { label: "Brasa", background: "#d9532b", text: "#fff8f3", mutedText: "#ffd9c7", accent: "#1f0d07" },
   paper: { label: "Papel", background: "#f4efe8", text: "#17121b", mutedText: "#6e6573", accent: "#b0207e" },
   bone: { label: "Osso", background: "#e7e1f0", text: "#17121b", mutedText: "#5f566a", accent: "#7a1d6e" },
+  wine: { label: "Vinho", background: "#3a0f1c", text: "#fdf2f4", mutedText: "#d9a7b4", accent: "#ff7a90" },
+  cobalt: { label: "Cobalto", background: "#12236b", text: "#f2f5ff", mutedText: "#a9b6e8", accent: "#ffd23f" },
+  teal: { label: "Petróleo", background: "#0b3b3c", text: "#effbfa", mutedText: "#9cc9c6", accent: "#ffb36b" },
+  charcoal: { label: "Grafite", background: "#1c1c1e", text: "#f5f5f5", mutedText: "#a1a1a6", accent: "#e5e5e5" },
+  cocoa: { label: "Cacau", background: "#2b1d14", text: "#fbf3ea", mutedText: "#cdb59f", accent: "#f2a65a" },
+  olive: { label: "Oliva", background: "#4a5a2a", text: "#f6f7ec", mutedText: "#c6cca6", accent: "#f2c94c" },
+  violet: { label: "Violeta", background: "#6d3df5", text: "#f7f3ff", mutedText: "#d3c6ff", accent: "#c8f04a" },
+  terracotta: { label: "Terracota", background: "#b5532f", text: "#fff6ef", mutedText: "#f6cdb8", accent: "#2b1d14" },
+  coral: { label: "Coral", background: "#ff6f59", text: "#1d0b08", mutedText: "#5e241b", accent: "#fff3e0" },
+  mustard: { label: "Mostarda", background: "#e7b10a", text: "#1e1600", mutedText: "#5c4600", accent: "#8a1c1c" },
+  lime: { label: "Lima", background: "#c8f04a", text: "#12170a", mutedText: "#4c5a20", accent: "#3b1d8f" },
+  sky: { label: "Céu", background: "#7cc4ff", text: "#0b1a2b", mutedText: "#2f4b66", accent: "#a3156f" },
+  cream: { label: "Creme", background: "#fbf1d9", text: "#2a1d0c", mutedText: "#7a6648", accent: "#c2410c" },
+  sand: { label: "Areia", background: "#e9d8bf", text: "#2a1d0c", mutedText: "#6e5b44", accent: "#8a1c1c" },
+  mint: { label: "Menta", background: "#d7f2e3", text: "#0f2a1e", mutedText: "#4d6e5d", accent: "#0f766e" },
+  lilac: { label: "Lilás", background: "#e3d7ff", text: "#1d1238", mutedText: "#5d4f80", accent: "#6d3df5" },
+  blush: { label: "Rosado", background: "#fbd9df", text: "#3a0f1c", mutedText: "#8a4b5a", accent: "#c2268f" },
 } as const
 
 export type SlideBackgroundKey = keyof typeof SLIDE_BACKGROUNDS
 export const SLIDE_BACKGROUND_KEYS = Object.keys(SLIDE_BACKGROUNDS) as SlideBackgroundKey[]
 
-export const BACKGROUND_STYLES = ["solid", "glow", "gradient"] as const
+export const BACKGROUND_STYLES = ["solid", "glow", "gradient", "stripes", "rings", "split", "frame"] as const
 export type BackgroundStyle = (typeof BACKGROUND_STYLES)[number]
 export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   solid: "Liso",
   glow: "Brilho",
   gradient: "Degradê",
+  stripes: "Listras",
+  rings: "Ondas",
+  split: "Diagonal",
+  frame: "Moldura",
+}
+
+// Each layout can be arranged in a few ways. The first option is the
+// original arrangement, so slides saved before compositions existed keep it.
+export const SLIDE_COMPOSITIONS_BY_LAYOUT = {
+  cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type"],
+  album: ["classic", "side", "vinyl", "poster"],
+  "ranked-album": ["classic", "giant-number", "side"],
+  "album-grid": ["classic", "tight"],
+  "album-list": ["classic", "cards"],
+  text: ["classic", "card", "accent-bar"],
+  quote: ["classic", "card"],
+  cta: ["classic", "outline", "minimal"],
+} as const satisfies Record<SlideLayout, readonly string[]>
+
+export type SlideComposition = (typeof SLIDE_COMPOSITIONS_BY_LAYOUT)[SlideLayout][number]
+export const SLIDE_COMPOSITIONS = [...new Set(Object.values(SLIDE_COMPOSITIONS_BY_LAYOUT).flat())] as SlideComposition[]
+
+export const SLIDE_COMPOSITION_LABELS: Record<SlideComposition, string> = {
+  collage: "Colagem",
+  spotlight: "Destaque",
+  mosaic: "Mosaico",
+  stack: "Pilha",
+  poster: "Pôster",
+  type: "Tipográfica",
+  classic: "Clássico",
+  side: "Lado a lado",
+  vinyl: "Vinil",
+  "giant-number": "Número gigante",
+  tight: "Colado",
+  cards: "Cartões",
+  card: "Cartão",
+  "accent-bar": "Barra lateral",
+  outline: "Contorno",
+  minimal: "Minimalista",
+}
+
+export function resolveSlideComposition(slide: Pick<StudioSlide, "layout" | "composition">): SlideComposition {
+  const availableCompositions: readonly SlideComposition[] = SLIDE_COMPOSITIONS_BY_LAYOUT[slide.layout]
+  return availableCompositions.includes(slide.composition) ? slide.composition : availableCompositions[0]!
+}
+
+export const TYPE_STYLES = ["bold", "light", "caps", "wide"] as const
+export type TypeStyle = (typeof TYPE_STYLES)[number]
+export const TYPE_STYLE_LABELS: Record<TypeStyle, string> = {
+  bold: "Forte",
+  light: "Leve",
+  caps: "Caixa alta",
+  wide: "Espaçada",
+}
+
+export const KICKER_STYLES = ["dot", "pill", "line", "plain"] as const
+export type KickerStyle = (typeof KICKER_STYLES)[number]
+export const KICKER_STYLE_LABELS: Record<KickerStyle, string> = {
+  dot: "Ponto",
+  pill: "Etiqueta",
+  line: "Linha",
+  plain: "Simples",
+}
+
+export const SLIDE_ELEMENT_TOGGLES = ["showProgress", "showCoverCredit", "showSwipeHint", "showBrandMark"] as const
+export type SlideElementToggle = (typeof SLIDE_ELEMENT_TOGGLES)[number]
+export function pickSlideElementToggles(slide: StudioSlide): Pick<StudioSlide, SlideElementToggle> {
+  return {
+    showProgress: slide.showProgress,
+    showCoverCredit: slide.showCoverCredit,
+    showSwipeHint: slide.showSwipeHint,
+    showBrandMark: slide.showBrandMark,
+  }
+}
+
+export const SLIDE_ELEMENT_TOGGLE_LABELS: Record<SlideElementToggle, string> = {
+  showProgress: "Contador de páginas",
+  showCoverCredit: "Crédito das capas (Spotify, Cover Art Archive)",
+  showSwipeHint: "“Arraste →” na capa",
+  showBrandMark: "Marca discows.",
 }
 
 export const HEADLINE_SIZES = ["small", "medium", "large"] as const
@@ -141,6 +238,14 @@ export const studioSlideSchema = z.object({
   backgroundStyle: z.enum(BACKGROUND_STYLES).default("glow"),
   backgroundImage: slideBackgroundImageSchema.nullable().default(null),
   albumCoverRadius: z.number().int().min(0).max(MAX_ALBUM_COVER_RADIUS_PERCENT).default(0),
+  composition: z.enum(SLIDE_COMPOSITIONS as [SlideComposition, ...SlideComposition[]]).default("classic"),
+  typeStyle: z.enum(TYPE_STYLES).default("bold"),
+  kickerStyle: z.enum(KICKER_STYLES).default("dot"),
+  customTextHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
+  showProgress: z.boolean().default(true),
+  showCoverCredit: z.boolean().default(true),
+  showSwipeHint: z.boolean().default(true),
+  showBrandMark: z.boolean().default(true),
 })
 
 export type StudioSlide = z.infer<typeof studioSlideSchema>
@@ -176,6 +281,14 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     backgroundStyle: "glow",
     backgroundImage: null,
     albumCoverRadius: 0,
+    composition: SLIDE_COMPOSITIONS_BY_LAYOUT[layout][0],
+    typeStyle: "bold",
+    kickerStyle: "dot",
+    customTextHex: null,
+    showProgress: true,
+    showCoverCredit: true,
+    showSwipeHint: true,
+    showBrandMark: true,
     ...overrides,
   }
 }
@@ -203,7 +316,7 @@ export function hexToRgba(hexColor: string, alpha: number): string {
 }
 
 export function resolveSlideColors(
-  slide: Pick<StudioSlide, "backgroundKey" | "customBackgroundHex" | "accentHex">
+  slide: Pick<StudioSlide, "backgroundKey" | "customBackgroundHex" | "accentHex" | "customTextHex">
 ): SlideColors {
   const baseColors: SlideColors = slide.customBackgroundHex
     ? (() => {
@@ -216,7 +329,10 @@ export function resolveSlideColors(
         }
       })()
     : SLIDE_BACKGROUNDS[slide.backgroundKey]
-  return slide.accentHex ? { ...baseColors, accent: slide.accentHex } : baseColors
+  const textColors = slide.customTextHex
+    ? { text: slide.customTextHex, mutedText: hexToRgba(slide.customTextHex, 0.72) }
+    : {}
+  return { ...baseColors, ...textColors, ...(slide.accentHex ? { accent: slide.accentHex } : {}) }
 }
 
 export function findMissingSlideText(slide: StudioSlide): string[] {

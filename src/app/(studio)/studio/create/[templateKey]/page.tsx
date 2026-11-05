@@ -24,6 +24,7 @@ export default async function CreateFromTemplatePage({ params }: CreateFromTempl
   const templateForClient = {
     key: template.key,
     slideStructure: template.slideStructure,
+    defaultIdentityKey: template.defaultIdentityKey,
     albumSlots: template.albumSlots,
     settingFields: template.settingFields,
   }

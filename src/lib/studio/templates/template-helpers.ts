@@ -47,3 +47,23 @@ export function chunkAlbums<Item>(items: Item[], chunkSize: number): Item[][] {
   }
   return chunks
 }
+
+function seededRandom(seed: number): number {
+  const sineValue = Math.sin(seed) * 10000
+  return sineValue - Math.floor(sineValue)
+}
+
+// Each call returns the next pick for the same post, so a post keeps the
+// same texts if it is rebuilt with the same seed.
+export function createVariantPicker(variantSeed: number) {
+  let pickCount = 0
+  return function pickVariant<Variant>(variants: readonly [Variant, ...Variant[]]): Variant {
+    pickCount += 1
+    const variantIndex = Math.floor(seededRandom(variantSeed * 31 + pickCount) * variants.length)
+    return variants[variantIndex] ?? variants[0]
+  }
+}
+
+export function createVariantSeed(): number {
+  return Math.floor(Math.random() * 1_000_000)
+}
