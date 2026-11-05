@@ -1,4 +1,4 @@
-import { createEmptySlide, type StudioSlide } from "@/lib/studio/slides"
+import { createEmptySlide, MAX_SLIDES_PER_POST, type StudioSlide } from "@/lib/studio/slides"
 import {
   buildHashtags,
   createVariantPicker,
@@ -96,13 +96,18 @@ const COPY = {
   },
 } as const
 
-// Each pair = 1 reference slide + 2 slides per recommendation. These limits
-// keep the worst case (3 full pairs + cover + CTA) within MAX_SLIDES_PER_POST.
 const RECOMMENDATION_PAIRS = [
   { referenceSlotKey: "reference", recommendationsSlotKey: "recommendations", maxRecommendations: 3 },
   { referenceSlotKey: "reference2", recommendationsSlotKey: "recommendations2", maxRecommendations: 2 },
   { referenceSlotKey: "reference3", recommendationsSlotKey: "recommendations3", maxRecommendations: 2 },
+  { referenceSlotKey: "reference4", recommendationsSlotKey: "recommendations4", maxRecommendations: 2 },
+  { referenceSlotKey: "reference5", recommendationsSlotKey: "recommendations5", maxRecommendations: 2 },
+  { referenceSlotKey: "reference6", recommendationsSlotKey: "recommendations6", maxRecommendations: 2 },
 ] as const
+
+const COVER_AND_CTA_SLIDE_COUNT = 2
+const SLIDES_PER_REFERENCE = 1
+const SLIDES_PER_RECOMMENDATION = 2
 
 type RecommendationPair = {
   referenceAlbum: TemplateAlbum
@@ -132,7 +137,7 @@ function buildPairSlots(): TemplateAlbumSlot[] {
       {
         key: pair.recommendationsSlotKey,
         label: "…experimente",
-        description: `Até ${pair.maxRecommendations}. Cada um ganha um slide de capa e um de conexão.`,
+        description: `Até ${pair.maxRecommendations}. Cada um ganha um slide de capa e um de conexão. O carrossel inteiro aceita até ${MAX_SLIDES_PER_POST} slides.`,
         minAlbums,
         maxAlbums: pair.maxRecommendations,
         group,
@@ -141,8 +146,15 @@ function buildPairSlots(): TemplateAlbumSlot[] {
   })
 }
 
+function countCarouselSlides(recommendationPairs: RecommendationPair[]): number {
+  return recommendationPairs.reduce(
+    (slideCount, pair) => slideCount + SLIDES_PER_REFERENCE + pair.recommendedAlbums.length * SLIDES_PER_RECOMMENDATION,
+    COVER_AND_CTA_SLIDE_COUNT
+  )
+}
+
 function readRecommendationPairs(albumsBySlot: Record<string, TemplateAlbum[]>): RecommendationPair[] {
-  return RECOMMENDATION_PAIRS.flatMap((pair, pairIndex) => {
+  const recommendationPairs = RECOMMENDATION_PAIRS.flatMap((pair, pairIndex) => {
     const referenceAlbum = albumsBySlot[pair.referenceSlotKey]?.[0]
     const recommendedAlbums = albumsBySlot[pair.recommendationsSlotKey] ?? []
     if (!referenceAlbum && recommendedAlbums.length === 0) return []
@@ -151,6 +163,14 @@ function readRecommendationPairs(albumsBySlot: Record<string, TemplateAlbum[]>):
     }
     return [{ referenceAlbum, recommendedAlbums }]
   })
+
+  const slideCount = countCarouselSlides(recommendationPairs)
+  if (slideCount > MAX_SLIDES_PER_POST) {
+    throw new Error(
+      `Com essas escolhas o carrossel teria ${slideCount} slides, e o limite é ${MAX_SLIDES_PER_POST}. Cada par usa 1 slide e cada recomendação usa mais 2: remova algumas recomendações (com 6 pares, cabe 1 recomendação por par).`
+    )
+  }
+  return recommendationPairs
 }
 
 function joinWithOr(names: string[], orWord: string): string {
