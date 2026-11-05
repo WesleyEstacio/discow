@@ -4,6 +4,7 @@ import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit"
 import { getStudioAdmin } from "@/lib/studio/admin"
 import { getStudioAlbumsByIds } from "@/lib/studio/albums"
 import { buildRenderableBackgrounds } from "@/lib/studio/background-images"
+import { collectCarouselAlbumIds } from "@/lib/studio/blurred-covers"
 import { getStudioPost } from "@/lib/studio/posts"
 import {
   buildExportFileBaseName,
@@ -36,7 +37,7 @@ export async function GET(request: Request, context: RouteContext) {
     getHighlightFontKey(),
   ])
 
-  const blurredCoversBySlideId = await buildRenderableBlurredCovers(post.slides, albumsById)
+  const blurredCoversBySlideId = await buildRenderableBlurredCovers(post.slides, collectCarouselAlbumIds(post.slides), albumsById)
   const slideAssets = { albumsById, backgroundImagesBySlideId, blurredCoversBySlideId, highlightFontKey }
 
   const slideImages = await Promise.all(

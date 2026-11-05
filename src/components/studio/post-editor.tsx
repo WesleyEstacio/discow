@@ -36,6 +36,7 @@ import { toast } from "@/components/ui/toast"
 import type { StudioImageSummary } from "@/lib/studio/background-images"
 import type { HighlightFontKey } from "@/lib/studio/highlight-fonts"
 import { savePostAction } from "@/lib/studio/post-actions"
+import { collectCarouselAlbumIds } from "@/lib/studio/blurred-covers"
 import { MAX_CAPTION_LENGTH, type StudioPostDraft } from "@/lib/studio/post-input"
 import {
   POST_LANGUAGE_LABELS,
@@ -105,6 +106,7 @@ export function PostEditor({
   )
   const selectedSlide = draft.slides[selectedSlideIndex]!
 
+  const carouselAlbumIds = collectCarouselAlbumIds(draft.slides)
   const albumsById: Record<string, SlideCanvasAlbum> = Object.fromEntries(
     albums.map((album) => [
       album.id,
@@ -365,6 +367,7 @@ export function PostEditor({
                     <SlidePreview
                       slide={slide}
                       albumsById={albumsById}
+                      carouselAlbumIds={carouselAlbumIds}
                       slideNumber={slideIndex + 1}
                       slideCount={draft.slides.length}
                       displayWidth={168}
@@ -387,6 +390,7 @@ export function PostEditor({
             <SlidePreview
               slide={selectedSlide}
               albumsById={albumsById}
+              carouselAlbumIds={carouselAlbumIds}
               slideNumber={selectedSlideIndex + 1}
               slideCount={draft.slides.length}
               displayWidth={432}
@@ -474,6 +478,7 @@ export function PostEditor({
                     <SlidePreview
                       slide={slide}
                       albumsById={albumsById}
+                      carouselAlbumIds={carouselAlbumIds}
                       slideNumber={slideIndex + 1}
                       slideCount={draft.slides.length}
                       displayWidth={200}
@@ -539,6 +544,7 @@ export function PostEditor({
             key={selectedSlide.id}
             slide={selectedSlide}
             albums={albums}
+            carouselAlbumCount={carouselAlbumIds.length}
             uploadedImages={uploadedImages}
             onChange={updateSelectedSlide}
             onImageUploaded={(image) => setUploadedImages((currentImages) => [image, ...currentImages])}
