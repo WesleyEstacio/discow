@@ -3,6 +3,7 @@ import { checkRateLimit, rateLimitExceededResponse } from "@/lib/rate-limit"
 import { getStudioAdmin } from "@/lib/studio/admin"
 import { getStudioAlbumsByIds } from "@/lib/studio/albums"
 import { buildRenderableBackgrounds } from "@/lib/studio/background-images"
+import { collectCarouselAlbumIds } from "@/lib/studio/blurred-covers"
 import { getStudioPost } from "@/lib/studio/posts"
 import {
   buildRenderableAlbums,
@@ -32,12 +33,14 @@ export async function GET(request: Request, context: RouteContext) {
   }
 
   const slide = post.slides[slideIndex]!
+  const carouselAlbumIds = collectCarouselAlbumIds(post.slides)
+  const albumIdsToLoad = slide.backgroundStyle === "blurred-covers" ? carouselAlbumIds : slide.albumIds
   const [albumsById, backgroundImagesBySlideId, highlightFontKey] = await Promise.all([
-    getStudioAlbumsByIds(slide.albumIds).then(buildRenderableAlbums),
+    getStudioAlbumsByIds(albumIdsToLoad).then(buildRenderableAlbums),
     buildRenderableBackgrounds([slide]),
     getHighlightFontKey(),
   ])
-  const blurredCoversBySlideId = await buildRenderableBlurredCovers([slide], albumsById)
+  const blurredCoversBySlideId = await buildRenderableBlurredCovers([slide], carouselAlbumIds, albumsById)
   const shouldDownload = new URL(request.url).searchParams.get("download") === "1"
 
   return renderSlideImage(

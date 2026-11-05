@@ -1,9 +1,9 @@
-import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/studio/slides"
+import { SLIDE_HEIGHT, SLIDE_WIDTH, type StudioSlide } from "@/lib/studio/slides"
 
-export const BLURRED_COVERS_BLUR_RADIUS = 110
+export const BLURRED_COVERS_BLUR_RADIUS = 170
 // Covers spill past the canvas edges so the blur never fades into the
 // background color at the borders.
-export const BLURRED_COVERS_BLEED = 220
+export const BLURRED_COVERS_BLEED = 400
 
 const GRID_COLUMNS = 3
 const GRID_ROWS = 4
@@ -56,7 +56,11 @@ export function arrangeBlurredCovers(albumIds: string[], seed: number): BlurredC
   }))
   const albumOrder = shuffle(albumIds, random)
 
-  return shuffle(cells, random).map((cell, placementIndex) => {
+  const shuffledCells = shuffle(cells, random)
+  const placementCount = Math.max(shuffledCells.length, albumOrder.length)
+
+  return Array.from({ length: placementCount }, (_, placementIndex) => {
+    const cell = shuffledCells[placementIndex % shuffledCells.length]!
     const size = Math.round(MIN_COVER_SIZE + random() * (MAX_COVER_SIZE - MIN_COVER_SIZE))
     const centerX = (cell.column + 0.2 + random() * 0.6) * cellWidth - BLURRED_COVERS_BLEED / 2
     const centerY = (cell.row + 0.2 + random() * 0.6) * cellHeight - BLURRED_COVERS_BLEED / 2
@@ -68,4 +72,10 @@ export function arrangeBlurredCovers(albumIds: string[], seed: number): BlurredC
       rotationDegrees: Math.round((random() * 2 - 1) * MAX_ROTATION_DEGREES),
     }
   })
+}
+
+// The background mixes every cover in the carousel, so even a cover slide
+// with no albums of its own gets one.
+export function collectCarouselAlbumIds(slides: Pick<StudioSlide, "albumIds">[]): string[] {
+  return [...new Set(slides.flatMap((slide) => slide.albumIds))]
 }

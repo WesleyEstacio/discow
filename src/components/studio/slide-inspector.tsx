@@ -59,6 +59,7 @@ export type EditorAlbumOption = {
 type SlideInspectorProps = {
   slide: StudioSlide
   albums: EditorAlbumOption[]
+  carouselAlbumCount: number
   uploadedImages: StudioImageSummary[]
   onChange: (patch: Partial<StudioSlide>) => void
   onImageUploaded: (image: StudioImageSummary) => void
@@ -90,6 +91,7 @@ function readNumberInput(value: string): number | null {
 export function SlideInspector({
   slide,
   albums,
+  carouselAlbumCount,
   uploadedImages,
   onChange,
   onImageUploaded,
@@ -301,15 +303,15 @@ export function SlideInspector({
                 variant="outline"
                 size="sm"
                 onClick={() => onChange({ backgroundSeed: (slide.backgroundSeed + 1) % (MAX_BACKGROUND_SEED + 1) })}
-                disabled={slide.albumIds.length === 0}
+                disabled={carouselAlbumCount === 0}
               >
                 <ShuffleIcon data-icon="inline-start" />
                 Embaralhar capas
               </Button>
               <FieldDescription>
-                {slide.albumIds.length === 0
-                  ? "Adicione álbuns a este slide para gerar o fundo."
-                  : "Usa as capas dos álbuns deste slide, espalhadas e desfocadas."}
+                {carouselAlbumCount === 0
+                  ? "Adicione álbuns ao carrossel para gerar o fundo."
+                  : "Mistura as capas de todos os álbuns do carrossel, espalhadas e bem desfocadas."}
               </FieldDescription>
             </div>
           ) : null}

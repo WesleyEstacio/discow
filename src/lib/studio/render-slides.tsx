@@ -5,7 +5,12 @@ import { ImageResponse } from "next/og"
 import sharp from "sharp"
 import { SlideCanvas, type SlideCanvasAlbum } from "@/components/studio/slide-canvas"
 import type { StudioAlbum } from "@/lib/studio/albums"
-import { arrangeBlurredCovers, BLURRED_COVERS_BLEED, BLURRED_COVERS_BLUR_RADIUS } from "@/lib/studio/blurred-covers"
+import {
+  arrangeBlurredCovers,
+  BLURRED_COVERS_BLEED,
+  BLURRED_COVERS_BLUR_RADIUS,
+  collectCarouselAlbumIds,
+} from "@/lib/studio/blurred-covers"
 import { buildHighlightTypography, HIGHLIGHT_FONTS, type HighlightFontKey } from "@/lib/studio/highlight-fonts"
 import { resolveSlideColors, SLIDE_HEIGHT, SLIDE_WIDTH, type StudioSlide } from "@/lib/studio/slides"
 
@@ -103,13 +108,17 @@ function decodeDataUrl(dataUrl: string | null | undefined): Buffer | null {
 // Mirrors BlurredCoversLayer's CSS (same arrangement, same blur) because
 // Satori can't blur. Drawn at a quarter of the size and scaled up: the
 // result is identical once blurred, and much faster.
-async function renderBlurredCovers(slide: StudioSlide, albumsById: Record<string, SlideCanvasAlbum>): Promise<string | null> {
+async function renderBlurredCovers(
+  slide: StudioSlide,
+  carouselAlbumIds: string[],
+  albumsById: Record<string, SlideCanvasAlbum>
+): Promise<string | null> {
   const halfBleed = BLURRED_COVERS_BLEED / 2
   const canvasWidth = Math.round((SLIDE_WIDTH + BLURRED_COVERS_BLEED) * BLURRED_COVERS_RENDER_SCALE)
   const canvasHeight = Math.round((SLIDE_HEIGHT + BLURRED_COVERS_BLEED) * BLURRED_COVERS_RENDER_SCALE)
 
   const coverLayers = await Promise.all(
-    arrangeBlurredCovers(slide.albumIds, slide.backgroundSeed).map(async (placement) => {
+    arrangeBlurredCovers(carouselAlbumIds, slide.backgroundSeed).map(async (placement) => {
       const coverBytes = decodeDataUrl(albumsById[placement.albumId]?.coverImageUrl)
       if (!coverBytes) return null
       const scaledSize = Math.round(placement.size * BLURRED_COVERS_RENDER_SCALE)
@@ -144,15 +153,16 @@ async function renderBlurredCovers(slide: StudioSlide, albumsById: Record<string
 }
 
 export async function buildRenderableBlurredCovers(
-  slides: StudioSlide[],
+  slidesToRender: StudioSlide[],
+  carouselAlbumIds: string[],
   albumsById: Record<string, SlideCanvasAlbum>
 ): Promise<Record<string, string>> {
   const renderedBackgrounds = await Promise.all(
-    slides
+    slidesToRender
       .filter((slide) => slide.backgroundStyle === "blurred-covers")
       .map(async (slide) => {
         try {
-          const blurredCoversSrc = await renderBlurredCovers(slide, albumsById)
+          const blurredCoversSrc = await renderBlurredCovers(slide, carouselAlbumIds, albumsById)
           return blurredCoversSrc ? ([slide.id, blurredCoversSrc] as const) : null
         } catch (error) {
           console.warn("Could not render blurred covers background", error)
@@ -186,6 +196,7 @@ export async function renderSlideImage(
       <SlideCanvas
         slide={slide}
         albumsById={assets.albumsById}
+        carouselAlbumIds={collectCarouselAlbumIds(slides)}
         slideNumber={slideIndex + 1}
         slideCount={slides.length}
         fontFamily={SLIDE_FONT_FAMILY}

@@ -46,7 +46,7 @@ export const VISUAL_IDENTITIES = [
     label: "Madrugada",
     description: "Escuro, brilho rosa e discos de vinil saindo da capa.",
     palette: { cover: ["ink"], feature: ["plum", "ink"], support: ["midnight"], collection: ["ink"], closing: ["magenta"] },
-    backgroundStyles: { cover: "glow", feature: "glow", support: "solid", collection: "glow", closing: "gradient" },
+    backgroundStyles: { cover: "blurred-covers", feature: "glow", support: "solid", collection: "glow", closing: "gradient" },
     compositions: {
       cover: "collage",
       album: "vinyl",
@@ -68,7 +68,7 @@ export const VISUAL_IDENTITIES = [
     label: "Editorial",
     description: "Papel, moldura fina e títulos leves, como uma revista.",
     palette: { cover: ["paper"], feature: ["cream", "paper"], support: ["sand"], collection: ["paper"], closing: ["charcoal"] },
-    backgroundStyles: { cover: "frame", feature: "solid", support: "solid", collection: "frame", closing: "solid" },
+    backgroundStyles: { cover: "blurred-covers", feature: "solid", support: "solid", collection: "frame", closing: "solid" },
     compositions: {
       cover: "type",
       album: "side",
@@ -90,7 +90,7 @@ export const VISUAL_IDENTITIES = [
     label: "Pop",
     description: "Cores fortes, listras, caixa alta e capas em mosaico.",
     palette: { cover: ["magenta"], feature: ["lime", "sky", "coral"], support: ["violet"], collection: ["mustard"], closing: ["lime"] },
-    backgroundStyles: { cover: "stripes", feature: "split", support: "stripes", collection: "split", closing: "stripes" },
+    backgroundStyles: { cover: "blurred-covers", feature: "split", support: "stripes", collection: "split", closing: "stripes" },
     compositions: {
       cover: "mosaic",
       album: "poster",
@@ -112,7 +112,7 @@ export const VISUAL_IDENTITIES = [
     label: "Sebo",
     description: "Tons quentes de sebo de discos, ondas e capas empilhadas.",
     palette: { cover: ["mustard"], feature: ["cocoa", "terracotta"], support: ["cream"], collection: ["cocoa"], closing: ["terracotta"] },
-    backgroundStyles: { cover: "rings", feature: "rings", support: "solid", collection: "rings", closing: "rings" },
+    backgroundStyles: { cover: "blurred-covers", feature: "rings", support: "solid", collection: "rings", closing: "rings" },
     compositions: {
       cover: "stack",
       album: "vinyl",
@@ -134,7 +134,7 @@ export const VISUAL_IDENTITIES = [
     label: "Minimal",
     description: "Grafite e osso, uma capa por vez e muito respiro.",
     palette: { cover: ["charcoal"], feature: ["charcoal", "bone"], support: ["bone"], collection: ["charcoal"], closing: ["bone"] },
-    backgroundStyles: { cover: "solid", feature: "solid", support: "solid", collection: "solid", closing: "solid" },
+    backgroundStyles: { cover: "blurred-covers", feature: "solid", support: "solid", collection: "solid", closing: "solid" },
     compositions: {
       cover: "spotlight",
       album: "classic",
@@ -156,7 +156,7 @@ export const VISUAL_IDENTITIES = [
     label: "Neon",
     description: "Azul profundo, amarelo elétrico e números gigantes.",
     palette: { cover: ["cobalt"], feature: ["midnight", "cobalt"], support: ["violet"], collection: ["midnight"], closing: ["cobalt"] },
-    backgroundStyles: { cover: "gradient", feature: "glow", support: "gradient", collection: "glow", closing: "gradient" },
+    backgroundStyles: { cover: "blurred-covers", feature: "glow", support: "gradient", collection: "glow", closing: "gradient" },
     compositions: {
       cover: "poster",
       album: "side",
@@ -178,7 +178,7 @@ export const VISUAL_IDENTITIES = [
     label: "Tropical",
     description: "Verde, menta e coral, com cantos arredondados.",
     palette: { cover: ["forest"], feature: ["teal", "forest"], support: ["mint"], collection: ["teal"], closing: ["coral"] },
-    backgroundStyles: { cover: "split", feature: "glow", support: "solid", collection: "split", closing: "split" },
+    backgroundStyles: { cover: "blurred-covers", feature: "glow", support: "solid", collection: "split", closing: "split" },
     compositions: {
       cover: "mosaic",
       album: "poster",
@@ -200,7 +200,7 @@ export const VISUAL_IDENTITIES = [
     label: "Brasa",
     description: "Laranja queimado e vinho, com títulos de pôster.",
     palette: { cover: ["ember"], feature: ["wine", "ink"], support: ["sand"], collection: ["wine"], closing: ["ember"] },
-    backgroundStyles: { cover: "gradient", feature: "gradient", support: "solid", collection: "gradient", closing: "stripes" },
+    backgroundStyles: { cover: "blurred-covers", feature: "gradient", support: "solid", collection: "gradient", closing: "stripes" },
     compositions: {
       cover: "spotlight",
       album: "classic",
@@ -222,7 +222,7 @@ export const VISUAL_IDENTITIES = [
     label: "Pastel",
     description: "Lilás, rosado e menta, delicado e com capas redondas.",
     palette: { cover: ["lilac"], feature: ["blush", "mint"], support: ["lilac"], collection: ["blush"], closing: ["violet"] },
-    backgroundStyles: { cover: "rings", feature: "solid", support: "solid", collection: "solid", closing: "glow" },
+    backgroundStyles: { cover: "blurred-covers", feature: "solid", support: "solid", collection: "solid", closing: "glow" },
     compositions: {
       cover: "stack",
       album: "classic",

@@ -38,6 +38,7 @@ export type BackgroundEffectsMode = "css" | "prerendered"
 type SlideCanvasProps = {
   slide: StudioSlide
   albumsById: Record<string, SlideCanvasAlbum>
+  carouselAlbumIds: string[]
   slideNumber: number
   slideCount: number
   fontFamily: string
@@ -103,6 +104,7 @@ function buildFooterNote(slide: StudioSlide, slideAlbums: (SlideCanvasAlbum | un
 export function SlideCanvas({
   slide,
   albumsById,
+  carouselAlbumIds,
   slideNumber,
   slideCount,
   fontFamily,
@@ -134,6 +136,7 @@ export function SlideCanvas({
         <BlurredCoversLayer
           slide={slide}
           albumsById={albumsById}
+          carouselAlbumIds={carouselAlbumIds}
           prerenderedSrc={blurredCoversSrc}
           effectsMode={backgroundEffectsMode}
           backgroundColor={colors.background}
@@ -313,18 +316,20 @@ function BackgroundDecoration({ slide, colors }: { slide: StudioSlide; colors: S
 function BlurredCoversLayer({
   slide,
   albumsById,
+  carouselAlbumIds,
   prerenderedSrc,
   effectsMode,
   backgroundColor,
 }: {
   slide: StudioSlide
   albumsById: Record<string, SlideCanvasAlbum>
+  carouselAlbumIds: string[]
   prerenderedSrc: string | null
   effectsMode: BackgroundEffectsMode
   backgroundColor: string
 }) {
   const halfBleed = BLURRED_COVERS_BLEED / 2
-  const placements = effectsMode === "css" ? arrangeBlurredCovers(slide.albumIds, slide.backgroundSeed) : []
+  const placements = effectsMode === "css" ? arrangeBlurredCovers(carouselAlbumIds, slide.backgroundSeed) : []
 
   return (
     <div style={fullSlideLayer({ overflow: "hidden" })}>
