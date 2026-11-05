@@ -1,12 +1,13 @@
 "use client"
 
 import { useId, useTransition, type ChangeEvent } from "react"
-import { CopyCheckIcon, ImageUpIcon, Trash2Icon } from "lucide-react"
+import { CopyCheckIcon, ImageUpIcon, StarIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Field, FieldDescription, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field"
 import { Slider } from "@/components/ui/slider"
 import { toast } from "@/components/ui/toast"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { setDefaultBackgroundImageAction } from "@/lib/studio/background-image-actions"
 import type { StudioImageSummary } from "@/lib/studio/background-images"
 import {
   BACKGROUND_IMAGE_FILTER_CSS,
@@ -31,6 +32,7 @@ type SlideBackgroundImageFieldProps = {
   onChange: (backgroundImage: SlideBackgroundImage | null) => void
   onImageUploaded: (image: StudioImageSummary) => void
   onApplyToAllSlides: () => void
+  onDefaultBackgroundChanged: (imageId: string, isDefaultBackground: boolean) => void
 }
 
 // Phone photos are often larger than the upload limit, so they are scaled
@@ -74,9 +76,27 @@ export function SlideBackgroundImageField({
   onChange,
   onImageUploaded,
   onApplyToAllSlides,
+  onDefaultBackgroundChanged,
 }: SlideBackgroundImageFieldProps) {
   const fileInputId = useId()
   const [isUploading, startUploading] = useTransition()
+  const [, startSavingDefault] = useTransition()
+  const defaultBackgroundImages = uploadedImages.filter((image) => image.isDefaultBackground)
+  const otherUploadedImages = uploadedImages.filter((image) => !image.isDefaultBackground)
+
+  function toggleDefaultBackground(image: StudioImageSummary) {
+    const nextIsDefault = !image.isDefaultBackground
+    onDefaultBackgroundChanged(image.id, nextIsDefault)
+    startSavingDefault(async () => {
+      try {
+        await setDefaultBackgroundImageAction(image.id, nextIsDefault)
+        toast.add({ title: nextIsDefault ? "Adicionada aos fundos padrão" : "Removida dos fundos padrão", type: "success" })
+      } catch {
+        onDefaultBackgroundChanged(image.id, image.isDefaultBackground)
+        toast.add({ title: "Não foi possível atualizar os fundos padrão", type: "error" })
+      }
+    })
+  }
 
   function selectImage(imageId: string) {
     onChange({ ...(backgroundImage ?? DEFAULT_BACKGROUND_IMAGE_SETTINGS), imageId })
@@ -124,35 +144,31 @@ export function SlideBackgroundImageField({
         ) : null}
       </div>
 
-      {uploadedImages.length ? (
-        <div className="flex flex-col gap-2">
-          <p className="text-xs text-muted-foreground">Imagens já enviadas</p>
-          <ul className="grid grid-cols-6 gap-1.5">
-            {uploadedImages.map((image) => {
-              const isSelected = backgroundImage?.imageId === image.id
-              return (
-                <li key={image.id}>
-                  <button
-                    type="button"
-                    onClick={() => selectImage(image.id)}
-                    aria-pressed={isSelected}
-                    aria-label="Usar esta imagem de fundo"
-                    className={cn(
-                      "block aspect-[4/5] w-full overflow-hidden rounded-md border border-border outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-                      isSelected && "ring-2 ring-primary"
-                    )}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element -- admin-only route, already sized */}
-                    <img src={studioImageUrl(image.id)} alt="" loading="lazy" className="size-full object-cover" />
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-      ) : (
-        <FieldDescription>JPG, PNG ou WebP. A imagem é ajustada ao tamanho do slide.</FieldDescription>
-      )}
+      {defaultBackgroundImages.length ? (
+        <BackgroundImageGrid
+          title="Fundos padrão"
+          images={defaultBackgroundImages}
+          selectedImageId={backgroundImage?.imageId}
+          onSelectImage={selectImage}
+          onToggleDefault={toggleDefaultBackground}
+        />
+      ) : null}
+
+      {otherUploadedImages.length ? (
+        <BackgroundImageGrid
+          title="Imagens já enviadas"
+          images={otherUploadedImages}
+          selectedImageId={backgroundImage?.imageId}
+          onSelectImage={selectImage}
+          onToggleDefault={toggleDefaultBackground}
+        />
+      ) : null}
+
+      <FieldDescription>
+        {uploadedImages.length
+          ? "Marque a estrela para guardar uma imagem como fundo padrão — ela aparece primeiro aqui e na criação de novos posts."
+          : "JPG, PNG ou WebP. A imagem é ajustada ao tamanho do slide."}
+      </FieldDescription>
 
       {backgroundImage ? (
         <>
@@ -247,3 +263,51 @@ export function SlideBackgroundImageField({
   )
 }
 
+
+type BackgroundImageGridProps = {
+  title: string
+  images: StudioImageSummary[]
+  selectedImageId: string | undefined
+  onSelectImage: (imageId: string) => void
+  onToggleDefault: (image: StudioImageSummary) => void
+}
+
+function BackgroundImageGrid({ title, images, selectedImageId, onSelectImage, onToggleDefault }: BackgroundImageGridProps) {
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-xs text-muted-foreground">{title}</p>
+      <ul className="grid grid-cols-5 gap-1.5">
+        {images.map((image, imageIndex) => {
+          const isSelected = selectedImageId === image.id
+          return (
+            <li key={image.id} className="relative">
+              <button
+                type="button"
+                onClick={() => onSelectImage(image.id)}
+                aria-pressed={isSelected}
+                aria-label={`Usar a imagem ${imageIndex + 1} de ${title.toLowerCase()} como fundo`}
+                className={cn(
+                  "block aspect-[4/5] w-full overflow-hidden rounded-md border border-border outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                  isSelected && "ring-2 ring-primary"
+                )}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- admin-only route, already sized */}
+                <img src={studioImageUrl(image.id)} alt="" loading="lazy" className="size-full object-cover" />
+              </button>
+              <button
+                type="button"
+                onClick={() => onToggleDefault(image)}
+                aria-pressed={image.isDefaultBackground}
+                aria-label={image.isDefaultBackground ? "Remover dos fundos padrão" : "Guardar como fundo padrão"}
+                title={image.isDefaultBackground ? "Remover dos fundos padrão" : "Guardar como fundo padrão"}
+                className="absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-background/80 text-foreground outline-none backdrop-blur hover:bg-background focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                <StarIcon className={cn("size-3.5", image.isDefaultBackground && "fill-primary text-primary")} aria-hidden="true" />
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}

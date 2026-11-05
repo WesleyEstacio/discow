@@ -26,6 +26,15 @@ export type TemplateAlbumSlot = {
   maxAlbums: number
   sortByColorSetting?: string
   isOrdered?: boolean
+  group?: TemplateAlbumSlotGroup
+}
+
+// Slots that share a group are picked side by side. A group whose slots are
+// all optional (minAlbums 0) stays hidden until the admin chooses to add it.
+export type TemplateAlbumSlotGroup = {
+  key: string
+  label: string
+  description?: string
 }
 
 export type TemplateSettingOption = {
@@ -37,6 +46,7 @@ export type TemplateSettingField = {
   key: string
   label: string
   description?: string
+  appearsIn?: string
   kind: "text" | "textarea" | "color" | "select"
   options?: TemplateSettingOption[]
   placeholder?: string
@@ -81,26 +91,18 @@ export type PlannedStudioTemplate = {
 export const COMMON_SETTING_FIELDS: TemplateSettingField[] = [
   {
     key: "theme",
-    label: "Tema ou título de trabalho",
+    label: "Título da capa (opcional)",
+    appearsIn: "Slide 1 e título da publicação",
+    description: "O texto grande do primeiro slide. Vazio = o formato cria um título com os álbuns escolhidos.",
     kind: "text",
-    placeholder: "Ex.: para quem cresceu ouvindo MPB",
-  },
-  {
-    key: "audience",
-    label: "Público-alvo",
-    kind: "text",
-    placeholder: "Ex.: quem está começando a ouvir jazz",
-  },
-  {
-    key: "tone",
-    label: "Tom editorial",
-    kind: "text",
-    placeholder: "Ex.: caloroso e direto",
+    placeholder: "Ex.: Se você gosta de Clube da Esquina, ouça estes discos",
   },
   {
     key: "callToAction",
-    label: "Chamada para ação (opcional)",
+    label: "Pergunta final (opcional)",
+    appearsIn: "Último slide e fim da legenda",
+    description: "Convida o público a comentar ou salvar. Vazio = usa a pergunta padrão do formato.",
     kind: "text",
-    placeholder: "Ex.: Salve para ouvir no fim de semana",
+    placeholder: "Ex.: Qual desses você ouviria primeiro?",
   },
 ]

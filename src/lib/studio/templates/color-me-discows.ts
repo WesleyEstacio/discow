@@ -58,6 +58,7 @@ export const colorMeDiscowsTemplate: StudioTemplate = {
     {
       key: "colorHex",
       label: "Cor",
+      appearsIn: "Ordena as capas na etapa 2",
       kind: "color",
       required: true,
       defaultValue: "#c2268f",
@@ -65,6 +66,7 @@ export const colorMeDiscowsTemplate: StudioTemplate = {
     {
       key: "colorName",
       label: "Nome da cor",
+      appearsIn: "Título da capa, rótulo dos slides e legenda",
       kind: "text",
       required: true,
       placeholder: "Ex.: Rosa-choque",

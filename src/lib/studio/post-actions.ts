@@ -7,8 +7,10 @@ import { db } from "@/lib/db"
 import { studioPosts } from "@/lib/db/schema"
 import { requireStudioAdmin } from "@/lib/studio/admin"
 import { getStudioAlbumsByIds } from "@/lib/studio/albums"
+import { isDefaultBackgroundImage } from "@/lib/studio/background-images"
 import { scheduledDateToTimestamp, studioPostDraftSchema } from "@/lib/studio/post-input"
 import { isPostLanguage, isPostStatus, type PostStatus } from "@/lib/studio/post-status"
+import { DEFAULT_BACKGROUND_IMAGE_SETTINGS, type StudioSlide } from "@/lib/studio/slides"
 import { findStudioTemplate } from "@/lib/studio/templates"
 import type { TemplateAlbum } from "@/lib/studio/templates/types"
 
@@ -17,6 +19,14 @@ export type CreatePostFormState = { message: string | null }
 export type SavePostResult =
   | { success: true; savedAt: string }
   | { success: false; error: string }
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+
+async function applyChosenDefaultBackground(slides: StudioSlide[], formValue: FormDataEntryValue | null): Promise<StudioSlide[]> {
+  const imageId = typeof formValue === "string" ? formValue : ""
+  if (!UUID_PATTERN.test(imageId) || !(await isDefaultBackgroundImage(imageId))) return slides
+  return slides.map((slide) => ({ ...slide, backgroundImage: { ...DEFAULT_BACKGROUND_IMAGE_SETTINGS, imageId } }))
+}
 
 function revalidateStudioPosts(postId?: string) {
   revalidatePath("/studio")
@@ -44,7 +54,8 @@ export async function createPostFromTemplateAction(
   )
   for (const slot of template.albumSlots) {
     if ((selectedAlbumIdsBySlot[slot.key]?.length ?? 0) < slot.minAlbums) {
-      return { message: `Escolha pelo menos ${slot.minAlbums} em "${slot.label}".` }
+      const slotName = slot.group ? `${slot.group.label} · ${slot.label}` : slot.label
+      return { message: `Escolha pelo menos ${slot.minAlbums} em "${slotName}".` }
     }
   }
 
@@ -73,6 +84,7 @@ export async function createPostFromTemplateAction(
   } catch (error) {
     return { message: error instanceof Error ? error.message : "Não foi possível montar o carrossel." }
   }
+  const slides = await applyChosenDefaultBackground(carousel.slides, formData.get("backgroundImageId"))
 
   const [createdPost] = await db
     .insert(studioPosts)
@@ -82,8 +94,8 @@ export async function createPostFromTemplateAction(
       status: "draft",
       language,
       settings,
-      slides: carousel.slides,
-      albumIds: [...new Set(carousel.slides.flatMap((slide) => slide.albumIds))],
+      slides,
+      albumIds: [...new Set(slides.flatMap((slide) => slide.albumIds))],
       caption: carousel.caption,
       createdByUserId: admin.userId,
     })

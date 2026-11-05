@@ -369,6 +369,7 @@ export const studioImages = pgTable(
     width: integer("width").notNull(),
     height: integer("height").notNull(),
     byteSize: integer("byte_size").notNull(),
+    isDefaultBackground: boolean("is_default_background").notNull().default(false),
     createdByUserId: text("created_by_user_id").references(() => users.id, {
       onDelete: "set null",
     }),

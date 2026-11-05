@@ -150,6 +150,17 @@ export function PostEditor({
     updateSlides((slides) => moveItem(slides, selectedSlideIndex, selectedSlideIndex + direction))
   }
 
+  function applyAlbumCoverRadiusToAllSlides(albumCoverRadius: number) {
+    updateSlides((slides) => slides.map((slide) => ({ ...slide, albumCoverRadius })))
+    toast.add({ title: "Arredondamento aplicado a todos os slides", type: "success" })
+  }
+
+  function markImageAsDefaultBackground(imageId: string, isDefaultBackground: boolean) {
+    setUploadedImages((currentImages) =>
+      currentImages.map((image) => (image.id === imageId ? { ...image, isDefaultBackground } : image))
+    )
+  }
+
   function applyBackgroundImageToAllSlides(backgroundImage: SlideBackgroundImage | null) {
     updateSlides((slides) => slides.map((slide) => ({ ...slide, backgroundImage })))
     toast.add({ title: backgroundImage ? "Fundo aplicado a todos os slides" : "Fundo removido de todos os slides", type: "success" })
@@ -323,49 +334,152 @@ export function PostEditor({
           </ol>
         </section>
 
-        <section aria-label="Prévia do slide" className="flex flex-col items-center gap-4">
-          <SlidePreview
-            slide={selectedSlide}
-            albumsById={albumsById}
-            slideNumber={selectedSlideIndex + 1}
-            slideCount={draft.slides.length}
-            displayWidth={432}
-            className="rounded-md shadow-2xl ring-1 ring-border"
-          />
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => moveSelectedSlide(-1)} disabled={selectedSlideIndex === 0}>
-              <ArrowUpIcon data-icon="inline-start" />
-              Mover para antes
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => moveSelectedSlide(1)}
-              disabled={selectedSlideIndex === draft.slides.length - 1}
-            >
-              <ArrowDownIcon data-icon="inline-start" />
-              Mover para depois
-            </Button>
-            <Button variant="outline" size="sm" onClick={duplicateSelectedSlide} disabled={draft.slides.length >= MAX_SLIDES_PER_POST}>
-              <CopyIcon data-icon="inline-start" />
-              Duplicar
-            </Button>
-            <Button variant="outline" size="sm" onClick={deleteSelectedSlide} disabled={draft.slides.length <= 1}>
-              <Trash2Icon data-icon="inline-start" />
-              Remover
-            </Button>
-          </div>
-          {selectedSlideIssues.missingText.length || selectedSlideIssues.textOverLimit.length ? (
-            <ul className="flex max-w-md flex-col gap-1 text-sm text-amber-300" role="status">
-              {selectedSlideIssues.missingText.length ? (
-                <li>Falta preencher: {selectedSlideIssues.missingText.join(", ")}.</li>
-              ) : null}
-              {selectedSlideIssues.textOverLimit.length ? (
-                <li>Texto acima do tamanho recomendado ({selectedSlideIssues.textOverLimit.join(", ")}) — pode não caber no slide.</li>
-              ) : null}
-            </ul>
-          ) : null}
-        </section>
+        <div className="flex min-w-0 flex-col gap-8">
+          <section aria-label="Prévia do slide" className="flex flex-col items-center gap-4">
+            <SlidePreview
+              slide={selectedSlide}
+              albumsById={albumsById}
+              slideNumber={selectedSlideIndex + 1}
+              slideCount={draft.slides.length}
+              displayWidth={432}
+              className="rounded-md shadow-2xl ring-1 ring-border"
+            />
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => moveSelectedSlide(-1)} disabled={selectedSlideIndex === 0}>
+                <ArrowUpIcon data-icon="inline-start" />
+                Mover para antes
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => moveSelectedSlide(1)}
+                disabled={selectedSlideIndex === draft.slides.length - 1}
+              >
+                <ArrowDownIcon data-icon="inline-start" />
+                Mover para depois
+              </Button>
+              <Button variant="outline" size="sm" onClick={duplicateSelectedSlide} disabled={draft.slides.length >= MAX_SLIDES_PER_POST}>
+                <CopyIcon data-icon="inline-start" />
+                Duplicar
+              </Button>
+              <Button variant="outline" size="sm" onClick={deleteSelectedSlide} disabled={draft.slides.length <= 1}>
+                <Trash2Icon data-icon="inline-start" />
+                Remover
+              </Button>
+            </div>
+            {selectedSlideIssues.missingText.length || selectedSlideIssues.textOverLimit.length ? (
+              <ul className="flex max-w-md flex-col gap-1 text-sm text-amber-300" role="status">
+                {selectedSlideIssues.missingText.length ? (
+                  <li>Falta preencher: {selectedSlideIssues.missingText.join(", ")}.</li>
+                ) : null}
+                {selectedSlideIssues.textOverLimit.length ? (
+                  <li>Texto acima do tamanho recomendado ({selectedSlideIssues.textOverLimit.join(", ")}) — pode não caber no slide.</li>
+                ) : null}
+              </ul>
+            ) : null}
+          </section>
+
+          <Tabs defaultValue="caption" className="w-full gap-6 border-t border-border pt-6">
+            <TabsList>
+              <TabsTrigger value="caption">Legenda</TabsTrigger>
+              <TabsTrigger value="carousel">Carrossel completo</TabsTrigger>
+              <TabsTrigger value="details">Detalhes</TabsTrigger>
+            </TabsList>
+  
+            <TabsContent value="caption" className="max-w-2xl">
+              <Field>
+                <div className="flex items-center gap-2">
+                  <FieldLabel htmlFor="post-caption">Legenda do Instagram</FieldLabel>
+                  <span
+                    className={cn(
+                      "ml-auto text-xs tabular-nums",
+                      draft.caption.length > MAX_CAPTION_LENGTH ? "font-medium text-destructive" : "text-muted-foreground"
+                    )}
+                  >
+                    {draft.caption.length}/{MAX_CAPTION_LENGTH}
+                  </span>
+                </div>
+                <Textarea
+                  id="post-caption"
+                  rows={14}
+                  value={draft.caption}
+                  onChange={(event) => updateDraft({ caption: event.target.value })}
+                  className="font-mono text-sm leading-relaxed"
+                />
+                <FieldDescription>
+                  {captionHasPlaceholders
+                    ? "Trechos entre colchetes ainda precisam ser escritos por você."
+                    : "Frase de abertura, texto curto, pergunta e hashtags — ajuste a fórmula a cada post."}
+                </FieldDescription>
+              </Field>
+              <Button variant="outline" className="mt-4" onClick={copyCaption}>
+                <CopyIcon data-icon="inline-start" />
+                Copiar legenda
+              </Button>
+            </TabsContent>
+  
+            <TabsContent value="carousel">
+              <ol className="flex flex-wrap gap-4">
+                {draft.slides.map((slide, slideIndex) => (
+                  <li key={slide.id}>
+                    <SlidePreview
+                      slide={slide}
+                      albumsById={albumsById}
+                      slideNumber={slideIndex + 1}
+                      slideCount={draft.slides.length}
+                      displayWidth={200}
+                      className="rounded-sm ring-1 ring-border"
+                    />
+                  </li>
+                ))}
+              </ol>
+            </TabsContent>
+  
+            <TabsContent value="details" className="max-w-2xl">
+              <FieldGroup>
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <Field>
+                    <FieldLabel htmlFor="post-scheduled-for">Data prevista de publicação</FieldLabel>
+                    <Input
+                      id="post-scheduled-for"
+                      type="date"
+                      value={draft.scheduledFor ?? ""}
+                      onChange={(event) => updateDraft({ scheduledFor: event.target.value || null })}
+                    />
+                    <FieldDescription>Só planejamento — nada é publicado automaticamente.</FieldDescription>
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="post-language">Idioma</FieldLabel>
+                    <Select value={draft.language} onValueChange={(value) => updateDraft({ language: value as PostLanguage })}>
+                      <SelectTrigger id="post-language" className="w-full">
+                        <SelectValue>{(value: PostLanguage) => POST_LANGUAGE_LABELS[value]}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {POST_LANGUAGES.map((language) => (
+                          <SelectItem key={language} value={language}>
+                            {POST_LANGUAGE_LABELS[language]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </div>
+                <Field>
+                  <FieldLabel htmlFor="post-notes">Notas internas</FieldLabel>
+                  <Textarea id="post-notes" rows={4} value={draft.notes} onChange={(event) => updateDraft({ notes: event.target.value })} />
+                </Field>
+                <div className="flex flex-col gap-2 rounded-lg border border-border p-4 text-sm text-muted-foreground">
+                  <p className="font-medium text-foreground">Para publicar no Instagram</p>
+                  <ol className="list-decimal space-y-1 pl-5">
+                    <li>Clique em <span className="font-medium text-foreground">Baixar carrossel</span>. O .zip traz os slides e a legenda.</li>
+                    <li>Publique manualmente pelo app do Instagram.</li>
+                    <li>Volte aqui e marque como <Badge variant="secondary">Publicada</Badge>.</li>
+                  </ol>
+                </div>
+              </FieldGroup>
+            </TabsContent>
+          </Tabs>
+        </div>
 
         <section aria-label="Editar slide" className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5">
           <h2 className="text-sm font-medium">
@@ -379,111 +493,10 @@ export function PostEditor({
             onChange={updateSelectedSlide}
             onImageUploaded={(image) => setUploadedImages((currentImages) => [image, ...currentImages])}
             onApplyBackgroundImageToAllSlides={applyBackgroundImageToAllSlides}
+            onApplyAlbumCoverRadiusToAllSlides={applyAlbumCoverRadiusToAllSlides}
+            onDefaultBackgroundChanged={markImageAsDefaultBackground}
           />
         </section>
-      </div>
-
-      <div className="border-t border-border px-6 py-8 md:px-10">
-        <Tabs defaultValue="caption" className="gap-6">
-          <TabsList>
-            <TabsTrigger value="caption">Legenda</TabsTrigger>
-            <TabsTrigger value="carousel">Carrossel completo</TabsTrigger>
-            <TabsTrigger value="details">Detalhes</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="caption" className="max-w-2xl">
-            <Field>
-              <div className="flex items-center gap-2">
-                <FieldLabel htmlFor="post-caption">Legenda do Instagram</FieldLabel>
-                <span
-                  className={cn(
-                    "ml-auto text-xs tabular-nums",
-                    draft.caption.length > MAX_CAPTION_LENGTH ? "font-medium text-destructive" : "text-muted-foreground"
-                  )}
-                >
-                  {draft.caption.length}/{MAX_CAPTION_LENGTH}
-                </span>
-              </div>
-              <Textarea
-                id="post-caption"
-                rows={14}
-                value={draft.caption}
-                onChange={(event) => updateDraft({ caption: event.target.value })}
-                className="font-mono text-sm leading-relaxed"
-              />
-              <FieldDescription>
-                {captionHasPlaceholders
-                  ? "Trechos entre colchetes ainda precisam ser escritos por você."
-                  : "Frase de abertura, texto curto, pergunta e hashtags — ajuste a fórmula a cada post."}
-              </FieldDescription>
-            </Field>
-            <Button variant="outline" className="mt-4" onClick={copyCaption}>
-              <CopyIcon data-icon="inline-start" />
-              Copiar legenda
-            </Button>
-          </TabsContent>
-
-          <TabsContent value="carousel">
-            <ol className="flex flex-wrap gap-4">
-              {draft.slides.map((slide, slideIndex) => (
-                <li key={slide.id}>
-                  <SlidePreview
-                    slide={slide}
-                    albumsById={albumsById}
-                    slideNumber={slideIndex + 1}
-                    slideCount={draft.slides.length}
-                    displayWidth={240}
-                    className="rounded-sm ring-1 ring-border"
-                  />
-                </li>
-              ))}
-            </ol>
-          </TabsContent>
-
-          <TabsContent value="details" className="max-w-2xl">
-            <FieldGroup>
-              <div className="grid gap-6 sm:grid-cols-2">
-                <Field>
-                  <FieldLabel htmlFor="post-scheduled-for">Data prevista de publicação</FieldLabel>
-                  <Input
-                    id="post-scheduled-for"
-                    type="date"
-                    value={draft.scheduledFor ?? ""}
-                    onChange={(event) => updateDraft({ scheduledFor: event.target.value || null })}
-                  />
-                  <FieldDescription>Só planejamento — nada é publicado automaticamente.</FieldDescription>
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="post-language">Idioma</FieldLabel>
-                  <Select value={draft.language} onValueChange={(value) => updateDraft({ language: value as PostLanguage })}>
-                    <SelectTrigger id="post-language" className="w-full">
-                      <SelectValue>{(value: PostLanguage) => POST_LANGUAGE_LABELS[value]}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {POST_LANGUAGES.map((language) => (
-                        <SelectItem key={language} value={language}>
-                          {POST_LANGUAGE_LABELS[language]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </div>
-              <Field>
-                <FieldLabel htmlFor="post-notes">Notas internas</FieldLabel>
-                <Textarea id="post-notes" rows={4} value={draft.notes} onChange={(event) => updateDraft({ notes: event.target.value })} />
-              </Field>
-              <div className="flex flex-col gap-2 rounded-lg border border-border p-4 text-sm text-muted-foreground">
-                <p className="font-medium text-foreground">Para publicar no Instagram</p>
-                <ol className="list-decimal space-y-1 pl-5">
-                  <li>Clique em <span className="font-medium text-foreground">Baixar carrossel</span>. O .zip traz os slides e a legenda.</li>
-                  <li>Publique manualmente pelo app do Instagram.</li>
-                  <li>Volte aqui e marque como <Badge variant="secondary">Publicada</Badge>.</li>
-                </ol>
-              </div>
-            </FieldGroup>
-          </TabsContent>
-        </Tabs>
       </div>
     </div>
   )

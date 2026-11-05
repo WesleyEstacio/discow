@@ -98,6 +98,8 @@ export const BACKGROUND_IMAGE_POSITION_LABELS: Record<BackgroundImagePosition, s
 }
 
 export const MAX_BACKGROUND_IMAGE_BLUR = 24
+// Percent of the cover size: 0 = square corners, 50 = round like a disc.
+export const MAX_ALBUM_COVER_RADIUS_PERCENT = 50
 
 const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/
 
@@ -138,6 +140,7 @@ export const studioSlideSchema = z.object({
   contentPosition: z.enum(CONTENT_POSITIONS).default("auto"),
   backgroundStyle: z.enum(BACKGROUND_STYLES).default("glow"),
   backgroundImage: slideBackgroundImageSchema.nullable().default(null),
+  albumCoverRadius: z.number().int().min(0).max(MAX_ALBUM_COVER_RADIUS_PERCENT).default(0),
 })
 
 export type StudioSlide = z.infer<typeof studioSlideSchema>
@@ -172,6 +175,7 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     contentPosition: "auto",
     backgroundStyle: "glow",
     backgroundImage: null,
+    albumCoverRadius: 0,
     ...overrides,
   }
 }

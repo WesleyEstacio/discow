@@ -63,6 +63,7 @@ export const albumsForEveryFeelingTemplate: StudioTemplate = {
     {
       key: "feeling",
       label: "Sentimento ou momento",
+      appearsIn: "Título da capa e rótulo de cada álbum",
       kind: "text",
       required: true,
       placeholder: "Ex.: um domingo de chuva",

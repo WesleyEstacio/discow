@@ -312,7 +312,7 @@ function SlideBody({ slide, slideAlbums, colors, isCentered }: SlideBodyProps) {
       return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
           {slideAlbums.length ? (
-            <CoverCollage slideAlbums={slideAlbums} colors={colors} />
+            <CoverCollage slideAlbums={slideAlbums} colors={colors} cornerRadiusPercent={slide.albumCoverRadius} />
           ) : (
             <div style={{ display: "flex", width: 120, height: 10, borderRadius: 5, backgroundColor: colors.accent, marginBottom: 48 }} />
           )}
@@ -412,13 +412,16 @@ function CoverArt({
   album,
   size,
   colors,
+  cornerRadiusPercent,
   style,
 }: {
   album: SlideCanvasAlbum | undefined
   size: number
   colors: SlideColors
+  cornerRadiusPercent: number
   style?: CSSProperties
 }) {
+  const borderRadius = Math.round((size * cornerRadiusPercent) / 100)
   if (!album?.coverImageUrl) {
     return (
       <div
@@ -433,6 +436,7 @@ function CoverArt({
           backgroundColor: colors.background,
           color: colors.mutedText,
           fontSize: Math.max(16, Math.round(size / 14)),
+          borderRadius,
           ...style,
         }}
       >
@@ -449,14 +453,22 @@ function CoverArt({
       width={size}
       height={size}
       alt={`Capa de ${album.title}`}
-      style={{ width: size, height: size, flexShrink: 0, objectFit: "contain", boxShadow: COVER_SHADOW, ...style }}
+      style={{ width: size, height: size, flexShrink: 0, objectFit: "contain", boxShadow: COVER_SHADOW, borderRadius, ...style }}
     />
   )
 }
 
 const COLLAGE_ROTATIONS = [-6, 4, -3, 7]
 
-function CoverCollage({ slideAlbums, colors }: { slideAlbums: (SlideCanvasAlbum | undefined)[]; colors: SlideColors }) {
+function CoverCollage({
+  slideAlbums,
+  colors,
+  cornerRadiusPercent,
+}: {
+  slideAlbums: (SlideCanvasAlbum | undefined)[]
+  colors: SlideColors
+  cornerRadiusPercent: number
+}) {
   const coverSize = slideAlbums.length === 1 ? 440 : slideAlbums.length === 2 ? 360 : 300
   const overlap = slideAlbums.length > 2 ? 90 : 60
 
@@ -468,6 +480,7 @@ function CoverCollage({ slideAlbums, colors }: { slideAlbums: (SlideCanvasAlbum 
           album={album}
           size={coverSize}
           colors={colors}
+          cornerRadiusPercent={cornerRadiusPercent}
           style={{
             marginLeft: index === 0 ? 0 : -overlap,
             transform: slideAlbums.length > 1 ? `rotate(${COLLAGE_ROTATIONS[index] ?? 0}deg)` : undefined,
@@ -492,7 +505,7 @@ function SingleAlbumBody({ slide, album, colors, isCentered }: { slide: StudioSl
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start" }}>
-      <CoverArt album={album} size={coverSize} colors={colors} />
+      <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={slide.albumCoverRadius} />
       <div
         style={{
           display: "flex",
@@ -531,7 +544,7 @@ function RankedAlbumBody({ slide, album, colors, isCentered }: { slide: StudioSl
         >
           {slide.rankNumber === null ? "" : String(slide.rankNumber)}
         </div>
-        <CoverArt album={album} size={coverSize} colors={colors} />
+        <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={slide.albumCoverRadius} />
       </div>
       <div
         style={{
@@ -595,7 +608,7 @@ function AlbumGridBody({
       >
         {slideAlbums.map((album, index) => (
           <div key={album?.id ?? index} style={{ display: "flex", flexDirection: "column", width: coverSize }}>
-            <CoverArt album={album} size={coverSize} colors={colors} />
+            <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={slide.albumCoverRadius} />
             <div
               style={{
                 display: "flex",
@@ -657,7 +670,7 @@ function AlbumListBody({ slide, slideAlbums, colors }: { slide: StudioSlide; sli
               {String((slide.rankNumber ?? 1) + index)}
             </div>
           ) : null}
-          <CoverArt album={album} size={coverSize} colors={colors} style={{ boxShadow: "0 12px 28px rgba(0, 0, 0, 0.32)" }} />
+          <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={slide.albumCoverRadius} style={{ boxShadow: "0 12px 28px rgba(0, 0, 0, 0.32)" }} />
           <div style={{ display: "flex", flexDirection: "column", marginLeft: 32, width: CONTENT_WIDTH - coverSize - (showsNumbers ? 96 : 0) - 32 }}>
             <div
               style={{
