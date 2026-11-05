@@ -1,6 +1,11 @@
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
+  // The slide export picks the highlight font file at runtime, so the
+  // tracer can't see which one; ship all of them with the Studio routes.
+  outputFileTracingIncludes: {
+    "/api/studio/posts/**": ["./src/assets/fonts/**/*"],
+  },
   async redirects() {
     return [
       {

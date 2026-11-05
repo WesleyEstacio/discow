@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { AlignCenterIcon, AlignLeftIcon, ArrowDownIcon, ArrowUpIcon, CopyCheckIcon, RotateCcwIcon, XIcon } from "lucide-react"
+import { AlignCenterIcon, AlignLeftIcon, ArrowDownIcon, ArrowUpIcon, CopyCheckIcon, RotateCcwIcon, ShuffleIcon, XIcon } from "lucide-react"
 import { SlideBackgroundImageField } from "@/components/studio/slide-background-image-field"
 import { StudioCoverImage } from "@/components/studio/studio-cover-image"
 import { Button } from "@/components/ui/button"
@@ -24,6 +24,7 @@ import {
   KICKER_STYLES,
   MAX_ALBUM_COVER_RADIUS_PERCENT,
   MAX_ALBUMS_BY_LAYOUT,
+  MAX_BACKGROUND_SEED,
   pickSlideElementToggles,
   resolveSlideColors,
   resolveSlideComposition,
@@ -158,9 +159,10 @@ export function SlideInspector({
             value={slide.headline}
             onChange={(event) => onChange({ headline: event.target.value })}
           />
-          {slide.layout === "album" || slide.layout === "ranked-album" ? (
-            <FieldDescription>Vazio = usa o título do álbum.</FieldDescription>
-          ) : null}
+          <FieldDescription>
+            {slide.layout === "album" || slide.layout === "ranked-album" ? "Vazio = usa o título do álbum. " : ""}
+            Use *asteriscos* para escrever um trecho (ex.: o nome do artista) com a fonte de destaque.
+          </FieldDescription>
         </Field>
 
         {limits.body > 0 ? (
@@ -293,6 +295,24 @@ export function SlideInspector({
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
+          {slide.backgroundStyle === "blurred-covers" ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onChange({ backgroundSeed: (slide.backgroundSeed + 1) % (MAX_BACKGROUND_SEED + 1) })}
+                disabled={slide.albumIds.length === 0}
+              >
+                <ShuffleIcon data-icon="inline-start" />
+                Embaralhar capas
+              </Button>
+              <FieldDescription>
+                {slide.albumIds.length === 0
+                  ? "Adicione álbuns a este slide para gerar o fundo."
+                  : "Usa as capas dos álbuns deste slide, espalhadas e desfocadas."}
+              </FieldDescription>
+            </div>
+          ) : null}
         </Field>
 
         <Field>
