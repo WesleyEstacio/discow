@@ -62,7 +62,7 @@ export const SLIDE_BACKGROUNDS = {
 export type SlideBackgroundKey = keyof typeof SLIDE_BACKGROUNDS
 export const SLIDE_BACKGROUND_KEYS = Object.keys(SLIDE_BACKGROUNDS) as SlideBackgroundKey[]
 
-export const BACKGROUND_STYLES = ["solid", "glow", "gradient", "stripes", "rings", "split", "frame"] as const
+export const BACKGROUND_STYLES = ["solid", "glow", "gradient", "stripes", "rings", "split", "frame", "blurred-covers"] as const
 export type BackgroundStyle = (typeof BACKGROUND_STYLES)[number]
 export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   solid: "Liso",
@@ -72,7 +72,10 @@ export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   rings: "Ondas",
   split: "Diagonal",
   frame: "Moldura",
+  "blurred-covers": "Capas desfocadas",
 }
+
+export const MAX_BACKGROUND_SEED = 9999
 
 // Each layout can be arranged in a few ways. The first option is the
 // original arrangement, so slides saved before compositions existed keep it.
@@ -237,6 +240,7 @@ export const studioSlideSchema = z.object({
   contentPosition: z.enum(CONTENT_POSITIONS).default("auto"),
   backgroundStyle: z.enum(BACKGROUND_STYLES).default("glow"),
   backgroundImage: slideBackgroundImageSchema.nullable().default(null),
+  backgroundSeed: z.number().int().min(0).max(MAX_BACKGROUND_SEED).default(0),
   albumCoverRadius: z.number().int().min(0).max(MAX_ALBUM_COVER_RADIUS_PERCENT).default(0),
   composition: z.enum(SLIDE_COMPOSITIONS as [SlideComposition, ...SlideComposition[]]).default("classic"),
   typeStyle: z.enum(TYPE_STYLES).default("bold"),
@@ -280,6 +284,7 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     contentPosition: "auto",
     backgroundStyle: "glow",
     backgroundImage: null,
+    backgroundSeed: 0,
     albumCoverRadius: 0,
     composition: SLIDE_COMPOSITIONS_BY_LAYOUT[layout][0],
     typeStyle: "bold",

@@ -5,16 +5,35 @@ import { ImageResponse } from "next/og"
 import sharp from "sharp"
 import { SlideCanvas, type SlideCanvasAlbum } from "@/components/studio/slide-canvas"
 import type { StudioAlbum } from "@/lib/studio/albums"
-import { SLIDE_HEIGHT, SLIDE_WIDTH, type StudioSlide } from "@/lib/studio/slides"
+import { arrangeBlurredCovers, BLURRED_COVERS_BLEED, BLURRED_COVERS_BLUR_RADIUS } from "@/lib/studio/blurred-covers"
+import { buildHighlightTypography, HIGHLIGHT_FONTS, type HighlightFontKey } from "@/lib/studio/highlight-fonts"
+import { resolveSlideColors, SLIDE_HEIGHT, SLIDE_WIDTH, type StudioSlide } from "@/lib/studio/slides"
 
 const SLIDE_FONT_FAMILY = "Geist"
 const COVER_FETCH_TIMEOUT_MS = 8000
 const MAX_COVER_BYTES = 8 * 1024 * 1024
 const FORMATS_SATORI_DECODES = new Set(["image/jpeg", "image/png"])
+const BLURRED_COVERS_RENDER_SCALE = 0.25
 
-type SlideFont = { name: string; data: Buffer; weight: 400 | 700; style: "normal" }
+type SlideFont = { name: string; data: Buffer; weight: 400 | 700; style: "normal" | "italic" }
 
 let slideFontsPromise: Promise<SlideFont[]> | null = null
+const highlightFontPromises = new Map<HighlightFontKey, Promise<SlideFont>>()
+
+function loadHighlightFont(fontKey: HighlightFontKey): Promise<SlideFont> {
+  const cachedFontPromise = highlightFontPromises.get(fontKey)
+  if (cachedFontPromise) return cachedFontPromise
+
+  const font = HIGHLIGHT_FONTS[fontKey]
+  const fontPromise = readFile(join(process.cwd(), "src/assets/fonts/highlight", font.fileName))
+    .then((fontData): SlideFont => ({ name: font.exportFamily, data: fontData, weight: font.weight, style: font.style }))
+    .catch((error: unknown) => {
+      highlightFontPromises.delete(fontKey)
+      throw error
+    })
+  highlightFontPromises.set(fontKey, fontPromise)
+  return fontPromise
+}
 
 function loadSlideFonts(): Promise<SlideFont[]> {
   slideFontsPromise ??= Promise.all([
@@ -76,29 +95,107 @@ export async function buildRenderableAlbums(albums: StudioAlbum[]): Promise<Reco
   )
 }
 
+function decodeDataUrl(dataUrl: string | null | undefined): Buffer | null {
+  const base64Payload = dataUrl?.split(";base64,")[1]
+  return base64Payload ? Buffer.from(base64Payload, "base64") : null
+}
+
+// Mirrors BlurredCoversLayer's CSS (same arrangement, same blur) because
+// Satori can't blur. Drawn at a quarter of the size and scaled up: the
+// result is identical once blurred, and much faster.
+async function renderBlurredCovers(slide: StudioSlide, albumsById: Record<string, SlideCanvasAlbum>): Promise<string | null> {
+  const halfBleed = BLURRED_COVERS_BLEED / 2
+  const canvasWidth = Math.round((SLIDE_WIDTH + BLURRED_COVERS_BLEED) * BLURRED_COVERS_RENDER_SCALE)
+  const canvasHeight = Math.round((SLIDE_HEIGHT + BLURRED_COVERS_BLEED) * BLURRED_COVERS_RENDER_SCALE)
+
+  const coverLayers = await Promise.all(
+    arrangeBlurredCovers(slide.albumIds, slide.backgroundSeed).map(async (placement) => {
+      const coverBytes = decodeDataUrl(albumsById[placement.albumId]?.coverImageUrl)
+      if (!coverBytes) return null
+      const scaledSize = Math.round(placement.size * BLURRED_COVERS_RENDER_SCALE)
+      const { data, info } = await sharp(coverBytes)
+        .resize(scaledSize, scaledSize, { fit: "fill" })
+        .rotate(placement.rotationDegrees, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
+        .png()
+        .toBuffer({ resolveWithObject: true })
+      const scaledCenterX = (placement.left + halfBleed + placement.size / 2) * BLURRED_COVERS_RENDER_SCALE
+      const scaledCenterY = (placement.top + halfBleed + placement.size / 2) * BLURRED_COVERS_RENDER_SCALE
+      return { input: data, left: Math.round(scaledCenterX - info.width / 2), top: Math.round(scaledCenterY - info.height / 2) }
+    })
+  )
+  const visibleCoverLayers = coverLayers.filter((layer) => layer !== null)
+  if (visibleCoverLayers.length === 0) return null
+
+  // sharp always runs composite last in a pipeline, so the blur needs its own pass.
+  const scatteredCovers = await sharp({
+    create: { width: canvasWidth, height: canvasHeight, channels: 3, background: resolveSlideColors(slide).background },
+  })
+    .composite(visibleCoverLayers)
+    .png()
+    .toBuffer()
+
+  const slideSizedBytes = await sharp(scatteredCovers)
+    .blur(BLURRED_COVERS_BLUR_RADIUS * BLURRED_COVERS_RENDER_SCALE)
+    .resize(SLIDE_WIDTH + BLURRED_COVERS_BLEED, SLIDE_HEIGHT + BLURRED_COVERS_BLEED, { fit: "fill" })
+    .extract({ left: halfBleed, top: halfBleed, width: SLIDE_WIDTH, height: SLIDE_HEIGHT })
+    .jpeg({ quality: 88 })
+    .toBuffer()
+  return `data:image/jpeg;base64,${slideSizedBytes.toString("base64")}`
+}
+
+export async function buildRenderableBlurredCovers(
+  slides: StudioSlide[],
+  albumsById: Record<string, SlideCanvasAlbum>
+): Promise<Record<string, string>> {
+  const renderedBackgrounds = await Promise.all(
+    slides
+      .filter((slide) => slide.backgroundStyle === "blurred-covers")
+      .map(async (slide) => {
+        try {
+          const blurredCoversSrc = await renderBlurredCovers(slide, albumsById)
+          return blurredCoversSrc ? ([slide.id, blurredCoversSrc] as const) : null
+        } catch (error) {
+          console.warn("Could not render blurred covers background", error)
+          return null
+        }
+      })
+  )
+  return Object.fromEntries(renderedBackgrounds.filter((entry) => entry !== null))
+}
+
+export type RenderableSlideAssets = {
+  albumsById: Record<string, SlideCanvasAlbum>
+  backgroundImagesBySlideId: Record<string, string>
+  blurredCoversBySlideId: Record<string, string>
+  highlightFontKey: HighlightFontKey
+}
+
 export async function renderSlideImage(
   slides: StudioSlide[],
   slideIndex: number,
-  albumsById: Record<string, SlideCanvasAlbum>,
-  backgroundsBySlideId: Record<string, string>,
+  assets: RenderableSlideAssets,
   headers?: Record<string, string>
 ): Promise<ImageResponse> {
   const slide = slides[slideIndex]
   if (!slide) throw new Error(`Slide ${slideIndex + 1} não existe`)
 
+  const [slideFonts, highlightFont] = await Promise.all([loadSlideFonts(), loadHighlightFont(assets.highlightFontKey)])
+
   return new ImageResponse(
     (
       <SlideCanvas
         slide={slide}
-        albumsById={albumsById}
+        albumsById={assets.albumsById}
         slideNumber={slideIndex + 1}
         slideCount={slides.length}
         fontFamily={SLIDE_FONT_FAMILY}
-        backgroundImageSrc={backgroundsBySlideId[slide.id] ?? null}
+        highlightTypography={buildHighlightTypography(assets.highlightFontKey, "export")}
+        backgroundImageSrc={assets.backgroundImagesBySlideId[slide.id] ?? null}
+        blurredCoversSrc={assets.blurredCoversBySlideId[slide.id] ?? null}
         backgroundEffectsMode="prerendered"
       />
     ),
-    { width: SLIDE_WIDTH, height: SLIDE_HEIGHT, fonts: await loadSlideFonts(), headers }
+    { width: SLIDE_WIDTH, height: SLIDE_HEIGHT, fonts: [...slideFonts, highlightFont], headers }
   )
 }
 

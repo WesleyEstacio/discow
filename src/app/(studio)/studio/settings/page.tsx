@@ -1,7 +1,9 @@
 import { CheckCircle2Icon, CircleDashedIcon, CircleMinusIcon } from "lucide-react"
+import { HighlightFontPicker } from "@/components/studio/highlight-font-picker"
 import { StudioPageHeader } from "@/components/studio/studio-page-header"
 import { Badge } from "@/components/ui/badge"
 import { countStudioAdmins, requireStudioAdmin } from "@/lib/studio/admin"
+import { getHighlightFontKey } from "@/lib/studio/settings"
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/studio/slides"
 import { DISCOWS_WEBSITE } from "@/lib/studio/templates/template-helpers"
 
@@ -28,7 +30,7 @@ function hasEnvironmentValue(...variableNames: string[]): boolean {
 
 export default async function StudioSettingsPage() {
   const admin = await requireStudioAdmin()
-  const adminCount = await countStudioAdmins()
+  const [adminCount, highlightFontKey] = await Promise.all([countStudioAdmins(), getHighlightFontKey()])
 
   // Only whether each secret exists is read here - values never leave the server.
   const integrations: IntegrationStatus[] = [
@@ -112,7 +114,7 @@ export default async function StudioSettingsPage() {
               <dt className="text-muted-foreground">Tamanho dos slides</dt>
               <dd>{SLIDE_WIDTH} × {SLIDE_HEIGHT} px (4:5)</dd>
               <dt className="text-muted-foreground">Tipografia</dt>
-              <dd>Geist (Regular e Bold)</dd>
+              <dd>Geist (Regular e Bold) + fonte de destaque</dd>
               <dt className="text-muted-foreground">Site nas chamadas</dt>
               <dd>{DISCOWS_WEBSITE}</dd>
               <dt className="text-muted-foreground">Idioma padrão</dt>
@@ -120,6 +122,15 @@ export default async function StudioSettingsPage() {
             </dl>
           </section>
         </div>
+
+        <section aria-labelledby="highlight-font" className="flex max-w-3xl flex-col gap-3">
+          <h2 id="highlight-font" className="font-heading text-lg font-medium">Fonte de destaque</h2>
+          <p className="text-sm text-muted-foreground">
+            Trechos do título escritos entre *asteriscos* (como o nome do artista) usam esta fonte em todos os slides,
+            na prévia e na exportação. O resto do título continua em Geist.
+          </p>
+          <HighlightFontPicker savedFontKey={highlightFontKey} sampleWord="Artista" />
+        </section>
 
         <section aria-labelledby="usage-rights" className="flex max-w-3xl flex-col gap-3">
           <h2 id="usage-rights" className="font-heading text-lg font-medium">Capas e direitos de uso</h2>

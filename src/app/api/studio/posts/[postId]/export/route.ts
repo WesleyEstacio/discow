@@ -8,9 +8,11 @@ import { getStudioPost } from "@/lib/studio/posts"
 import {
   buildExportFileBaseName,
   buildRenderableAlbums,
+  buildRenderableBlurredCovers,
   buildSlideFileName,
   renderSlideImage,
 } from "@/lib/studio/render-slides"
+import { getHighlightFontKey } from "@/lib/studio/settings"
 
 export const maxDuration = 60
 
@@ -28,14 +30,18 @@ export async function GET(request: Request, context: RouteContext) {
   const post = await getStudioPost(postId)
   if (!post) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-  const [albumsById, backgroundsBySlideId] = await Promise.all([
+  const [albumsById, backgroundImagesBySlideId, highlightFontKey] = await Promise.all([
     getStudioAlbumsByIds(post.albumIds).then(buildRenderableAlbums),
     buildRenderableBackgrounds(post.slides),
+    getHighlightFontKey(),
   ])
+
+  const blurredCoversBySlideId = await buildRenderableBlurredCovers(post.slides, albumsById)
+  const slideAssets = { albumsById, backgroundImagesBySlideId, blurredCoversBySlideId, highlightFontKey }
 
   const slideImages = await Promise.all(
     post.slides.map(async (_slide, slideIndex) => {
-      const slideImage = await renderSlideImage(post.slides, slideIndex, albumsById, backgroundsBySlideId)
+      const slideImage = await renderSlideImage(post.slides, slideIndex, slideAssets)
       return [buildSlideFileName(post.title, slideIndex), new Uint8Array(await slideImage.arrayBuffer())] as const
     })
   )

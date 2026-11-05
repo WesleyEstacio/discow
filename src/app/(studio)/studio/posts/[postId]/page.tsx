@@ -6,6 +6,7 @@ import { getStudioAlbumsByIds, listStudioAlbums } from "@/lib/studio/albums"
 import { listRecentStudioImages } from "@/lib/studio/background-images"
 import { timestampToScheduledDate } from "@/lib/studio/post-input"
 import { getStudioPost } from "@/lib/studio/posts"
+import { getHighlightFontKey } from "@/lib/studio/settings"
 import { findTemplateName } from "@/lib/studio/templates"
 
 type PostEditorPageProps = {
@@ -17,10 +18,11 @@ export const metadata: Metadata = { title: "Editar publicação" }
 export default async function PostEditorPage({ params }: PostEditorPageProps) {
   await requireStudioAdmin()
   const { postId } = await params
-  const [post, libraryAlbums, uploadedImages] = await Promise.all([
+  const [post, libraryAlbums, uploadedImages, highlightFontKey] = await Promise.all([
     getStudioPost(postId),
     listStudioAlbums({}, 400),
     listRecentStudioImages(),
+    getHighlightFontKey(),
   ])
   if (!post) notFound()
 
@@ -53,6 +55,7 @@ export default async function PostEditorPage({ params }: PostEditorPageProps) {
       }))}
       coverSourcesByAlbumId={Object.fromEntries(albums.map((album) => [album.id, album.coverSource]))}
       initialUploadedImages={uploadedImages}
+      highlightFontKey={highlightFontKey}
     />
   )
 }
