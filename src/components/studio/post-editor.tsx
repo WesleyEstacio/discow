@@ -536,7 +536,10 @@ export function PostEditor({
           </Tabs>
         </div>
 
-        <section aria-label="Editar slide" className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5">
+        <section
+          aria-label="Editar slide"
+          className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5 xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)] xl:self-start xl:overflow-y-auto xl:overscroll-contain"
+        >
           <h2 className="text-sm font-medium">
             Slide {selectedSlideIndex + 1} de {draft.slides.length}
           </h2>

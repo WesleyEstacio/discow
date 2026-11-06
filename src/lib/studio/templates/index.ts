@@ -1,7 +1,12 @@
+import { aCloserListenTemplate } from "@/lib/studio/templates/a-closer-listen"
 import { albumsForEveryFeelingTemplate } from "@/lib/studio/templates/albums-for-every-feeling"
 import { artistBehindTheArtistTemplate } from "@/lib/studio/templates/artist-behind-the-artist"
+import { artistStarterPackTemplate } from "@/lib/studio/templates/artist-starter-pack"
+import { beyondTheHitTemplate } from "@/lib/studio/templates/beyond-the-hit"
 import { colorMeDiscowsTemplate } from "@/lib/studio/templates/color-me-discows"
+import { communityPicksTemplate } from "@/lib/studio/templates/community-picks"
 import { discographyRankingTemplate } from "@/lib/studio/templates/discography-ranking"
+import { freshOnRotationTemplate } from "@/lib/studio/templates/fresh-on-rotation"
 import { ifYouLikeThisTemplate } from "@/lib/studio/templates/if-you-like-this"
 import { thisOrThatTemplate } from "@/lib/studio/templates/this-or-that"
 import type { PlannedStudioTemplate, StudioTemplate } from "@/lib/studio/templates/types"
@@ -17,6 +22,11 @@ export const STUDIO_TEMPLATES: StudioTemplate[] = [
   artistBehindTheArtistTemplate,
   unfairlyUnderratedTemplate,
   thisOrThatTemplate,
+  artistStarterPackTemplate,
+  beyondTheHitTemplate,
+  aCloserListenTemplate,
+  freshOnRotationTemplate,
+  communityPicksTemplate,
 ]
 
 export const PLANNED_STUDIO_TEMPLATES: PlannedStudioTemplate[] = []

@@ -40,6 +40,15 @@ export function joinCaptionParagraphs(paragraphs: (string | null | undefined | f
   return paragraphs.filter((paragraph): paragraph is string => Boolean(paragraph && paragraph.trim())).join("\n\n")
 }
 
+// For textarea settings where the admin types one item per line, matched
+// by position to the albums picked in the same order.
+export function splitSettingLines(settingValue: string | undefined): string[] {
+  return (settingValue ?? "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+}
+
 export function chunkAlbums<Item>(items: Item[], chunkSize: number): Item[][] {
   const chunks: Item[][] = []
   for (let index = 0; index < items.length; index += chunkSize) {
