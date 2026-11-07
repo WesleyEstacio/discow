@@ -167,6 +167,8 @@ export const aCloserListenTemplate: StudioTemplate = {
         headline: coverHeadline,
         body: pick(copy.coverBody),
         albumIds: [album.id],
+        backgroundStyle: "cover-echo",
+        coverEchoAnchor: "top",
       }),
       createEmptySlide("album", {
         kicker: pick(copy.artworkKicker),
