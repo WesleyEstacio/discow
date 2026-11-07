@@ -17,6 +17,8 @@ import {
   BACKGROUND_STYLE_LABELS,
   BACKGROUND_STYLES,
   CONTENT_POSITION_LABELS,
+  COVER_ECHO_ANCHOR_LABELS,
+  COVER_ECHO_ANCHORS,
   CONTENT_POSITIONS,
   HEADLINE_SIZE_LABELS,
   HEADLINE_SIZES,
@@ -326,6 +328,21 @@ export function SlideInspector({
             </div>
           ) : null}
         </Field>
+
+        {slide.backgroundStyle === "cover-echo" ? (
+          <div className="flex flex-col gap-2">
+            <OptionToggleField
+              label="Posição da capa"
+              options={COVER_ECHO_ANCHORS}
+              optionLabels={COVER_ECHO_ANCHOR_LABELS}
+              value={slide.coverEchoAnchor}
+              onChange={(coverEchoAnchor) => onChange({ coverEchoAnchor })}
+            />
+            <FieldDescription>
+              Usa o primeiro álbum do slide (ou do carrossel). Com a posição do conteúdo em Automático, o texto vai para o lado oposto ao da capa.
+            </FieldDescription>
+          </div>
+        ) : null}
 
         {slide.backgroundStyle === "two-tone" ? (
           <SecondaryBackgroundField

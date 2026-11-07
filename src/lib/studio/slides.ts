@@ -64,7 +64,7 @@ export const SLIDE_BACKGROUNDS = {
 export type SlideBackgroundKey = keyof typeof SLIDE_BACKGROUNDS
 export const SLIDE_BACKGROUND_KEYS = Object.keys(SLIDE_BACKGROUNDS) as SlideBackgroundKey[]
 
-export const BACKGROUND_STYLES = ["solid", "glow", "gradient", "stripes", "rings", "split", "two-tone", "frame", "blurred-covers"] as const
+export const BACKGROUND_STYLES = ["solid", "glow", "gradient", "stripes", "rings", "split", "two-tone", "frame", "blurred-covers", "cover-echo"] as const
 export type BackgroundStyle = (typeof BACKGROUND_STYLES)[number]
 export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   solid: "Liso",
@@ -76,6 +76,7 @@ export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   "two-tone": "Duas cores",
   frame: "Moldura",
   "blurred-covers": "Capas desfocadas",
+  "cover-echo": "Eco da capa",
 }
 
 export const MAX_BACKGROUND_SEED = 9999
@@ -183,6 +184,14 @@ export const CONTENT_POSITION_LABELS: Record<ContentPosition, string> = {
   bottom: "Base",
 }
 
+export const COVER_ECHO_ANCHORS = ["top", "center", "bottom"] as const
+export type CoverEchoAnchor = (typeof COVER_ECHO_ANCHORS)[number]
+export const COVER_ECHO_ANCHOR_LABELS: Record<CoverEchoAnchor, string> = {
+  top: "Topo",
+  center: "Centro",
+  bottom: "Base",
+}
+
 export const BACKGROUND_IMAGE_FILTERS = ["none", "mono", "sepia", "vivid", "faded", "dark"] as const
 export type BackgroundImageFilter = (typeof BACKGROUND_IMAGE_FILTERS)[number]
 export const BACKGROUND_IMAGE_FILTER_LABELS: Record<BackgroundImageFilter, string> = {
@@ -256,6 +265,7 @@ export const studioSlideSchema = z.object({
   contentPosition: z.enum(CONTENT_POSITIONS).default("auto"),
   backgroundStyle: z.enum(BACKGROUND_STYLES).default("glow"),
   secondaryBackgroundHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
+  coverEchoAnchor: z.enum(COVER_ECHO_ANCHORS).default("top"),
   backgroundImage: slideBackgroundImageSchema.nullable().default(null),
   backgroundSeed: z.number().int().min(0).max(MAX_BACKGROUND_SEED).default(0),
   albumCoverRadius: z.number().int().min(0).max(MAX_ALBUM_COVER_RADIUS_PERCENT).default(0),
@@ -301,6 +311,7 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     contentPosition: "auto",
     backgroundStyle: "glow",
     secondaryBackgroundHex: null,
+    coverEchoAnchor: "top",
     backgroundImage: null,
     backgroundSeed: 0,
     albumCoverRadius: 0,
