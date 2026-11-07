@@ -45,10 +45,8 @@ export function StudioSidebar({ adminEmail }: { adminEmail: string }) {
           href="/studio"
           className="block rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
-          <span className="block text-xs font-medium tracking-[0.2em] text-muted-foreground uppercase">
-            Discows
-          </span>
-          <span className="block font-heading text-xl font-semibold tracking-tight">Studio</span>
+          <span className="font-heading text-xl font-semibold tracking-tight">discows.</span>{" "}
+          <span className="font-heading text-xl text-muted-foreground">Studio</span>
         </Link>
       </div>
 
