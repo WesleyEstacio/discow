@@ -11,7 +11,7 @@ import {
   FileArchiveIcon,
   PlusIcon,
   SaveIcon,
-  SparklesIcon,
+  ShuffleIcon,
   Trash2Icon,
   TriangleAlertIcon,
 } from "lucide-react"
@@ -246,8 +246,8 @@ export function PostEditor({
   const selectedSlidePngUrl = `/api/studio/posts/${postId}/slides/${selectedSlideIndex + 1}?download=1`
 
   return (
-    <div className="flex flex-col">
-      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-border bg-background/95 px-6 py-3 backdrop-blur md:px-10">
+    <div className="flex flex-col xl:h-dvh">
+      <div className="sticky top-0 z-20 flex shrink-0 flex-wrap items-center gap-3 border-b border-border bg-background/95 px-6 py-3 backdrop-blur md:px-10 xl:static xl:px-6">
         <div className="flex min-w-0 flex-1 flex-col">
           <label htmlFor="post-title" className="sr-only">Título da publicação</label>
           <input
@@ -282,7 +282,7 @@ export function PostEditor({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-72">
             <DropdownMenuItem onClick={() => applyIdentityToAllSlides(SURPRISE_IDENTITY_KEY)}>
-              <SparklesIcon />
+              <ShuffleIcon />
               Surpreenda-me
             </DropdownMenuItem>
             {VISUAL_IDENTITIES.map((identity) => (
@@ -328,8 +328,11 @@ export function PostEditor({
         </div>
       </div>
 
-      <div className="grid gap-8 px-6 py-8 md:px-10 xl:grid-cols-[200px_minmax(0,1fr)_360px]">
-        <section aria-label="Slides" className="flex flex-col gap-3">
+      <div className="grid gap-8 px-6 py-8 md:px-10 xl:min-h-0 xl:flex-1 xl:grid-cols-[216px_minmax(0,1fr)_384px] xl:grid-rows-[minmax(0,1fr)] xl:gap-0 xl:p-0">
+        <section
+          aria-label="Slides"
+          className="relative flex flex-col gap-3 xl:scrollbar-thin xl:overflow-y-auto xl:overscroll-contain xl:border-r xl:border-border xl:p-4"
+        >
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-medium">Slides</h2>
             <DropdownMenu>
@@ -348,7 +351,7 @@ export function PostEditor({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <ol className="flex gap-3 overflow-x-auto pb-2 xl:max-h-[calc(100vh-12rem)] xl:flex-col xl:overflow-x-visible xl:overflow-y-auto">
+          <ol className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin xl:flex-col xl:overflow-x-visible xl:pb-0">
             {draft.slides.map((slide, slideIndex) => {
               const issues = slidesWithIssues[slideIndex]!
               const hasIssues = issues.missingText.length > 0 || issues.textOverLimit.length > 0
@@ -385,7 +388,7 @@ export function PostEditor({
           </ol>
         </section>
 
-        <div className="flex min-w-0 flex-col gap-8">
+        <div className="relative flex min-w-0 flex-col gap-8 xl:scrollbar-thin xl:overflow-y-auto xl:overscroll-contain xl:px-10 xl:py-8">
           <section aria-label="Prévia do slide" className="flex flex-col items-center gap-4">
             <SlidePreview
               slide={selectedSlide}
@@ -538,7 +541,7 @@ export function PostEditor({
 
         <section
           aria-label="Editar slide"
-          className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5 xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)] xl:self-start xl:overflow-y-auto xl:overscroll-contain"
+          className="relative flex flex-col gap-4 rounded-xl border border-border bg-card p-5 xl:scrollbar-thin xl:overflow-y-auto xl:overscroll-contain xl:rounded-none xl:border-0 xl:border-l xl:p-6"
         >
           <h2 className="text-sm font-medium">
             Slide {selectedSlideIndex + 1} de {draft.slides.length}
