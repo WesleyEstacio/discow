@@ -7,7 +7,7 @@ import type {
   StudioSlide,
   TypeStyle,
 } from "@/lib/studio/slides"
-import { SLIDE_COMPOSITIONS_BY_LAYOUT } from "@/lib/studio/slides"
+import { isTextDrivenComposition, SLIDE_COMPOSITIONS_BY_LAYOUT } from "@/lib/studio/slides"
 
 // A slide's role decides which colors and texture it gets from an identity,
 // so the same identity looks coherent across every format.
@@ -282,7 +282,9 @@ export function applyVisualIdentity(
     const positionInRole = slideCountByRole[role] ?? 0
     slideCountByRole[role] = positionInRole + 1
     const rolePalette = identity.palette[role]
-    const composition: SlideComposition = identity.compositions[slide.layout]
+    const composition: SlideComposition = isTextDrivenComposition(slide.composition)
+      ? slide.composition
+      : identity.compositions[slide.layout]
 
     return {
       ...slide,

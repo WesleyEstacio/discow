@@ -64,7 +64,7 @@ export const SLIDE_BACKGROUNDS = {
 export type SlideBackgroundKey = keyof typeof SLIDE_BACKGROUNDS
 export const SLIDE_BACKGROUND_KEYS = Object.keys(SLIDE_BACKGROUNDS) as SlideBackgroundKey[]
 
-export const BACKGROUND_STYLES = ["solid", "glow", "gradient", "stripes", "rings", "split", "frame", "blurred-covers"] as const
+export const BACKGROUND_STYLES = ["solid", "glow", "gradient", "stripes", "rings", "split", "two-tone", "frame", "blurred-covers"] as const
 export type BackgroundStyle = (typeof BACKGROUND_STYLES)[number]
 export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   solid: "Liso",
@@ -73,6 +73,7 @@ export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   stripes: "Listras",
   rings: "Ondas",
   split: "Diagonal",
+  "two-tone": "Duas cores",
   frame: "Moldura",
   "blurred-covers": "Capas desfocadas",
 }
@@ -85,7 +86,7 @@ export const SLIDE_COMPOSITIONS_BY_LAYOUT = {
   cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type"],
   album: ["classic", "side", "vinyl", "poster"],
   "ranked-album": ["classic", "giant-number", "side"],
-  "album-pair": ["diagonal", "mirrored"],
+  "album-pair": ["diagonal", "mirrored", "from-to", "from-to-mirrored"],
   "album-grid": ["classic", "tight"],
   "album-list": ["classic", "cards"],
   text: ["classic", "card", "accent-bar"],
@@ -115,6 +116,16 @@ export const SLIDE_COMPOSITION_LABELS: Record<SlideComposition, string> = {
   minimal: "Minimalista",
   diagonal: "Diagonal",
   mirrored: "Diagonal invertida",
+  "from-to": "From → To",
+  "from-to-mirrored": "From → To invertido",
+}
+
+// These compositions turn the kicker and headline into giant words, so the
+// slide text was written for them and a visual identity must not swap them out.
+const TEXT_DRIVEN_COMPOSITIONS: readonly SlideComposition[] = ["from-to", "from-to-mirrored"]
+
+export function isTextDrivenComposition(composition: SlideComposition): boolean {
+  return TEXT_DRIVEN_COMPOSITIONS.includes(composition)
 }
 
 export function resolveSlideComposition(slide: Pick<StudioSlide, "layout" | "composition">): SlideComposition {
@@ -244,6 +255,7 @@ export const studioSlideSchema = z.object({
   headlineSize: z.enum(HEADLINE_SIZES).default("medium"),
   contentPosition: z.enum(CONTENT_POSITIONS).default("auto"),
   backgroundStyle: z.enum(BACKGROUND_STYLES).default("glow"),
+  secondaryBackgroundHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   backgroundImage: slideBackgroundImageSchema.nullable().default(null),
   backgroundSeed: z.number().int().min(0).max(MAX_BACKGROUND_SEED).default(0),
   albumCoverRadius: z.number().int().min(0).max(MAX_ALBUM_COVER_RADIUS_PERCENT).default(0),
@@ -288,6 +300,7 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     headlineSize: "medium",
     contentPosition: "auto",
     backgroundStyle: "glow",
+    secondaryBackgroundHex: null,
     backgroundImage: null,
     backgroundSeed: 0,
     albumCoverRadius: 0,
@@ -323,6 +336,24 @@ export function hexToRgba(hexColor: string, alpha: number): string {
   const green = parseInt(hexColor.slice(3, 5), 16)
   const blue = parseInt(hexColor.slice(5, 7), 16)
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`
+}
+
+function mixHexColors(baseHex: string, overlayHex: string, overlayWeight: number): string {
+  const mixChannel = (channelStart: number) => {
+    const baseChannel = parseInt(baseHex.slice(channelStart, channelStart + 2), 16)
+    const overlayChannel = parseInt(overlayHex.slice(channelStart, channelStart + 2), 16)
+    const mixedChannel = Math.round(baseChannel + (overlayChannel - baseChannel) * overlayWeight)
+    return mixedChannel.toString(16).padStart(2, "0")
+  }
+  return `#${mixChannel(1)}${mixChannel(3)}${mixChannel(5)}`
+}
+
+const AUTOMATIC_SECONDARY_BACKGROUND_ACCENT_WEIGHT = 0.24
+
+// Without a chosen color, the second half repeats the "Diagonal" texture
+// tone: the accent laid over the background at the same strength.
+export function resolveSecondaryBackgroundColor(slide: StudioSlide, colors: SlideColors): string {
+  return slide.secondaryBackgroundHex ?? mixHexColors(colors.background, colors.accent, AUTOMATIC_SECONDARY_BACKGROUND_ACCENT_WEIGHT)
 }
 
 export function resolveSlideColors(
