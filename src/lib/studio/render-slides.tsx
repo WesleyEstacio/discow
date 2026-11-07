@@ -11,6 +11,7 @@ import {
   BLURRED_COVERS_BLUR_RADIUS,
   collectCarouselAlbumIds,
 } from "@/lib/studio/blurred-covers"
+import { arrangeCoverEcho, resolveCoverEchoAlbumId, type CoverEchoCopy } from "@/lib/studio/cover-echo"
 import { buildHighlightTypography, HIGHLIGHT_FONTS, type HighlightFontKey } from "@/lib/studio/highlight-fonts"
 import { resolveSlideColors, SLIDE_HEIGHT, SLIDE_WIDTH, type StudioSlide } from "@/lib/studio/slides"
 
@@ -19,6 +20,7 @@ const COVER_FETCH_TIMEOUT_MS = 8000
 const MAX_COVER_BYTES = 8 * 1024 * 1024
 const FORMATS_SATORI_DECODES = new Set(["image/jpeg", "image/png"])
 const BLURRED_COVERS_RENDER_SCALE = 0.25
+const COVER_ECHO_RENDER_SCALE = 0.5
 
 type SlideFont = { name: string; data: Buffer; weight: 400 | 700; style: "normal" | "italic" }
 
@@ -152,6 +154,84 @@ async function renderBlurredCovers(
   return `data:image/jpeg;base64,${slideSizedBytes.toString("base64")}`
 }
 
+function roundedCornersMask(size: number, cornerRadius: number): Buffer {
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"><rect width="${size}" height="${size}" rx="${cornerRadius}" ry="${cornerRadius}"/></svg>`
+  )
+}
+
+async function renderCoverEchoCopy(coverBytes: Buffer, echo: CoverEchoCopy, cornerRadiusPercent: number) {
+  const scaledSize = Math.max(1, Math.round(echo.size * COVER_ECHO_RENDER_SCALE))
+  const scaledBlurRadius = echo.blurRadius * COVER_ECHO_RENDER_SCALE
+  // CSS blur spills past the element's edges, so the copy gets transparent
+  // room around it before blurring.
+  const blurPadding = Math.ceil(scaledBlurRadius * 3)
+  const cornerRadius = Math.round((scaledSize * cornerRadiusPercent) / 100)
+
+  let copyPipeline = sharp(coverBytes).resize(scaledSize, scaledSize, { fit: "fill" }).ensureAlpha()
+  if (cornerRadius > 0) {
+    copyPipeline = copyPipeline.composite([{ input: roundedCornersMask(scaledSize, cornerRadius), blend: "dest-in" }])
+  }
+  const shapedCopy = await copyPipeline.png().toBuffer()
+
+  let blurPipeline = sharp(shapedCopy)
+    .extend({ top: blurPadding, bottom: blurPadding, left: blurPadding, right: blurPadding, background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .modulate({ brightness: echo.brightness })
+  if (scaledBlurRadius >= 0.3) blurPipeline = blurPipeline.blur(scaledBlurRadius)
+  return {
+    image: await blurPipeline.png().toBuffer(),
+    left: Math.round(echo.left * COVER_ECHO_RENDER_SCALE) - blurPadding,
+    top: Math.round(echo.top * COVER_ECHO_RENDER_SCALE) - blurPadding,
+    paddedSize: scaledSize + blurPadding * 2,
+  }
+}
+
+// Mirrors CoverEchoLayer's CSS echoes. The front cover stays sharp, so
+// Satori draws it on top; only the blurred copies are baked here.
+async function renderCoverEcho(
+  slide: StudioSlide,
+  carouselAlbumIds: string[],
+  albumsById: Record<string, SlideCanvasAlbum>
+): Promise<string | null> {
+  const albumId = resolveCoverEchoAlbumId(slide, carouselAlbumIds)
+  const coverBytes = decodeDataUrl(albumId ? albumsById[albumId]?.coverImageUrl : null)
+  if (!coverBytes) return null
+
+  const canvasWidth = Math.round(SLIDE_WIDTH * COVER_ECHO_RENDER_SCALE)
+  const canvasHeight = Math.round(SLIDE_HEIGHT * COVER_ECHO_RENDER_SCALE)
+  const { echoesFromBackToFront } = arrangeCoverEcho(slide.coverEchoAnchor)
+
+  const renderedCopies = await Promise.all(
+    echoesFromBackToFront.map((echo) => renderCoverEchoCopy(coverBytes, echo, slide.albumCoverRadius))
+  )
+  const visibleLayers = await Promise.all(
+    renderedCopies.map(async (copy) => {
+      const visibleLeft = Math.max(0, copy.left)
+      const visibleTop = Math.max(0, copy.top)
+      const visibleWidth = Math.min(canvasWidth, copy.left + copy.paddedSize) - visibleLeft
+      const visibleHeight = Math.min(canvasHeight, copy.top + copy.paddedSize) - visibleTop
+      if (visibleWidth <= 0 || visibleHeight <= 0) return null
+      const visiblePart = await sharp(copy.image)
+        .extract({ left: visibleLeft - copy.left, top: visibleTop - copy.top, width: visibleWidth, height: visibleHeight })
+        .png()
+        .toBuffer()
+      return { input: visiblePart, left: visibleLeft, top: visibleTop }
+    })
+  )
+
+  const echoBytes = await sharp({
+    create: { width: canvasWidth, height: canvasHeight, channels: 3, background: resolveSlideColors(slide).background },
+  })
+    .composite(visibleLayers.filter((layer) => layer !== null))
+    .png()
+    .toBuffer()
+  const slideSizedBytes = await sharp(echoBytes).resize(SLIDE_WIDTH, SLIDE_HEIGHT, { fit: "fill" }).jpeg({ quality: 90 }).toBuffer()
+  return `data:image/jpeg;base64,${slideSizedBytes.toString("base64")}`
+}
+
+const PRERENDERED_BACKGROUND_STYLES = new Set<StudioSlide["backgroundStyle"]>(["blurred-covers", "cover-echo"])
+
+// Both blurred backgrounds ride on the same prerendered image slot.
 export async function buildRenderableBlurredCovers(
   slidesToRender: StudioSlide[],
   carouselAlbumIds: string[],
@@ -159,10 +239,13 @@ export async function buildRenderableBlurredCovers(
 ): Promise<Record<string, string>> {
   const renderedBackgrounds = await Promise.all(
     slidesToRender
-      .filter((slide) => slide.backgroundStyle === "blurred-covers")
+      .filter((slide) => PRERENDERED_BACKGROUND_STYLES.has(slide.backgroundStyle))
       .map(async (slide) => {
         try {
-          const blurredCoversSrc = await renderBlurredCovers(slide, carouselAlbumIds, albumsById)
+          const blurredCoversSrc =
+            slide.backgroundStyle === "cover-echo"
+              ? await renderCoverEcho(slide, carouselAlbumIds, albumsById)
+              : await renderBlurredCovers(slide, carouselAlbumIds, albumsById)
           return blurredCoversSrc ? ([slide.id, blurredCoversSrc] as const) : null
         } catch (error) {
           console.warn("Could not render blurred covers background", error)

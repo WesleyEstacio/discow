@@ -290,7 +290,7 @@ export function applyVisualIdentity(
       ...slide,
       backgroundKey: rolePalette[positionInRole % rolePalette.length]!,
       customBackgroundHex: keepCustomBackgrounds ? slide.customBackgroundHex : null,
-      backgroundStyle: identity.backgroundStyles[role],
+      backgroundStyle: slide.backgroundStyle === "cover-echo" ? slide.backgroundStyle : identity.backgroundStyles[role],
       composition,
       typeStyle: identity.typeStyle,
       kickerStyle: identity.kickerStyle,

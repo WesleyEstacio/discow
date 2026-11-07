@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react"
 import type { StudioCoverSource } from "@/lib/db/schema"
 import { arrangeBlurredCovers, BLURRED_COVERS_BLEED, BLURRED_COVERS_BLUR_RADIUS } from "@/lib/studio/blurred-covers"
+import { arrangeCoverEcho, resolveCoverEchoAlbumId, textPositionAroundCoverEcho } from "@/lib/studio/cover-echo"
 import { splitHighlightedHeadline, type HighlightTypography } from "@/lib/studio/highlight-fonts"
 import {
   BACKGROUND_IMAGE_FILTER_CSS,
@@ -82,6 +83,12 @@ const OBJECT_POSITION_FOR_IMAGE: Record<SlideBackgroundImage["position"], string
   bottom: "center bottom",
 }
 
+function resolveContentPosition(slide: StudioSlide): Exclude<ContentPosition, "auto"> {
+  if (slide.contentPosition !== "auto") return slide.contentPosition
+  if (slide.backgroundStyle === "cover-echo") return textPositionAroundCoverEcho(slide.coverEchoAnchor)
+  return DEFAULT_CONTENT_POSITION[slide.layout]
+}
+
 function formatSlideNumber(slideNumber: number): string {
   return String(slideNumber).padStart(2, "0")
 }
@@ -118,7 +125,7 @@ export function SlideCanvas({
   const colors = resolveSlideColors(slide)
   const slideAlbums = slide.albumIds.map((albumId) => albumsById[albumId])
   const isCentered = slide.textAlign === "center"
-  const contentPosition = slide.contentPosition === "auto" ? DEFAULT_CONTENT_POSITION[slide.layout] : slide.contentPosition
+  const contentPosition = resolveContentPosition(slide)
   const footerNote = buildFooterNote(slide, slideAlbums, slideNumber, slideCount)
 
   return (
@@ -142,6 +149,15 @@ export function SlideCanvas({
           prerenderedSrc={blurredCoversSrc}
           effectsMode={backgroundEffectsMode}
           backgroundColor={colors.background}
+        />
+      ) : slide.backgroundStyle === "cover-echo" ? (
+        <CoverEchoLayer
+          slide={slide}
+          album={albumsById[resolveCoverEchoAlbumId(slide, carouselAlbumIds) ?? ""]}
+          prerenderedSrc={blurredCoversSrc}
+          effectsMode={backgroundEffectsMode}
+          colors={colors}
+          textPosition={contentPosition}
         />
       ) : (
         <BackgroundDecoration slide={slide} colors={colors} />
@@ -307,6 +323,7 @@ function BackgroundDecoration({ slide, colors }: { slide: StudioSlide; colors: S
       )
     }
     case "blurred-covers":
+    case "cover-echo":
       return null
     case "frame":
       return (
@@ -389,6 +406,84 @@ function BlurredCoversLayer({
         style={fullSlideLayer({
           backgroundImage: `linear-gradient(0deg, ${hexToRgba(backgroundColor, 0.88)} 0%, ${hexToRgba(backgroundColor, 0.35)} 45%, ${hexToRgba(backgroundColor, 0.3)} 100%)`,
         })}
+      />
+    </div>
+  )
+}
+
+const TEXT_SCRIM_DIRECTION: Record<Exclude<ContentPosition, "auto">, string | null> = {
+  top: "180deg",
+  center: null,
+  bottom: "0deg",
+}
+
+function CoverEchoLayer({
+  slide,
+  album,
+  prerenderedSrc,
+  effectsMode,
+  colors,
+  textPosition,
+}: {
+  slide: StudioSlide
+  album: SlideCanvasAlbum | undefined
+  prerenderedSrc: string | null
+  effectsMode: BackgroundEffectsMode
+  colors: SlideColors
+  textPosition: Exclude<ContentPosition, "auto">
+}) {
+  const coverImageUrl = album?.coverImageUrl
+  if (!coverImageUrl) return null
+
+  const { frontCover, echoesFromBackToFront } = arrangeCoverEcho(slide.coverEchoAnchor)
+  const cornerRadius = (size: number) => Math.round((size * slide.albumCoverRadius) / 100)
+  const scrimDirection = TEXT_SCRIM_DIRECTION[textPosition]
+
+  return (
+    <div style={fullSlideLayer({ overflow: "hidden" })}>
+      {effectsMode === "prerendered" && prerenderedSrc ? (
+        // eslint-disable-next-line @next/next/no-img-element -- Satori needs a plain <img>
+        <img src={prerenderedSrc} width={SLIDE_WIDTH} height={SLIDE_HEIGHT} alt="" style={{ width: SLIDE_WIDTH, height: SLIDE_HEIGHT }} />
+      ) : null}
+      {effectsMode === "css"
+        ? echoesFromBackToFront.map((echo, echoIndex) => (
+            // eslint-disable-next-line @next/next/no-img-element -- the live preview mirrors the Satori markup
+            <img
+              key={echoIndex}
+              src={coverImageUrl}
+              width={echo.size}
+              height={echo.size}
+              alt=""
+              style={{
+                position: "absolute",
+                left: echo.left,
+                top: echo.top,
+                width: echo.size,
+                height: echo.size,
+                borderRadius: cornerRadius(echo.size),
+                filter: `blur(${echo.blurRadius}px) brightness(${echo.brightness})`,
+              }}
+            />
+          ))
+        : null}
+      <div
+        style={fullSlideLayer({
+          backgroundImage: `linear-gradient(180deg, ${hexToRgba(colors.background, 0.75)} 0%, ${hexToRgba(colors.background, 0)} 16%, ${hexToRgba(colors.background, 0)} 88%, ${hexToRgba(colors.background, 0.7)} 100%)`,
+        })}
+      />
+      {scrimDirection ? (
+        <div
+          style={fullSlideLayer({
+            backgroundImage: `linear-gradient(${scrimDirection}, ${hexToRgba(colors.background, 0.92)} 0%, ${hexToRgba(colors.background, 0.55)} 30%, ${hexToRgba(colors.background, 0)} 55%)`,
+          })}
+        />
+      ) : null}
+      <CoverArt
+        album={album}
+        size={frontCover.size}
+        colors={colors}
+        cornerRadiusPercent={slide.albumCoverRadius}
+        style={{ position: "absolute", left: frontCover.left, top: frontCover.top }}
       />
     </div>
   )
@@ -718,6 +813,15 @@ function CoverBody({ slide, slideAlbums, colors, isCentered, composition, highli
       ) : null}
     </div>
   )
+
+  if (slide.backgroundStyle === "cover-echo") {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
+        <div style={{ display: "flex", width: 96, height: 8, borderRadius: 4, backgroundColor: colors.accent, marginBottom: 36 }} />
+        {coverText(88)}
+      </div>
+    )
+  }
 
   if (slideAlbums.length === 0 || composition === "type") {
     return (
