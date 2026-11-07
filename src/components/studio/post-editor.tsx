@@ -147,6 +147,7 @@ export function PostEditor({
       backgroundKey: selectedSlide.backgroundKey,
       customBackgroundHex: selectedSlide.customBackgroundHex,
       backgroundStyle: selectedSlide.backgroundStyle,
+      secondaryBackgroundHex: selectedSlide.secondaryBackgroundHex,
       accentHex: selectedSlide.accentHex,
       customTextHex: selectedSlide.customTextHex,
       typeStyle: selectedSlide.typeStyle,

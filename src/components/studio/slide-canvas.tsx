@@ -6,6 +6,7 @@ import {
   BACKGROUND_IMAGE_FILTER_CSS,
   HEADLINE_SIZE_SCALE,
   hexToRgba,
+  resolveSecondaryBackgroundColor,
   resolveSlideColors,
   resolveSlideComposition,
   SLIDE_HEIGHT,
@@ -295,6 +296,16 @@ function BackgroundDecoration({ slide, colors }: { slide: StudioSlide; colors: S
           })}
         />
       )
+    case "two-tone": {
+      const secondaryColor = resolveSecondaryBackgroundColor(slide, colors)
+      return (
+        <div
+          style={fullSlideLayer({
+            backgroundImage: `linear-gradient(160deg, ${colors.background} 0%, ${colors.background} 60%, ${secondaryColor} 60%, ${secondaryColor} 100%)`,
+          })}
+        />
+      )
+    }
     case "blurred-covers":
       return null
     case "frame":

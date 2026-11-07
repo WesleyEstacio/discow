@@ -26,6 +26,8 @@ import {
   MAX_ALBUMS_BY_LAYOUT,
   MAX_BACKGROUND_SEED,
   pickSlideElementToggles,
+  readableTextColorFor,
+  resolveSecondaryBackgroundColor,
   resolveSlideColors,
   resolveSlideComposition,
   SLIDE_BACKGROUND_KEYS,
@@ -261,19 +263,12 @@ export function SlideInspector({
             {SLIDE_BACKGROUND_KEYS.map((backgroundKey) => {
               const isSelected = !slide.customBackgroundHex && slide.backgroundKey === backgroundKey
               return (
-                <button
+                <ColorSwatchButton
                   key={backgroundKey}
-                  type="button"
-                  role="radio"
-                  aria-checked={isSelected}
-                  aria-label={SLIDE_BACKGROUNDS[backgroundKey].label}
-                  title={SLIDE_BACKGROUNDS[backgroundKey].label}
-                  onClick={() => onChange({ backgroundKey, customBackgroundHex: null })}
-                  className={cn(
-                    "size-8 rounded-full border border-border outline-none transition-transform focus-visible:ring-3 focus-visible:ring-ring/50",
-                    isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                  )}
-                  style={{ backgroundColor: SLIDE_BACKGROUNDS[backgroundKey].background }}
+                  label={SLIDE_BACKGROUNDS[backgroundKey].label}
+                  color={SLIDE_BACKGROUNDS[backgroundKey].background}
+                  isSelected={isSelected}
+                  onSelect={() => onChange({ backgroundKey, customBackgroundHex: null })}
                 />
               )
             })}
@@ -331,6 +326,21 @@ export function SlideInspector({
             </div>
           ) : null}
         </Field>
+
+        {slide.backgroundStyle === "two-tone" ? (
+          <SecondaryBackgroundField
+            secondaryBackgroundHex={slide.secondaryBackgroundHex}
+            automaticColor={resolveSecondaryBackgroundColor({ ...slide, secondaryBackgroundHex: null }, currentColors)}
+            primaryBackgroundColor={currentColors.background}
+            onChange={(secondaryBackgroundHex) => onChange({ secondaryBackgroundHex })}
+            onApplyToAllSlides={() =>
+              onApplyToAllSlides(
+                { backgroundStyle: "two-tone", secondaryBackgroundHex: slide.secondaryBackgroundHex },
+                "Fundo em duas cores aplicado a todos os slides"
+              )
+            }
+          />
+        ) : null}
 
         <Field>
           <FieldLabel htmlFor="slide-accent">Cor de destaque</FieldLabel>
@@ -529,6 +539,99 @@ export function SlideInspector({
         onDefaultBackgroundChanged={onDefaultBackgroundChanged}
       />
     </FieldGroup>
+  )
+}
+
+function ColorSwatchButton({
+  label,
+  color,
+  isSelected,
+  onSelect,
+}: {
+  label: string
+  color: string
+  isSelected: boolean
+  onSelect: () => void
+}) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={isSelected}
+      aria-label={label}
+      title={label}
+      onClick={onSelect}
+      className={cn(
+        "size-8 rounded-full border border-border outline-none transition-transform focus-visible:ring-3 focus-visible:ring-ring/50",
+        isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background"
+      )}
+      style={{ backgroundColor: color }}
+    />
+  )
+}
+
+function SecondaryBackgroundField({
+  secondaryBackgroundHex,
+  automaticColor,
+  primaryBackgroundColor,
+  onChange,
+  onApplyToAllSlides,
+}: {
+  secondaryBackgroundHex: string | null
+  automaticColor: string
+  primaryBackgroundColor: string
+  onChange: (secondaryBackgroundHex: string | null) => void
+  onApplyToAllSlides: () => void
+}) {
+  const paletteColors: string[] = SLIDE_BACKGROUND_KEYS.map((backgroundKey) => SLIDE_BACKGROUNDS[backgroundKey].background)
+  const isPaletteColorSelected = secondaryBackgroundHex !== null && paletteColors.includes(secondaryBackgroundHex)
+  const isCustomColorSelected = secondaryBackgroundHex !== null && !isPaletteColorSelected
+  const secondaryColorHurtsTextContrast =
+    secondaryBackgroundHex !== null && readableTextColorFor(secondaryBackgroundHex) !== readableTextColorFor(primaryBackgroundColor)
+
+  return (
+    <Field>
+      <FieldLabel>Segunda cor do fundo</FieldLabel>
+      <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label="Segunda cor do fundo">
+        <ColorSwatchButton
+          label="Automática (tom da cor de destaque)"
+          color={automaticColor}
+          isSelected={secondaryBackgroundHex === null}
+          onSelect={() => onChange(null)}
+        />
+        {SLIDE_BACKGROUND_KEYS.map((backgroundKey) => (
+          <ColorSwatchButton
+            key={backgroundKey}
+            label={SLIDE_BACKGROUNDS[backgroundKey].label}
+            color={SLIDE_BACKGROUNDS[backgroundKey].background}
+            isSelected={secondaryBackgroundHex === SLIDE_BACKGROUNDS[backgroundKey].background}
+            onSelect={() => onChange(SLIDE_BACKGROUNDS[backgroundKey].background)}
+          />
+        ))}
+        <label className="flex items-center gap-2 text-sm text-muted-foreground">
+          <input
+            type="color"
+            aria-label="Segunda cor personalizada"
+            value={secondaryBackgroundHex ?? automaticColor}
+            onChange={(event) => onChange(event.target.value)}
+            className={cn(
+              "h-8 w-10 cursor-pointer rounded-md border border-input bg-transparent p-0.5",
+              isCustomColorSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background"
+            )}
+          />
+          Outra
+        </label>
+      </div>
+      <FieldDescription>
+        {secondaryColorHurtsTextContrast
+          ? "Atenção: essa cor tem brilho oposto ao do fundo, então o texto que cair sobre ela pode ficar ilegível. Prefira um tom tão claro ou tão escuro quanto o fundo."
+          : "A primeira bolinha é automática: um tom da cor de destaque sobre o fundo."}
+      </FieldDescription>
+      <Button variant="ghost" size="sm" className="w-fit" onClick={onApplyToAllSlides}>
+        <CopyCheckIcon data-icon="inline-start" />
+        Usar em todos os slides
+      </Button>
+    </Field>
   )
 }
 
