@@ -6,13 +6,14 @@ export const MAX_SLIDES_PER_POST = 20
 export const MAX_ALBUMS_PER_GRID_SLIDE = 4
 export const MAX_ALBUMS_PER_LIST_SLIDE = 8
 
-export const SLIDE_LAYOUTS = ["cover", "album", "ranked-album", "album-grid", "album-list", "text", "quote", "cta"] as const
+export const SLIDE_LAYOUTS = ["cover", "album", "ranked-album", "album-pair", "album-grid", "album-list", "text", "quote", "cta"] as const
 export type SlideLayout = (typeof SLIDE_LAYOUTS)[number]
 
 export const SLIDE_LAYOUT_LABELS: Record<SlideLayout, string> = {
   cover: "Capa",
   album: "Álbum",
   "ranked-album": "Álbum numerado",
+  "album-pair": "Par de álbuns",
   "album-grid": "Grade de álbuns",
   "album-list": "Lista de álbuns",
   text: "Texto",
@@ -24,6 +25,7 @@ export const MAX_ALBUMS_BY_LAYOUT: Record<SlideLayout, number> = {
   cover: MAX_ALBUMS_PER_GRID_SLIDE,
   album: 1,
   "ranked-album": 1,
+  "album-pair": 2,
   "album-grid": MAX_ALBUMS_PER_GRID_SLIDE,
   "album-list": MAX_ALBUMS_PER_LIST_SLIDE,
   text: 0,
@@ -83,6 +85,7 @@ export const SLIDE_COMPOSITIONS_BY_LAYOUT = {
   cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type"],
   album: ["classic", "side", "vinyl", "poster"],
   "ranked-album": ["classic", "giant-number", "side"],
+  "album-pair": ["diagonal", "mirrored"],
   "album-grid": ["classic", "tight"],
   "album-list": ["classic", "cards"],
   text: ["classic", "card", "accent-bar"],
@@ -110,6 +113,8 @@ export const SLIDE_COMPOSITION_LABELS: Record<SlideComposition, string> = {
   "accent-bar": "Barra lateral",
   outline: "Contorno",
   minimal: "Minimalista",
+  diagonal: "Diagonal",
+  mirrored: "Diagonal invertida",
 }
 
 export function resolveSlideComposition(slide: Pick<StudioSlide, "layout" | "composition">): SlideComposition {
@@ -343,11 +348,13 @@ export function resolveSlideColors(
 export function findMissingSlideText(slide: StudioSlide): string[] {
   const missingFields: string[] = []
   const showsAlbumTitle = slide.layout === "album" || slide.layout === "ranked-album"
-  if (!slide.headline.trim() && !showsAlbumTitle && slide.layout !== "album-list") missingFields.push("título")
+  const headlineIsOptional = showsAlbumTitle || slide.layout === "album-list" || slide.layout === "album-pair"
+  if (!slide.headline.trim() && !headlineIsOptional) missingFields.push("título")
   if ((slide.layout === "text" || slide.layout === "quote") && !slide.body.trim()) missingFields.push("texto")
   if (MAX_ALBUMS_BY_LAYOUT[slide.layout] > 0 && slide.layout !== "cover" && slide.albumIds.length === 0) {
     missingFields.push("álbum")
   }
+  if (slide.layout === "album-pair" && slide.albumIds.length === 1) missingFields.push("segundo álbum")
   if (slide.requiresSource && !slide.sourceNote.trim()) missingFields.push("fonte")
   return missingFields
 }
@@ -358,6 +365,7 @@ export const SLIDE_TEXT_LIMITS: Record<SlideLayout, { kicker: number; headline: 
   cover: { kicker: 32, headline: 70, body: 140 },
   album: { kicker: 32, headline: 60, body: 220 },
   "ranked-album": { kicker: 32, headline: 60, body: 200 },
+  "album-pair": { kicker: 24, headline: 24, body: 120 },
   "album-grid": { kicker: 32, headline: 40, body: 0 },
   "album-list": { kicker: 32, headline: 40, body: 0 },
   text: { kicker: 32, headline: 60, body: 420 },

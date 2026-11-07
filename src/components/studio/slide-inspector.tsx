@@ -71,6 +71,7 @@ const LAYOUTS_WITH_SOURCE_NOTE = new Set<SlideLayout>(["album", "ranked-album", 
 
 const BODY_LABELS: Partial<Record<SlideLayout, string>> = {
   quote: "Autor da citação",
+  "album-pair": "Texto de apoio (opcional)",
 }
 
 function CharacterCounter({ length, limit }: { length: number; limit: number }) {
@@ -144,28 +145,39 @@ export function SlideInspector({
 
         <Field>
           <div className="flex items-center gap-2">
-            <FieldLabel htmlFor="slide-kicker">Rótulo</FieldLabel>
+            <FieldLabel htmlFor="slide-kicker">{slide.layout === "album-pair" ? "Rótulo do primeiro álbum" : "Rótulo"}</FieldLabel>
             <CharacterCounter length={slide.kicker.length} limit={limits.kicker} />
           </div>
           <Input id="slide-kicker" value={slide.kicker} onChange={(event) => onChange({ kicker: event.target.value })} />
         </Field>
 
-        <Field>
-          <div className="flex items-center gap-2">
-            <FieldLabel htmlFor="slide-headline">{slide.layout === "quote" ? "Citação" : "Título"}</FieldLabel>
-            <CharacterCounter length={slide.headline.length} limit={limits.headline} />
-          </div>
-          <Textarea
-            id="slide-headline"
-            rows={slide.layout === "quote" ? 4 : 2}
-            value={slide.headline}
-            onChange={(event) => onChange({ headline: event.target.value })}
-          />
-          <FieldDescription>
-            {slide.layout === "album" || slide.layout === "ranked-album" ? "Vazio = usa o título do álbum. " : ""}
-            Use *asteriscos* para escrever um trecho (ex.: o nome do artista) com a fonte de destaque.
-          </FieldDescription>
-        </Field>
+        {slide.layout === "album-pair" ? (
+          <Field>
+            <div className="flex items-center gap-2">
+              <FieldLabel htmlFor="slide-headline">Rótulo do segundo álbum</FieldLabel>
+              <CharacterCounter length={slide.headline.length} limit={limits.headline} />
+            </div>
+            <Input id="slide-headline" value={slide.headline} onChange={(event) => onChange({ headline: event.target.value })} />
+            <FieldDescription>Os nomes dos álbuns e artistas entram sozinhos, na ordem dos álbuns escolhidos abaixo.</FieldDescription>
+          </Field>
+        ) : (
+          <Field>
+            <div className="flex items-center gap-2">
+              <FieldLabel htmlFor="slide-headline">{slide.layout === "quote" ? "Citação" : "Título"}</FieldLabel>
+              <CharacterCounter length={slide.headline.length} limit={limits.headline} />
+            </div>
+            <Textarea
+              id="slide-headline"
+              rows={slide.layout === "quote" ? 4 : 2}
+              value={slide.headline}
+              onChange={(event) => onChange({ headline: event.target.value })}
+            />
+            <FieldDescription>
+              {slide.layout === "album" || slide.layout === "ranked-album" ? "Vazio = usa o título do álbum. " : ""}
+              Use *asteriscos* para escrever um trecho (ex.: o nome do artista) com a fonte de destaque.
+            </FieldDescription>
+          </Field>
+        )}
 
         {limits.body > 0 ? (
           <Field>

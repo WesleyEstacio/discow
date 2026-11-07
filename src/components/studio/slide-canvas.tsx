@@ -61,6 +61,7 @@ const DEFAULT_CONTENT_POSITION: Record<SlideLayout, Exclude<ContentPosition, "au
   cover: "bottom",
   album: "center",
   "ranked-album": "center",
+  "album-pair": "center",
   "album-grid": "center",
   "album-list": "center",
   text: "center",
@@ -166,7 +167,7 @@ export function SlideCanvas({
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 44 }}>
-          <Kicker slide={slide} colors={colors} />
+          {slide.layout === "album-pair" ? <div style={{ display: "flex" }} /> : <Kicker slide={slide} colors={colors} />}
           {slide.showBrandMark ? (
             <div style={{ display: "flex", alignItems: "baseline", fontSize: 30, fontWeight: 700, letterSpacing: -0.8 }}>
               <span style={{ color: colors.text }}>discows</span>
@@ -543,6 +544,8 @@ function SlideBody({ slide, slideAlbums, colors, isCentered, highlightTypography
       return <SingleAlbumBody slide={slide} album={slideAlbums[0]} colors={colors} isCentered={isCentered} composition={composition} highlightTypography={highlightTypography} />
     case "ranked-album":
       return <RankedAlbumBody slide={slide} album={slideAlbums[0]} colors={colors} isCentered={isCentered} composition={composition} highlightTypography={highlightTypography} />
+    case "album-pair":
+      return <AlbumPairBody slide={slide} slideAlbums={slideAlbums} colors={colors} composition={composition} />
     case "album-grid":
       return <AlbumGridBody slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} composition={composition} highlightTypography={highlightTypography} />
     case "album-list":
@@ -977,6 +980,85 @@ function RankedAlbumBody({ slide, album, colors, isCentered, composition, highli
         <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={radius} />
       </div>
       {textBlock}
+    </div>
+  )
+}
+
+function AlbumPairRow({
+  slide,
+  album,
+  label,
+  colors,
+  coverSize,
+  coverSide,
+}: {
+  slide: StudioSlide
+  album: SlideCanvasAlbum | undefined
+  label: string
+  colors: SlideColors
+  coverSize: number
+  coverSide: "left" | "right"
+}) {
+  const textGap = 48
+  const textWidth = CONTENT_WIDTH - coverSize - textGap
+  const textAlignment = coverSide === "right" ? "flex-end" : "flex-start"
+  const cover = <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={slide.albumCoverRadius} />
+  const titleTypography = headlineTypography(slide, 52, 1.06)
+
+  const textBlock = (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        alignItems: textAlignment,
+        width: textWidth,
+        height: coverSize,
+        textAlign: coverSide === "right" ? "right" : "left",
+      }}
+    >
+      <div style={{ display: "flex", fontSize: 26, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: colors.accent }}>
+        {label}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: textAlignment }}>
+        <div style={{ display: "flex", overflow: "hidden", maxHeight: 180, ...titleTypography }}>{album?.title ?? "Álbum removido"}</div>
+        <AlbumByline album={album} colors={colors} fontSize={30} />
+      </div>
+    </div>
+  )
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", width: CONTENT_WIDTH, justifyContent: "space-between" }}>
+      {coverSide === "left" ? cover : textBlock}
+      {coverSide === "left" ? textBlock : cover}
+    </div>
+  )
+}
+
+function AlbumPairBody({
+  slide,
+  slideAlbums,
+  colors,
+  composition,
+}: {
+  slide: StudioSlide
+  slideAlbums: (SlideCanvasAlbum | undefined)[]
+  colors: SlideColors
+  composition: SlideComposition
+}) {
+  const hasBody = slide.body.trim().length > 0
+  const coverSize = hasBody ? 380 : 420
+  const firstCoverSide = composition === "mirrored" ? "left" : "right"
+  const secondCoverSide = firstCoverSide === "right" ? "left" : "right"
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", width: CONTENT_WIDTH }}>
+      <AlbumPairRow slide={slide} album={slideAlbums[0]} label={slide.kicker} colors={colors} coverSize={coverSize} coverSide={firstCoverSide} />
+      <div style={{ display: "flex", height: hasBody ? 72 : 96 }} />
+      <AlbumPairRow slide={slide} album={slideAlbums[1]} label={slide.headline} colors={colors} coverSize={coverSize} coverSide={secondCoverSide} />
+      {hasBody ? (
+        <div style={{ display: "flex", fontSize: 28, lineHeight: 1.36, marginTop: 44, color: colors.mutedText }}>{slide.body}</div>
+      ) : null}
     </div>
   )
 }
