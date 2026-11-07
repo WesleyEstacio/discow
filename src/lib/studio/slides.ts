@@ -85,7 +85,7 @@ export const SLIDE_COMPOSITIONS_BY_LAYOUT = {
   cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type"],
   album: ["classic", "side", "vinyl", "poster"],
   "ranked-album": ["classic", "giant-number", "side"],
-  "album-pair": ["diagonal", "mirrored"],
+  "album-pair": ["diagonal", "mirrored", "from-to", "from-to-mirrored"],
   "album-grid": ["classic", "tight"],
   "album-list": ["classic", "cards"],
   text: ["classic", "card", "accent-bar"],
@@ -115,6 +115,16 @@ export const SLIDE_COMPOSITION_LABELS: Record<SlideComposition, string> = {
   minimal: "Minimalista",
   diagonal: "Diagonal",
   mirrored: "Diagonal invertida",
+  "from-to": "From → To",
+  "from-to-mirrored": "From → To invertido",
+}
+
+// These compositions turn the kicker and headline into giant words, so the
+// slide text was written for them and a visual identity must not swap them out.
+const TEXT_DRIVEN_COMPOSITIONS: readonly SlideComposition[] = ["from-to", "from-to-mirrored"]
+
+export function isTextDrivenComposition(composition: SlideComposition): boolean {
+  return TEXT_DRIVEN_COMPOSITIONS.includes(composition)
 }
 
 export function resolveSlideComposition(slide: Pick<StudioSlide, "layout" | "composition">): SlideComposition {

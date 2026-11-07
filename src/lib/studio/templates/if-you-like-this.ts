@@ -109,14 +109,18 @@ const COVER_AND_CTA_SLIDE_COUNT = 2
 const SLIDES_PER_RECOMMENDATION = 2
 
 const PAIR_DISPLAY_SETTING_KEY = "pairDisplay"
-type PairDisplay = "separate-slides" | "same-slide"
+const PAIR_DISPLAYS = ["separate-slides", "same-slide", "from-to"] as const
+type PairDisplay = (typeof PAIR_DISPLAYS)[number]
+
+const FROM_TO_WORDS = { from: "From", to: "To" } as const
 
 function readPairDisplay(settings: Record<string, string>): PairDisplay {
-  return settings[PAIR_DISPLAY_SETTING_KEY] === "same-slide" ? "same-slide" : "separate-slides"
+  const requestedDisplay = settings[PAIR_DISPLAY_SETTING_KEY]
+  return PAIR_DISPLAYS.find((pairDisplay) => pairDisplay === requestedDisplay) ?? "separate-slides"
 }
 
 function slidesPerReference(pairDisplay: PairDisplay): number {
-  return pairDisplay === "same-slide" ? 0 : 1
+  return pairDisplay === "separate-slides" ? 1 : 0
 }
 
 type RecommendationPair = {
@@ -178,7 +182,7 @@ function readRecommendationPairs(albumsBySlot: Record<string, TemplateAlbum[]>, 
   const slideCount = countCarouselSlides(recommendationPairs, pairDisplay)
   if (slideCount > MAX_SLIDES_PER_POST) {
     const slideCostExplanation =
-      pairDisplay === "same-slide"
+      pairDisplay !== "separate-slides"
         ? "Cada recomendação usa 2 slides (as capas juntas e a conexão)"
         : "Cada par usa 1 slide e cada recomendação usa mais 2"
     throw new Error(
@@ -208,6 +212,29 @@ function buildSameSlidePairSlides({ referenceAlbum, recommendedAlbums }: Recomme
     }),
     buildConnectionSlide(text),
   ])
+}
+
+function buildFromToPairSlides({ referenceAlbum, recommendedAlbums }: RecommendationPair, text: PairSlideText): StudioSlide[] {
+  return recommendedAlbums.flatMap((recommendedAlbum) => [
+    createEmptySlide("album-pair", {
+      kicker: FROM_TO_WORDS.from,
+      headline: FROM_TO_WORDS.to,
+      composition: "from-to",
+      albumIds: [referenceAlbum.id, recommendedAlbum.id],
+    }),
+    buildConnectionSlide(text),
+  ])
+}
+
+function buildPairSlides(pair: RecommendationPair, pairDisplay: PairDisplay, text: PairSlideText): StudioSlide[] {
+  switch (pairDisplay) {
+    case "separate-slides":
+      return buildSeparatePairSlides(pair, text)
+    case "same-slide":
+      return buildSameSlidePairSlides(pair, text)
+    case "from-to":
+      return buildFromToPairSlides(pair, text)
+  }
 }
 
 function buildSeparatePairSlides({ referenceAlbum, recommendedAlbums }: RecommendationPair, text: PairSlideText): StudioSlide[] {
@@ -253,12 +280,14 @@ export const ifYouLikeThisTemplate: StudioTemplate = {
       key: PAIR_DISPLAY_SETTING_KEY,
       label: "Como mostrar cada par",
       appearsIn: "Slides dos pares",
-      description: "Juntos: a capa de referência e a recomendada dividem o mesmo slide, em diagonal.",
+      description:
+        "Juntos: as duas capas dividem o mesmo slide, em diagonal. From → To: cada capa ganha uma palavra gigante; o lado de cada uma pode ser invertido no slide.",
       kind: "select",
       defaultValue: "separate-slides",
       options: [
         { value: "separate-slides", label: "Um slide para cada álbum" },
         { value: "same-slide", label: "Referência e recomendação no mesmo slide" },
+        { value: "from-to", label: "From → To, com as palavras em destaque" },
       ],
     },
     ...COMMON_SETTING_FIELDS,
@@ -306,9 +335,7 @@ export const ifYouLikeThisTemplate: StudioTemplate = {
         body: text.coverBody,
         albumIds: coverAlbumIds,
       }),
-      ...recommendationPairs.flatMap((pair) =>
-        pairDisplay === "same-slide" ? buildSameSlidePairSlides(pair, text) : buildSeparatePairSlides(pair, text)
-      ),
+      ...recommendationPairs.flatMap((pair) => buildPairSlides(pair, pairDisplay, text)),
       createEmptySlide("cta", {
         kicker: text.ctaKicker,
         headline: settings.callToAction?.trim() || text.ctaHeadline,

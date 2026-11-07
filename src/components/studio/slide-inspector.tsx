@@ -32,6 +32,7 @@ import {
   SLIDE_BACKGROUNDS,
   SLIDE_COMPOSITION_LABELS,
   SLIDE_COMPOSITIONS_BY_LAYOUT,
+  isTextDrivenComposition,
   SLIDE_ELEMENT_TOGGLE_LABELS,
   SLIDE_ELEMENT_TOGGLES,
   SLIDE_LAYOUT_LABELS,
@@ -104,6 +105,8 @@ export function SlideInspector({
   const currentColors = resolveSlideColors(slide)
   const currentAccentColor = currentColors.accent
   const availableCompositions: readonly SlideComposition[] = SLIDE_COMPOSITIONS_BY_LAYOUT[slide.layout]
+  const usesGiantPairWords = slide.layout === "album-pair" && isTextDrivenComposition(resolveSlideComposition(slide))
+  const pairLabelNoun = usesGiantPairWords ? "Palavra gigante" : "Rótulo"
 
   function changeLayout(nextLayout: SlideLayout) {
     onChange({
@@ -145,7 +148,7 @@ export function SlideInspector({
 
         <Field>
           <div className="flex items-center gap-2">
-            <FieldLabel htmlFor="slide-kicker">{slide.layout === "album-pair" ? "Rótulo do primeiro álbum" : "Rótulo"}</FieldLabel>
+            <FieldLabel htmlFor="slide-kicker">{slide.layout === "album-pair" ? `${pairLabelNoun} do primeiro álbum` : "Rótulo"}</FieldLabel>
             <CharacterCounter length={slide.kicker.length} limit={limits.kicker} />
           </div>
           <Input id="slide-kicker" value={slide.kicker} onChange={(event) => onChange({ kicker: event.target.value })} />
@@ -154,7 +157,7 @@ export function SlideInspector({
         {slide.layout === "album-pair" ? (
           <Field>
             <div className="flex items-center gap-2">
-              <FieldLabel htmlFor="slide-headline">Rótulo do segundo álbum</FieldLabel>
+              <FieldLabel htmlFor="slide-headline">{`${pairLabelNoun} do segundo álbum`}</FieldLabel>
               <CharacterCounter length={slide.headline.length} limit={limits.headline} />
             </div>
             <Input id="slide-headline" value={slide.headline} onChange={(event) => onChange({ headline: event.target.value })} />

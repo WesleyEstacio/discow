@@ -1022,6 +1022,10 @@ function AlbumPairBody({
   colors: SlideColors
   composition: SlideComposition
 }) {
+  if (composition === "from-to" || composition === "from-to-mirrored") {
+    return <AlbumPairFromToBody slide={slide} slideAlbums={slideAlbums} colors={colors} firstCoverIsOnRight={composition === "from-to"} />
+  }
+
   const hasBody = slide.body.trim().length > 0
   const coverSize = hasBody ? 440 : 500
   const verticalOverlap = 40
@@ -1047,6 +1051,137 @@ function AlbumPairBody({
           <AlbumPairCaption slide={slide} album={slideAlbums[1]} label={slide.headline} colors={colors} alignment={recommendationSide} />
         </div>
       </div>
+      {hasBody ? (
+        <div style={{ display: "flex", fontSize: 30, lineHeight: 1.36, marginTop: 48, color: colors.mutedText }}>{slide.body}</div>
+      ) : null}
+    </div>
+  )
+}
+
+const GIANT_WORD_MAX_FONT_SIZE = 230
+const GIANT_WORD_GLYPH_WIDTH_RATIO = 0.72
+
+function fitGiantWordFontSize(word: string, availableWidth: number): number {
+  const characterCount = Math.max(word.length, 1)
+  return Math.min(GIANT_WORD_MAX_FONT_SIZE, Math.floor(availableWidth / (characterCount * GIANT_WORD_GLYPH_WIDTH_RATIO)))
+}
+
+// Each album gets its own row: the cover on one side and, on the other, a
+// giant word (FROM / TO) that bleeds over the cover edge, with the album
+// title resting at the bottom. The rows alternate sides, so the eye zigzags
+// from the first album to the second.
+function AlbumPairFromToRow({
+  slide,
+  album,
+  word,
+  wordColor,
+  colors,
+  coverSize,
+  coverIsOnRight,
+}: {
+  slide: StudioSlide
+  album: SlideCanvasAlbum | undefined
+  word: string
+  wordColor: string
+  colors: SlideColors
+  coverSize: number
+  coverIsOnRight: boolean
+}) {
+  const wordBleedOverCover = 84
+  const textColumnGap = 40
+  const coverSide = coverIsOnRight ? "right" : "left"
+  const textSide = coverIsOnRight ? "left" : "right"
+  const alignTowardCover = coverIsOnRight ? "flex-end" : "flex-start"
+  const textAlign = coverIsOnRight ? "right" : "left"
+  const wordAreaWidth = CONTENT_WIDTH - coverSize + wordBleedOverCover
+  const wordFontSize = fitGiantWordFontSize(word, wordAreaWidth)
+
+  return (
+    <div style={{ display: "flex", position: "relative", width: CONTENT_WIDTH, height: coverSize }}>
+      <CoverArt
+        album={album}
+        size={coverSize}
+        colors={colors}
+        cornerRadiusPercent={slide.albumCoverRadius}
+        style={{ position: "absolute", top: 0, [coverSide]: 0 }}
+      />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: alignTowardCover,
+          textAlign,
+          position: "absolute",
+          bottom: 0,
+          [textSide]: 0,
+          width: CONTENT_WIDTH - coverSize - textColumnGap,
+        }}
+      >
+        <div style={{ display: "flex", overflow: "hidden", maxHeight: 156, ...headlineTypography(slide, 46, 1.06) }}>
+          {album?.title ?? "Álbum removido"}
+        </div>
+        <AlbumByline album={album} colors={colors} fontSize={27} />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: alignTowardCover,
+          position: "absolute",
+          top: -Math.round(wordFontSize * 0.1),
+          [textSide]: 0,
+          width: wordAreaWidth,
+          fontSize: wordFontSize,
+          fontWeight: 700,
+          lineHeight: 1,
+          letterSpacing: -Math.round(wordFontSize * 0.045),
+          textTransform: "uppercase",
+          whiteSpace: "nowrap",
+          color: wordColor,
+          textShadow: `0 8px 40px ${hexToRgba(colors.background, 0.7)}`,
+        }}
+      >
+        {word}
+      </div>
+    </div>
+  )
+}
+
+function AlbumPairFromToBody({
+  slide,
+  slideAlbums,
+  colors,
+  firstCoverIsOnRight,
+}: {
+  slide: StudioSlide
+  slideAlbums: (SlideCanvasAlbum | undefined)[]
+  colors: SlideColors
+  firstCoverIsOnRight: boolean
+}) {
+  const hasBody = slide.body.trim().length > 0
+  const coverSize = hasBody ? 400 : 460
+  const rowGap = hasBody ? 48 : 56
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", width: CONTENT_WIDTH }}>
+      <AlbumPairFromToRow
+        slide={slide}
+        album={slideAlbums[0]}
+        word={slide.kicker}
+        wordColor={colors.text}
+        colors={colors}
+        coverSize={coverSize}
+        coverIsOnRight={firstCoverIsOnRight}
+      />
+      <div style={{ display: "flex", height: rowGap }} />
+      <AlbumPairFromToRow
+        slide={slide}
+        album={slideAlbums[1]}
+        word={slide.headline}
+        wordColor={colors.accent}
+        colors={colors}
+        coverSize={coverSize}
+        coverIsOnRight={!firstCoverIsOnRight}
+      />
       {hasBody ? (
         <div style={{ display: "flex", fontSize: 30, lineHeight: 1.36, marginTop: 48, color: colors.mutedText }}>{slide.body}</div>
       ) : null}
