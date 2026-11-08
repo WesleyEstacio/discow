@@ -34,7 +34,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/toast"
 import type { StudioImageSummary } from "@/lib/studio/background-images"
-import type { HighlightFontKey } from "@/lib/studio/highlight-fonts"
 import { savePostAction } from "@/lib/studio/post-actions"
 import { collectCarouselAlbumIds } from "@/lib/studio/blurred-covers"
 import { MAX_CAPTION_LENGTH, type StudioPostDraft } from "@/lib/studio/post-input"
@@ -74,7 +73,6 @@ type PostEditorProps = {
   albums: EditorAlbumOption[]
   coverSourcesByAlbumId: Record<string, SlideCanvasAlbum["coverSource"]>
   initialUploadedImages: StudioImageSummary[]
-  highlightFontKey: HighlightFontKey
 }
 
 function moveItem<Item>(items: Item[], fromIndex: number, toIndex: number): Item[] {
@@ -92,7 +90,6 @@ export function PostEditor({
   albums,
   coverSourcesByAlbumId,
   initialUploadedImages,
-  highlightFontKey,
 }: PostEditorProps) {
   const [draft, setDraft] = useState<StudioPostDraft>(initialDraft)
   const [uploadedImages, setUploadedImages] = useState(initialUploadedImages)
@@ -378,7 +375,6 @@ export function PostEditor({
                       slideNumber={slideIndex + 1}
                       slideCount={draft.slides.length}
                       displayWidth={168}
-                      highlightFontKey={highlightFontKey}
                       className="rounded-sm"
                     />
                     <span className="flex items-center gap-1 px-1 text-xs text-muted-foreground">
@@ -401,7 +397,6 @@ export function PostEditor({
               slideNumber={selectedSlideIndex + 1}
               slideCount={draft.slides.length}
               displayWidth={432}
-              highlightFontKey={highlightFontKey}
               className="rounded-md shadow-2xl ring-1 ring-border"
             />
             <div className="flex flex-wrap items-center justify-center gap-2">
@@ -489,7 +484,6 @@ export function PostEditor({
                       slideNumber={slideIndex + 1}
                       slideCount={draft.slides.length}
                       displayWidth={200}
-                      highlightFontKey={highlightFontKey}
                       className="rounded-sm ring-1 ring-border"
                     />
                   </li>
@@ -556,7 +550,6 @@ export function PostEditor({
             albums={albums}
             carouselAlbumCount={carouselAlbumIds.length}
             uploadedImages={uploadedImages}
-            studioHighlightFontKey={highlightFontKey}
             onChange={updateSelectedSlide}
             onImageUploaded={(image) => setUploadedImages((currentImages) => [image, ...currentImages])}
             onApplyToAllSlides={applyToAllSlides}

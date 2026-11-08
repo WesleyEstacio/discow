@@ -3,13 +3,11 @@ import type { StudioCoverSource } from "@/lib/db/schema"
 import { arrangeBlurredCovers, BLURRED_COVERS_BLEED, BLURRED_COVERS_BLUR_RADIUS } from "@/lib/studio/blurred-covers"
 import { arrangeCoverEcho, resolveCoverEchoAlbumId, textPositionAroundCoverEcho } from "@/lib/studio/cover-echo"
 import {
-  buildHighlightTypography,
-  resolveTextFontFamily,
+  resolveFontFamily,
   splitHighlightedText,
   type FontTarget,
-  type HighlightFontKey,
-  type HighlightTypography,
-} from "@/lib/studio/highlight-fonts"
+  type SlideTextElement,
+} from "@/lib/studio/studio-fonts"
 import {
   BACKGROUND_IMAGE_FILTER_CSS,
   HEADLINE_SIZE_SCALE,
@@ -52,7 +50,6 @@ type SlideCanvasProps = {
   slideNumber: number
   slideCount: number
   fontTarget: FontTarget
-  defaultHighlightFontKey: HighlightFontKey
   backgroundImageSrc: string | null
   blurredCoversSrc: string | null
   backgroundEffectsMode: BackgroundEffectsMode
@@ -125,13 +122,11 @@ export function SlideCanvas({
   slideNumber,
   slideCount,
   fontTarget,
-  defaultHighlightFontKey,
   backgroundImageSrc,
   blurredCoversSrc,
   backgroundEffectsMode,
 }: SlideCanvasProps) {
-  const fontFamily = resolveTextFontFamily(slide.textFontKey, fontTarget)
-  const highlightTypography = buildHighlightTypography(slide.highlightFontKey ?? defaultHighlightFontKey, fontTarget)
+  const typography = resolveSlideTypography(slide, fontTarget)
   const colors = resolveSlideColors(slide)
   const slideAlbums = slide.albumIds.map((albumId) => albumsById[albumId])
   const isCentered = slide.textAlign === "center"
@@ -148,7 +143,7 @@ export function SlideCanvas({
         overflow: "hidden",
         backgroundColor: colors.background,
         color: colors.text,
-        fontFamily,
+        fontFamily: typography.body,
         // Satori never fakes bold or italic, so the preview must not either.
         ...(fontTarget === "preview" ? { fontSynthesis: "none" } : {}),
       }}
@@ -196,9 +191,9 @@ export function SlideCanvas({
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 44 }}>
-          {slide.layout === "album-pair" ? <div style={{ display: "flex" }} /> : <Kicker slide={slide} colors={colors} />}
+          {slide.layout === "album-pair" ? <div style={{ display: "flex" }} /> : <Kicker slide={slide} colors={colors} fontFamily={typography.kicker} />}
           {slide.showBrandMark ? (
-            <div style={{ display: "flex", alignItems: "baseline", fontSize: 30, fontWeight: 700, letterSpacing: -0.8 }}>
+            <div style={{ display: "flex", alignItems: "baseline", fontSize: 30, fontWeight: 700, letterSpacing: -0.8, fontFamily: typography.brandMark }}>
               <span style={{ color: colors.text }}>discows</span>
               <span style={{ color: colors.accent }}>.</span>
             </div>
@@ -217,17 +212,41 @@ export function SlideCanvas({
             textAlign: isCentered ? "center" : "left",
           }}
         >
-          <SlideBody slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} highlightTypography={highlightTypography} />
+          <SlideBody slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} typography={typography} />
         </div>
 
-        <SlideFooter slide={slide} slideNumber={slideNumber} slideCount={slideCount} colors={colors} footerNote={footerNote} />
+        <div style={{ display: "flex", flexDirection: "column", fontFamily: typography.footer }}>
+          <SlideFooter slide={slide} slideNumber={slideNumber} slideCount={slideCount} colors={colors} footerNote={footerNote} />
+        </div>
       </div>
     </div>
   )
 }
 
-function Kicker({ slide, colors }: { slide: StudioSlide; colors: SlideColors }) {
+type SlideTypography = Record<SlideTextElement, string>
+
+function resolveSlideTypography(slide: StudioSlide, fontTarget: FontTarget): SlideTypography {
+  const familyOf = (element: SlideTextElement) => resolveFontFamily(slide.fonts[element], fontTarget)
+  return {
+    brandMark: familyOf("brandMark"),
+    kicker: familyOf("kicker"),
+    headline: familyOf("headline"),
+    body: familyOf("body"),
+    footer: familyOf("footer"),
+    highlight: familyOf("highlight"),
+  }
+}
+
+function Kicker({ slide, colors, fontFamily }: { slide: StudioSlide; colors: SlideColors; fontFamily: string }) {
   if (!slide.kicker) return <div style={{ display: "flex" }} />
+  return (
+    <div style={{ display: "flex", fontFamily }}>
+      <KickerContent slide={slide} colors={colors} />
+    </div>
+  )
+}
+
+function KickerContent({ slide, colors }: { slide: StudioSlide; colors: SlideColors }) {
 
   const kickerText = (
     <div style={{ display: "flex", fontSize: 25, fontWeight: 700, letterSpacing: 4, textTransform: "uppercase", color: colors.accent }}>
@@ -631,7 +650,7 @@ type SlideBodyProps = {
   slideAlbums: (SlideCanvasAlbum | undefined)[]
   colors: SlideColors
   isCentered: boolean
-  highlightTypography: HighlightTypography
+  typography: SlideTypography
 }
 
 function headlineTypography(slide: StudioSlide, baseSize: number, lineHeight: number): CSSProperties {
@@ -650,14 +669,14 @@ function headlineTypography(slide: StudioSlide, baseSize: number, lineHeight: nu
 
 function Headline({
   slide,
-  highlightTypography,
+  typography,
   baseSize,
   lineHeight = 1.06,
   style,
   children,
 }: {
   slide: StudioSlide
-  highlightTypography: HighlightTypography
+  typography: SlideTypography
   baseSize: number
   lineHeight?: number
   style?: CSSProperties
@@ -666,9 +685,9 @@ function Headline({
   return (
     <HighlightableText
       text={children}
-      highlightTypography={highlightTypography}
+      typography={typography}
       alignment={slide.textAlign}
-      style={{ ...headlineTypography(slide, baseSize, lineHeight), ...style }}
+      style={{ ...headlineTypography(slide, baseSize, lineHeight), fontFamily: typography.headline, ...style }}
     />
   )
 }
@@ -708,12 +727,12 @@ function splitLineIntoWords(line: string): HighlightedPiece[][] {
 // highlight each word becomes its own flex item and each line wraps like text.
 function HighlightableText({
   text,
-  highlightTypography,
+  typography,
   alignment,
   style,
 }: {
   text: string
-  highlightTypography: HighlightTypography
+  typography: SlideTypography
   alignment: TextAlignment
   style: CSSProperties
 }) {
@@ -722,7 +741,7 @@ function HighlightableText({
   }
 
   const fontSize = typeof style.fontSize === "number" ? style.fontSize : 32
-  const highlightStyle: CSSProperties = { ...highlightTypography, letterSpacing: 0 }
+  const highlightStyle: CSSProperties = { fontFamily: typography.highlight, letterSpacing: 0 }
   const lineStyle: CSSProperties = {
     display: "flex",
     flexWrap: "wrap",
@@ -762,17 +781,17 @@ function HighlightableText({
 
 function BodyText({
   text,
-  highlightTypography,
+  typography,
   alignment,
   style,
 }: {
   text: string
-  highlightTypography: HighlightTypography
+  typography: SlideTypography
   alignment: TextAlignment
   style: CSSProperties
 }) {
   if (!text) return null
-  return <HighlightableText text={text} highlightTypography={highlightTypography} alignment={alignment} style={style} />
+  return <HighlightableText text={text} typography={typography} alignment={alignment} style={style} />
 }
 
 function SourceNote({ slide, colors }: { slide: StudioSlide; colors: SlideColors }) {
@@ -782,29 +801,29 @@ function SourceNote({ slide, colors }: { slide: StudioSlide; colors: SlideColors
   )
 }
 
-function SlideBody({ slide, slideAlbums, colors, isCentered, highlightTypography }: SlideBodyProps) {
+function SlideBody({ slide, slideAlbums, colors, isCentered, typography }: SlideBodyProps) {
   const composition = resolveSlideComposition(slide)
 
   switch (slide.layout) {
     case "cover":
-      return <CoverBody slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} composition={composition} highlightTypography={highlightTypography} />
+      return <CoverBody slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} composition={composition} typography={typography} />
     case "album":
-      return <SingleAlbumBody slide={slide} album={slideAlbums[0]} colors={colors} isCentered={isCentered} composition={composition} highlightTypography={highlightTypography} />
+      return <SingleAlbumBody slide={slide} album={slideAlbums[0]} colors={colors} isCentered={isCentered} composition={composition} typography={typography} />
     case "ranked-album":
-      return <RankedAlbumBody slide={slide} album={slideAlbums[0]} colors={colors} isCentered={isCentered} composition={composition} highlightTypography={highlightTypography} />
+      return <RankedAlbumBody slide={slide} album={slideAlbums[0]} colors={colors} isCentered={isCentered} composition={composition} typography={typography} />
     case "album-pair":
-      return <AlbumPairBody slide={slide} slideAlbums={slideAlbums} colors={colors} composition={composition} highlightTypography={highlightTypography} />
+      return <AlbumPairBody slide={slide} slideAlbums={slideAlbums} colors={colors} composition={composition} typography={typography} />
     case "album-grid":
-      return <AlbumGridBody slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} composition={composition} highlightTypography={highlightTypography} />
+      return <AlbumGridBody slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} composition={composition} typography={typography} />
     case "album-list":
-      return <AlbumListBody slide={slide} slideAlbums={slideAlbums} colors={colors} composition={composition} highlightTypography={highlightTypography} />
+      return <AlbumListBody slide={slide} slideAlbums={slideAlbums} colors={colors} composition={composition} typography={typography} />
     case "text":
       return (
         <TextFrame composition={composition} colors={colors} isCentered={isCentered}>
-          <Headline slide={slide} highlightTypography={highlightTypography} baseSize={76}>{slide.headline}</Headline>
+          <Headline slide={slide} typography={typography} baseSize={76}>{slide.headline}</Headline>
           <BodyText
             text={slide.body}
-            highlightTypography={highlightTypography}
+            typography={typography}
             alignment={slide.textAlign}
             style={{ fontSize: 40, lineHeight: 1.38, marginTop: 44, whiteSpace: "pre-wrap" }}
           />
@@ -815,10 +834,10 @@ function SlideBody({ slide, slideAlbums, colors, isCentered, highlightTypography
       return (
         <TextFrame composition={composition} colors={colors} isCentered={isCentered}>
           <div style={{ display: "flex", fontSize: 240, fontWeight: 700, lineHeight: 1, height: 150, color: colors.accent }}>“</div>
-          <Headline slide={slide} highlightTypography={highlightTypography} baseSize={62} lineHeight={1.18}>{slide.headline}</Headline>
+          <Headline slide={slide} typography={typography} baseSize={62} lineHeight={1.18}>{slide.headline}</Headline>
           <BodyText
             text={slide.body ? `— ${slide.body}` : ""}
-            highlightTypography={highlightTypography}
+            typography={typography}
             alignment={slide.textAlign}
             style={{ fontSize: 34, marginTop: 40, color: colors.mutedText }}
           />
@@ -826,7 +845,7 @@ function SlideBody({ slide, slideAlbums, colors, isCentered, highlightTypography
         </TextFrame>
       )
     case "cta":
-      return <CtaBody slide={slide} colors={colors} isCentered={isCentered} composition={composition} highlightTypography={highlightTypography} />
+      return <CtaBody slide={slide} colors={colors} isCentered={isCentered} composition={composition} typography={typography} />
   }
 }
 
@@ -870,13 +889,13 @@ function CtaBody({
   colors,
   isCentered,
   composition,
-  highlightTypography,
+  typography,
 }: {
   slide: StudioSlide
   colors: SlideColors
   isCentered: boolean
   composition: SlideComposition
-  highlightTypography: HighlightTypography
+  typography: SlideTypography
 }) {
   const websiteStyles: Record<"classic" | "outline" | "minimal", CSSProperties> = {
     classic: { padding: "20px 44px", borderRadius: 999, backgroundColor: colors.text, color: colors.background },
@@ -887,10 +906,10 @@ function CtaBody({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start" }}>
-      <Headline slide={slide} highlightTypography={highlightTypography} baseSize={92} lineHeight={1.04}>{slide.headline}</Headline>
+      <Headline slide={slide} typography={typography} baseSize={92} lineHeight={1.04}>{slide.headline}</Headline>
       <BodyText
         text={slide.body}
-        highlightTypography={highlightTypography}
+        typography={typography}
         alignment={slide.textAlign}
         style={{ fontSize: 36, lineHeight: 1.35, marginTop: 40, color: colors.mutedText }}
       />
@@ -963,15 +982,15 @@ function collageCoverSizeFor(albumCount: number) {
 
 type CoverBodyProps = SlideBodyProps & { composition: SlideComposition }
 
-function CoverBody({ slide, slideAlbums, colors, isCentered, composition, highlightTypography }: CoverBodyProps) {
+function CoverBody({ slide, slideAlbums, colors, isCentered, composition, typography }: CoverBodyProps) {
   const columnAlignment = isCentered ? "center" : "flex-start"
   const radius = slide.albumCoverRadius
   const coverText = (headlineBaseSize: number) => (
     <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
-      <Headline slide={slide} highlightTypography={highlightTypography} baseSize={headlineBaseSize} lineHeight={1.02}>{slide.headline}</Headline>
+      <Headline slide={slide} typography={typography} baseSize={headlineBaseSize} lineHeight={1.02}>{slide.headline}</Headline>
       <BodyText
         text={slide.body}
-        highlightTypography={highlightTypography}
+        typography={typography}
         alignment={slide.textAlign}
         style={{ fontSize: 38, lineHeight: 1.3, marginTop: 36, color: colors.mutedText }}
       />
@@ -1103,7 +1122,7 @@ type SingleAlbumBodyProps = {
   colors: SlideColors
   isCentered: boolean
   composition: SlideComposition
-  highlightTypography: HighlightTypography
+  typography: SlideTypography
 }
 
 function VinylDisc({ size, colors }: { size: number; colors: SlideColors }) {
@@ -1128,11 +1147,11 @@ function VinylDisc({ size, colors }: { size: number; colors: SlideColors }) {
   )
 }
 
-function SingleAlbumBody({ slide, album, colors, isCentered, composition, highlightTypography }: SingleAlbumBodyProps) {
+function SingleAlbumBody({ slide, album, colors, isCentered, composition, typography }: SingleAlbumBodyProps) {
   const radius = slide.albumCoverRadius
   const title = slide.headline || album?.title || ""
   const body = (
-    <BodyText text={slide.body} highlightTypography={highlightTypography} alignment={slide.textAlign} style={{ fontSize: 32, lineHeight: 1.36, marginTop: 28 }} />
+    <BodyText text={slide.body} typography={typography} alignment={slide.textAlign} style={{ fontSize: 32, lineHeight: 1.36, marginTop: 28 }} />
   )
 
   if (composition === "side") {
@@ -1141,9 +1160,9 @@ function SingleAlbumBody({ slide, album, colors, isCentered, composition, highli
       <div style={{ display: "flex", alignItems: "center", width: CONTENT_WIDTH }}>
         <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={radius} />
         <div style={{ display: "flex", flexDirection: "column", marginLeft: 52, width: CONTENT_WIDTH - coverSize - 52, textAlign: "left" }}>
-          <Headline slide={slide} highlightTypography={highlightTypography} baseSize={52}>{title}</Headline>
+          <Headline slide={slide} typography={typography} baseSize={52}>{title}</Headline>
           <AlbumByline album={album} colors={colors} fontSize={30} />
-          <BodyText text={slide.body} highlightTypography={highlightTypography} alignment="left" style={{ fontSize: 28, lineHeight: 1.36, marginTop: 24 }} />
+          <BodyText text={slide.body} typography={typography} alignment="left" style={{ fontSize: 28, lineHeight: 1.36, marginTop: 24 }} />
           <SourceNote slide={slide} colors={colors} />
         </div>
       </div>
@@ -1162,7 +1181,7 @@ function SingleAlbumBody({ slide, album, colors, isCentered, composition, highli
           </div>
           <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={radius} style={{ position: "absolute", left: 0, top: 0 }} />
         </div>
-        <Headline slide={slide} highlightTypography={highlightTypography} baseSize={58} style={{ marginTop: 48 }}>{title}</Headline>
+        <Headline slide={slide} typography={typography} baseSize={58} style={{ marginTop: 48 }}>{title}</Headline>
         <AlbumByline album={album} colors={colors} fontSize={34} />
         {body}
         <SourceNote slide={slide} colors={colors} />
@@ -1175,9 +1194,9 @@ function SingleAlbumBody({ slide, album, colors, isCentered, composition, highli
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: CONTENT_WIDTH, textAlign: "center" }}>
         <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={radius} />
-        <Headline slide={slide} highlightTypography={highlightTypography} baseSize={64} style={{ marginTop: 44, justifyContent: "center" }}>{title}</Headline>
+        <Headline slide={slide} typography={typography} baseSize={64} style={{ marginTop: 44, justifyContent: "center" }}>{title}</Headline>
         <AlbumByline album={album} colors={colors} fontSize={30} />
-        <BodyText text={slide.body} highlightTypography={highlightTypography} alignment="center" style={{ fontSize: 28, lineHeight: 1.36, marginTop: 20 }} />
+        <BodyText text={slide.body} typography={typography} alignment="center" style={{ fontSize: 28, lineHeight: 1.36, marginTop: 20 }} />
         <SourceNote slide={slide} colors={colors} />
       </div>
     )
@@ -1187,7 +1206,7 @@ function SingleAlbumBody({ slide, album, colors, isCentered, composition, highli
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start" }}>
       <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={radius} />
-      <Headline slide={slide} highlightTypography={highlightTypography} baseSize={58} lineHeight={1.08} style={{ marginTop: 48 }}>{title}</Headline>
+      <Headline slide={slide} typography={typography} baseSize={58} lineHeight={1.08} style={{ marginTop: 48 }}>{title}</Headline>
       <AlbumByline album={album} colors={colors} fontSize={34} />
       {body}
       <SourceNote slide={slide} colors={colors} />
@@ -1195,15 +1214,15 @@ function SingleAlbumBody({ slide, album, colors, isCentered, composition, highli
   )
 }
 
-function RankedAlbumBody({ slide, album, colors, isCentered, composition, highlightTypography }: SingleAlbumBodyProps) {
+function RankedAlbumBody({ slide, album, colors, isCentered, composition, typography }: SingleAlbumBodyProps) {
   const radius = slide.albumCoverRadius
   const rankText = slide.rankNumber === null ? "" : String(slide.rankNumber)
   const title = slide.headline || album?.title || ""
   const textBlock = (
     <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start" }}>
-      <Headline slide={slide} highlightTypography={highlightTypography} baseSize={58} lineHeight={1.08} style={{ marginTop: 48 }}>{title}</Headline>
+      <Headline slide={slide} typography={typography} baseSize={58} lineHeight={1.08} style={{ marginTop: 48 }}>{title}</Headline>
       <AlbumByline album={album} colors={colors} fontSize={32} />
-      <BodyText text={slide.body} highlightTypography={highlightTypography} alignment={slide.textAlign} style={{ fontSize: 32, lineHeight: 1.36, marginTop: 26 }} />
+      <BodyText text={slide.body} typography={typography} alignment={slide.textAlign} style={{ fontSize: 32, lineHeight: 1.36, marginTop: 26 }} />
       <SourceNote slide={slide} colors={colors} />
     </div>
   )
@@ -1242,9 +1261,9 @@ function RankedAlbumBody({ slide, album, colors, isCentered, composition, highli
         <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={radius} />
         <div style={{ display: "flex", flexDirection: "column", marginLeft: 52, width: CONTENT_WIDTH - coverSize - 52, textAlign: "left" }}>
           <div style={{ display: "flex", fontSize: 220, fontWeight: 700, lineHeight: 0.84, letterSpacing: -12, color: colors.accent }}>{rankText}</div>
-          <Headline slide={slide} highlightTypography={highlightTypography} baseSize={48} style={{ marginTop: 24 }}>{title}</Headline>
+          <Headline slide={slide} typography={typography} baseSize={48} style={{ marginTop: 24 }}>{title}</Headline>
           <AlbumByline album={album} colors={colors} fontSize={28} />
-          <BodyText text={slide.body} highlightTypography={highlightTypography} alignment="left" style={{ fontSize: 27, lineHeight: 1.36, marginTop: 20 }} />
+          <BodyText text={slide.body} typography={typography} alignment="left" style={{ fontSize: 27, lineHeight: 1.36, marginTop: 20 }} />
           <SourceNote slide={slide} colors={colors} />
         </div>
       </div>
@@ -1271,17 +1290,19 @@ function AlbumPairCaption({
   label,
   colors,
   alignment,
+  labelFontFamily,
 }: {
   slide: StudioSlide
   album: SlideCanvasAlbum | undefined
   label: string
   colors: SlideColors
   alignment: "left" | "right"
+  labelFontFamily: string
 }) {
   const itemAlignment = alignment === "right" ? "flex-end" : "flex-start"
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: itemAlignment, textAlign: alignment }}>
-      <Kicker slide={{ ...slide, kicker: label }} colors={colors} />
+      <Kicker slide={{ ...slide, kicker: label }} colors={colors} fontFamily={labelFontFamily} />
       <div style={{ display: "flex", marginTop: 24, overflow: "hidden", maxHeight: 156, ...headlineTypography(slide, 48, 1.06) }}>
         {album?.title ?? "Álbum removido"}
       </div>
@@ -1297,13 +1318,13 @@ function AlbumPairBody({
   slideAlbums,
   colors,
   composition,
-  highlightTypography,
+  typography,
 }: {
   slide: StudioSlide
   slideAlbums: (SlideCanvasAlbum | undefined)[]
   colors: SlideColors
   composition: SlideComposition
-  highlightTypography: HighlightTypography
+  typography: SlideTypography
 }) {
   if (composition === "from-to" || composition === "from-to-mirrored") {
     return (
@@ -1312,7 +1333,7 @@ function AlbumPairBody({
         slideAlbums={slideAlbums}
         colors={colors}
         firstCoverIsOnRight={composition === "from-to"}
-        highlightTypography={highlightTypography}
+        typography={typography}
       />
     )
   }
@@ -1336,16 +1357,16 @@ function AlbumPairBody({
         {coverArt(slideAlbums[0], { top: 0, [referenceSide]: 0 })}
         {coverArt(slideAlbums[1], { bottom: 0, [recommendationSide]: 0 })}
         <div style={{ display: "flex", position: "absolute", top: 0, [recommendationSide]: 0, width: captionWidth, justifyContent: referenceCoverIsOnRight ? "flex-end" : "flex-start" }}>
-          <AlbumPairCaption slide={slide} album={slideAlbums[0]} label={slide.kicker} colors={colors} alignment={referenceSide} />
+          <AlbumPairCaption slide={slide} album={slideAlbums[0]} label={slide.kicker} colors={colors} alignment={referenceSide} labelFontFamily={typography.kicker} />
         </div>
         <div style={{ display: "flex", position: "absolute", bottom: 0, [referenceSide]: 0, width: captionWidth, justifyContent: referenceCoverIsOnRight ? "flex-start" : "flex-end" }}>
-          <AlbumPairCaption slide={slide} album={slideAlbums[1]} label={slide.headline} colors={colors} alignment={recommendationSide} />
+          <AlbumPairCaption slide={slide} album={slideAlbums[1]} label={slide.headline} colors={colors} alignment={recommendationSide} labelFontFamily={typography.headline} />
         </div>
       </div>
       {hasBody ? (
         <BodyText
           text={slide.body}
-          highlightTypography={highlightTypography}
+          typography={typography}
           alignment="left"
           style={{ fontSize: 30, lineHeight: 1.36, marginTop: 48, color: colors.mutedText }}
         />
@@ -1370,6 +1391,7 @@ function AlbumPairFromToRow({
   slide,
   album,
   word,
+  wordFontFamily,
   wordColor,
   colors,
   coverSize,
@@ -1378,6 +1400,7 @@ function AlbumPairFromToRow({
   slide: StudioSlide
   album: SlideCanvasAlbum | undefined
   word: string
+  wordFontFamily: string
   wordColor: string
   colors: SlideColors
   coverSize: number
@@ -1427,6 +1450,7 @@ function AlbumPairFromToRow({
           [textSide]: 0,
           width: wordAreaWidth,
           fontSize: wordFontSize,
+          fontFamily: wordFontFamily,
           fontWeight: 700,
           lineHeight: 1,
           letterSpacing: -Math.round(wordFontSize * 0.045),
@@ -1447,13 +1471,13 @@ function AlbumPairFromToBody({
   slideAlbums,
   colors,
   firstCoverIsOnRight,
-  highlightTypography,
+  typography,
 }: {
   slide: StudioSlide
   slideAlbums: (SlideCanvasAlbum | undefined)[]
   colors: SlideColors
   firstCoverIsOnRight: boolean
-  highlightTypography: HighlightTypography
+  typography: SlideTypography
 }) {
   const hasBody = slide.body.trim().length > 0
   const coverSize = hasBody ? 400 : 460
@@ -1465,6 +1489,7 @@ function AlbumPairFromToBody({
         slide={slide}
         album={slideAlbums[0]}
         word={slide.kicker}
+        wordFontFamily={typography.kicker}
         wordColor={colors.text}
         colors={colors}
         coverSize={coverSize}
@@ -1475,6 +1500,7 @@ function AlbumPairFromToBody({
         slide={slide}
         album={slideAlbums[1]}
         word={slide.headline}
+        wordFontFamily={typography.headline}
         wordColor={colors.accent}
         colors={colors}
         coverSize={coverSize}
@@ -1483,7 +1509,7 @@ function AlbumPairFromToBody({
       {hasBody ? (
         <BodyText
           text={slide.body}
-          highlightTypography={highlightTypography}
+          typography={typography}
           alignment="left"
           style={{ fontSize: 30, lineHeight: 1.36, marginTop: 48, color: colors.mutedText }}
         />
@@ -1498,14 +1524,14 @@ function AlbumGridBody({
   colors,
   isCentered,
   composition,
-  highlightTypography,
+  typography,
 }: {
   slide: StudioSlide
   slideAlbums: (SlideCanvasAlbum | undefined)[]
   colors: SlideColors
   isCentered: boolean
   composition: SlideComposition
-  highlightTypography: HighlightTypography
+  typography: SlideTypography
 }) {
   const isDuel = slideAlbums.length === 2
   const isTight = composition === "tight"
@@ -1515,7 +1541,7 @@ function AlbumGridBody({
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start", width: "100%" }}>
       {slide.headline ? (
-        <Headline slide={slide} highlightTypography={highlightTypography} baseSize={64} style={{ marginBottom: 44 }}>{slide.headline}</Headline>
+        <Headline slide={slide} typography={typography} baseSize={64} style={{ marginBottom: 44 }}>{slide.headline}</Headline>
       ) : null}
       <div
         style={{
@@ -1578,13 +1604,13 @@ function AlbumListBody({
   slideAlbums,
   colors,
   composition,
-  highlightTypography,
+  typography,
 }: {
   slide: StudioSlide
   slideAlbums: (SlideCanvasAlbum | undefined)[]
   colors: SlideColors
   composition: SlideComposition
-  highlightTypography: HighlightTypography
+  typography: SlideTypography
 }) {
   const isCards = composition === "cards"
   const cardPadding = isCards ? 14 : 0
@@ -1597,7 +1623,7 @@ function AlbumListBody({
   return (
     <div style={{ display: "flex", flexDirection: "column", width: CONTENT_WIDTH }}>
       {slide.headline ? (
-        <Headline slide={slide} highlightTypography={highlightTypography} baseSize={60} style={{ marginBottom: 40 }}>{slide.headline}</Headline>
+        <Headline slide={slide} typography={typography} baseSize={60} style={{ marginBottom: 40 }}>{slide.headline}</Headline>
       ) : null}
       {slideAlbums.map((album, index) => (
         <div

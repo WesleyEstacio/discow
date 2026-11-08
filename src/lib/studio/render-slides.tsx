@@ -12,15 +12,9 @@ import {
   collectCarouselAlbumIds,
 } from "@/lib/studio/blurred-covers"
 import { arrangeCoverEcho, resolveCoverEchoAlbumId, type CoverEchoCopy } from "@/lib/studio/cover-echo"
-import {
-  DEFAULT_TEXT_FONT_FAMILY,
-  DEFAULT_TEXT_FONT_KEY,
-  HIGHLIGHT_FONTS,
-  type HighlightFontKey,
-} from "@/lib/studio/highlight-fonts"
 import { resolveSlideColors, SLIDE_HEIGHT, SLIDE_WIDTH, type StudioSlide } from "@/lib/studio/slides"
+import { resolveFontFamily } from "@/lib/studio/studio-fonts"
 
-const SLIDE_FONT_FAMILY = DEFAULT_TEXT_FONT_FAMILY.export
 const COVER_FETCH_TIMEOUT_MS = 8000
 const MAX_COVER_BYTES = 8 * 1024 * 1024
 const FORMATS_SATORI_DECODES = new Set(["image/jpeg", "image/png"])
@@ -30,31 +24,19 @@ const COVER_ECHO_RENDER_SCALE = 0.5
 type SlideFont = { name: string; data: Buffer; weight: 400 | 700; style: "normal" | "italic" }
 
 let slideFontsPromise: Promise<SlideFont[]> | null = null
-const highlightFontPromises = new Map<HighlightFontKey, Promise<SlideFont>>()
-
-function loadHighlightFont(fontKey: HighlightFontKey): Promise<SlideFont> {
-  const cachedFontPromise = highlightFontPromises.get(fontKey)
-  if (cachedFontPromise) return cachedFontPromise
-
-  const font = HIGHLIGHT_FONTS[fontKey]
-  const fontPromise = readFile(join(process.cwd(), "src/assets/fonts/highlight", font.fileName))
-    .then((fontData): SlideFont => ({ name: font.exportFamily, data: fontData, weight: font.weight, style: font.style }))
-    .catch((error: unknown) => {
-      highlightFontPromises.delete(fontKey)
-      throw error
-    })
-  highlightFontPromises.set(fontKey, fontPromise)
-  return fontPromise
-}
 
 function loadSlideFonts(): Promise<SlideFont[]> {
+  const geistFamily = resolveFontFamily("geist", "export")
+  const chewyFamily = resolveFontFamily("chewy", "export")
   slideFontsPromise ??= Promise.all([
     readFile(join(process.cwd(), "src/assets/fonts/Geist-Regular.ttf")),
     readFile(join(process.cwd(), "src/assets/fonts/Geist-Bold.ttf")),
+    readFile(join(process.cwd(), "src/assets/fonts/studio/chewy-latin-400-normal.woff")),
   ])
-    .then(([regularFontData, boldFontData]): SlideFont[] => [
-      { name: SLIDE_FONT_FAMILY, data: regularFontData, weight: 400, style: "normal" },
-      { name: SLIDE_FONT_FAMILY, data: boldFontData, weight: 700, style: "normal" },
+    .then(([geistRegularFontData, geistBoldFontData, chewyFontData]): SlideFont[] => [
+      { name: geistFamily, data: geistRegularFontData, weight: 400, style: "normal" },
+      { name: geistFamily, data: geistBoldFontData, weight: 700, style: "normal" },
+      { name: chewyFamily, data: chewyFontData, weight: 400, style: "normal" },
     ])
     .catch((error: unknown) => {
       slideFontsPromise = null
@@ -265,7 +247,6 @@ export type RenderableSlideAssets = {
   albumsById: Record<string, SlideCanvasAlbum>
   backgroundImagesBySlideId: Record<string, string>
   blurredCoversBySlideId: Record<string, string>
-  highlightFontKey: HighlightFontKey
 }
 
 export async function renderSlideImage(
@@ -277,12 +258,7 @@ export async function renderSlideImage(
   const slide = slides[slideIndex]
   if (!slide) throw new Error(`Slide ${slideIndex + 1} não existe`)
 
-  const fontKeysUsedBySlide = new Set<HighlightFontKey>([slide.highlightFontKey ?? assets.highlightFontKey])
-  if (slide.textFontKey !== DEFAULT_TEXT_FONT_KEY) fontKeysUsedBySlide.add(slide.textFontKey)
-  const [slideFonts, ...highlightFonts] = await Promise.all([
-    loadSlideFonts(),
-    ...[...fontKeysUsedBySlide].map((fontKey) => loadHighlightFont(fontKey)),
-  ])
+  const slideFonts = await loadSlideFonts()
 
   return new ImageResponse(
     (
@@ -293,13 +269,12 @@ export async function renderSlideImage(
         slideNumber={slideIndex + 1}
         slideCount={slides.length}
         fontTarget="export"
-        defaultHighlightFontKey={assets.highlightFontKey}
         backgroundImageSrc={assets.backgroundImagesBySlideId[slide.id] ?? null}
         blurredCoversSrc={assets.blurredCoversBySlideId[slide.id] ?? null}
         backgroundEffectsMode="prerendered"
       />
     ),
-    { width: SLIDE_WIDTH, height: SLIDE_HEIGHT, fonts: [...slideFonts, ...highlightFonts], headers }
+    { width: SLIDE_WIDTH, height: SLIDE_HEIGHT, fonts: slideFonts, headers }
   )
 }
 
