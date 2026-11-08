@@ -1,0 +1,24 @@
+name: Auto aprovar PR
+
+# Aprova automaticamente as PRs abertas pelo yhrbz.
+# pull_request_target roda com o workflow da branch main (inclusive para PRs de fork).
+# IMPORTANTE: nunca adicione um checkout do código da PR neste workflow.
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  aprovar:
+    if: github.event.pull_request.user.login == 'yhrbz' && !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aprovar a PR
+        run: gh pr review "$PR_URL" --approve --body "Aprovado automaticamente 🤖"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
