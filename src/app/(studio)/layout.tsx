@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Toaster } from "@/components/ui/toast"
 import { SITE_URL } from "@/lib/seo"
-import { highlightFontVariableClassNames } from "./highlight-font-variables"
+import { studioFontVariableClassNames } from "./studio-font-variables"
 import "../globals.css"
 
 // Separate root layout so the internal Studio never ships inside the public
@@ -35,7 +35,7 @@ export default function StudioRootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} ${highlightFontVariableClassNames} dark h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${studioFontVariableClassNames} dark h-full antialiased`}
     >
       <body className="min-h-full bg-background text-foreground">
         <Toaster>{children}</Toaster>

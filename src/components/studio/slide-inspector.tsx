@@ -13,6 +13,7 @@ import {
   XIcon,
   type LucideIcon,
 } from "lucide-react"
+import { HighlightableTextarea } from "@/components/studio/highlightable-textarea"
 import { SlideBackgroundImageField } from "@/components/studio/slide-background-image-field"
 import { StudioCoverImage } from "@/components/studio/studio-cover-image"
 import { Button } from "@/components/ui/button"
@@ -21,20 +22,16 @@ import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSepa
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
-import { Textarea } from "@/components/ui/textarea"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { StudioImageSummary } from "@/lib/studio/background-images"
 import {
-  buildHighlightTypography,
-  HIGHLIGHT_FONT_KEYS,
-  HIGHLIGHT_FONTS,
-  isHighlightFontKey,
-  resolveTextFontFamily,
-  TEXT_FONT_KEYS,
-  textFontLabel,
-  type HighlightFontKey,
-  type TextFontKey,
-} from "@/lib/studio/highlight-fonts"
+  resolveFontFamily,
+  SLIDE_TEXT_ELEMENT_LABELS,
+  SLIDE_TEXT_ELEMENTS,
+  STUDIO_FONT_KEYS,
+  STUDIO_FONTS,
+  type SlideFonts,
+} from "@/lib/studio/studio-fonts"
 import {
   BACKGROUND_STYLE_LABELS,
   BACKGROUND_STYLES,
@@ -94,7 +91,6 @@ type SlideInspectorProps = {
   albums: EditorAlbumOption[]
   carouselAlbumCount: number
   uploadedImages: StudioImageSummary[]
-  studioHighlightFontKey: HighlightFontKey
   onChange: (patch: Partial<StudioSlide>) => void
   onImageUploaded: (image: StudioImageSummary) => void
   onApplyToAllSlides: (patch: Partial<StudioSlide>, confirmationMessage: string) => void
@@ -109,7 +105,6 @@ const PROGRESS_ALIGNMENT_ICONS: Record<ProgressAlignment, LucideIcon> = {
   right: AlignRightIcon,
 }
 
-const STUDIO_DEFAULT_HIGHLIGHT_FONT = "studio-default"
 
 const BODY_LABELS: Partial<Record<SlideLayout, string>> = {
   quote: "Autor da citação",
@@ -136,7 +131,6 @@ export function SlideInspector({
   albums,
   carouselAlbumCount,
   uploadedImages,
-  studioHighlightFontKey,
   onChange,
   onImageUploaded,
   onApplyToAllSlides,
@@ -211,15 +205,15 @@ export function SlideInspector({
               <FieldLabel htmlFor="slide-headline">{slide.layout === "quote" ? "Citação" : "Título"}</FieldLabel>
               <CharacterCounter length={slide.headline.length} limit={limits.headline} />
             </div>
-            <Textarea
+            <HighlightableTextarea
               id="slide-headline"
               rows={slide.layout === "quote" ? 4 : 2}
               value={slide.headline}
-              onChange={(event) => onChange({ headline: event.target.value })}
+              onValueChange={(headline) => onChange({ headline })}
             />
             <FieldDescription>
               {slide.layout === "album" || slide.layout === "ranked-album" ? "Vazio = usa o título do álbum. " : ""}
-              Use *asteriscos* para escrever uma palavra ou frase (ex.: o nome do artista) com a fonte do destaque.
+              Selecione uma palavra ou frase e clique em &ldquo;Destacar seleção&rdquo; para usar a fonte do destaque nela.
             </FieldDescription>
           </Field>
         )}
@@ -233,9 +227,8 @@ export function SlideInspector({
             {slide.layout === "quote" ? (
               <Input id="slide-body" value={slide.body} onChange={(event) => onChange({ body: event.target.value })} />
             ) : (
-              <Textarea id="slide-body" rows={5} value={slide.body} onChange={(event) => onChange({ body: event.target.value })} />
+              <HighlightableTextarea id="slide-body" rows={5} value={slide.body} onValueChange={(body) => onChange({ body })} />
             )}
-            <FieldDescription>Aqui os *asteriscos* também trocam a fonte do trecho.</FieldDescription>
           </Field>
         ) : null}
 
@@ -457,9 +450,8 @@ export function SlideInspector({
         />
 
         <SlideFontsField
-          slide={slide}
-          studioHighlightFontKey={studioHighlightFontKey}
-          onChange={onChange}
+          fonts={slide.fonts}
+          onChange={(fonts) => onChange({ fonts })}
           onApplyToAllSlides={() => onApplyToAllSlides(pickSlideFonts(slide), "Fontes aplicadas a todos os slides")}
         />
 
@@ -651,73 +643,48 @@ export function SlideInspector({
 }
 
 function SlideFontsField({
-  slide,
-  studioHighlightFontKey,
+  fonts,
   onChange,
   onApplyToAllSlides,
 }: {
-  slide: StudioSlide
-  studioHighlightFontKey: HighlightFontKey
-  onChange: (patch: Partial<StudioSlide>) => void
+  fonts: SlideFonts
+  onChange: (fonts: SlideFonts) => void
   onApplyToAllSlides: () => void
 }) {
-  const studioDefaultHighlightLabel = `Padrão do Studio (${HIGHLIGHT_FONTS[studioHighlightFontKey].label})`
-
   return (
-    <div className="flex flex-col gap-4">
-      <Field>
-        <FieldLabel htmlFor="slide-text-font">Fonte dos textos</FieldLabel>
-        <Select
-          value={slide.textFontKey}
-          onValueChange={(value) => {
-            const nextTextFontKey = TEXT_FONT_KEYS.find((fontKey) => fontKey === value)
-            if (nextTextFontKey) onChange({ textFontKey: nextTextFontKey })
-          }}
-        >
-          <SelectTrigger id="slide-text-font" className="w-full">
-            <SelectValue>{(value: TextFontKey) => textFontLabel(value)}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {TEXT_FONT_KEYS.map((fontKey) => (
-              <SelectItem key={fontKey} value={fontKey}>
-                <span style={{ fontFamily: resolveTextFontFamily(fontKey, "preview") }}>{textFontLabel(fontKey)}</span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <FieldDescription>Título, rótulo, texto, nomes dos álbuns e rodapé.</FieldDescription>
-      </Field>
-
-      <Field>
-        <FieldLabel htmlFor="slide-highlight-font">Fonte do destaque (*asteriscos*)</FieldLabel>
-        <Select
-          value={slide.highlightFontKey ?? STUDIO_DEFAULT_HIGHLIGHT_FONT}
-          onValueChange={(value) => {
-            if (value === STUDIO_DEFAULT_HIGHLIGHT_FONT) onChange({ highlightFontKey: null })
-            else if (typeof value === "string" && isHighlightFontKey(value)) onChange({ highlightFontKey: value })
-          }}
-        >
-          <SelectTrigger id="slide-highlight-font" className="w-full">
-            <SelectValue>
-              {(value: string) => (isHighlightFontKey(value) ? HIGHLIGHT_FONTS[value].label : studioDefaultHighlightLabel)}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={STUDIO_DEFAULT_HIGHLIGHT_FONT}>{studioDefaultHighlightLabel}</SelectItem>
-            {HIGHLIGHT_FONT_KEYS.map((fontKey) => (
-              <SelectItem key={fontKey} value={fontKey}>
-                <span style={buildHighlightTypography(fontKey, "preview")}>{HIGHLIGHT_FONTS[fontKey].label}</span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </Field>
-
+    <Field>
+      <FieldLabel>Fontes</FieldLabel>
+      <div className="flex flex-col gap-2">
+        {SLIDE_TEXT_ELEMENTS.map((element) => (
+          <div key={element} className="flex items-center justify-between gap-3">
+            <span className="text-sm text-muted-foreground">{SLIDE_TEXT_ELEMENT_LABELS[element]}</span>
+            <ToggleGroup
+              variant="outline"
+              size="sm"
+              value={[fonts[element]]}
+              onValueChange={(values) => {
+                const nextFontKey = STUDIO_FONT_KEYS.find((fontKey) => fontKey === values[0])
+                if (nextFontKey) onChange({ ...fonts, [element]: nextFontKey })
+              }}
+              aria-label={`Fonte: ${SLIDE_TEXT_ELEMENT_LABELS[element]}`}
+            >
+              {STUDIO_FONT_KEYS.map((fontKey) => (
+                <ToggleGroupItem key={fontKey} value={fontKey} style={{ fontFamily: resolveFontFamily(fontKey, "preview") }}>
+                  {STUDIO_FONTS[fontKey].label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
+        ))}
+      </div>
+      <FieldDescription>
+        Para trocar a fonte de uma palavra só, selecione-a no título ou no texto e clique em &ldquo;Destacar seleção&rdquo;.
+      </FieldDescription>
       <Button variant="ghost" size="sm" className="w-fit" onClick={onApplyToAllSlides}>
         <CopyCheckIcon data-icon="inline-start" />
         Usar estas fontes em todos os slides
       </Button>
-    </div>
+    </Field>
   )
 }
 

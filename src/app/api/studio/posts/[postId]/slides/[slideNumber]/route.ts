@@ -11,7 +11,6 @@ import {
   buildSlideFileName,
   renderSlideImage,
 } from "@/lib/studio/render-slides"
-import { getHighlightFontKey } from "@/lib/studio/settings"
 
 type RouteContext = {
   params: Promise<{ postId: string; slideNumber: string }>
@@ -35,10 +34,9 @@ export async function GET(request: Request, context: RouteContext) {
   const slide = post.slides[slideIndex]!
   const carouselAlbumIds = collectCarouselAlbumIds(post.slides)
   const albumIdsToLoad = slide.backgroundStyle === "blurred-covers" ? carouselAlbumIds : slide.albumIds
-  const [albumsById, backgroundImagesBySlideId, highlightFontKey] = await Promise.all([
+  const [albumsById, backgroundImagesBySlideId] = await Promise.all([
     getStudioAlbumsByIds(albumIdsToLoad).then(buildRenderableAlbums),
     buildRenderableBackgrounds([slide]),
-    getHighlightFontKey(),
   ])
   const blurredCoversBySlideId = await buildRenderableBlurredCovers([slide], carouselAlbumIds, albumsById)
   const shouldDownload = new URL(request.url).searchParams.get("download") === "1"
@@ -46,7 +44,7 @@ export async function GET(request: Request, context: RouteContext) {
   return renderSlideImage(
     post.slides,
     slideIndex,
-    { albumsById, backgroundImagesBySlideId, blurredCoversBySlideId, highlightFontKey },
+    { albumsById, backgroundImagesBySlideId, blurredCoversBySlideId },
     {
       "Cache-Control": "private, no-store",
       "Content-Disposition": `${shouldDownload ? "attachment" : "inline"}; filename="${buildSlideFileName(post.title, slideIndex)}"`,

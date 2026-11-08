@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { DEFAULT_TEXT_FONT_KEY, HIGHLIGHT_FONT_KEYS, TEXT_FONT_KEYS } from "@/lib/studio/highlight-fonts"
+import { DEFAULT_SLIDE_FONTS, slideFontsSchema } from "@/lib/studio/studio-fonts"
 
 export const SLIDE_WIDTH = 1080
 export const SLIDE_HEIGHT = 1350
@@ -169,8 +169,8 @@ export function pickSlideElementToggles(
   }
 }
 
-export function pickSlideFonts(slide: StudioSlide): Pick<StudioSlide, "textFontKey" | "highlightFontKey"> {
-  return { textFontKey: slide.textFontKey, highlightFontKey: slide.highlightFontKey }
+export function pickSlideFonts(slide: StudioSlide): Pick<StudioSlide, "fonts"> {
+  return { fonts: { ...slide.fonts } }
 }
 
 export const SLIDE_ELEMENT_TOGGLE_LABELS: Record<SlideElementToggle, string> = {
@@ -302,8 +302,7 @@ export const studioSlideSchema = z.object({
   showBrandMark: z.boolean().default(true),
   progressAlignment: z.enum(PROGRESS_ALIGNMENTS).default("left"),
   progressSize: z.enum(PROGRESS_SIZES).default("medium"),
-  textFontKey: z.enum(TEXT_FONT_KEYS).default(DEFAULT_TEXT_FONT_KEY),
-  highlightFontKey: z.enum(HIGHLIGHT_FONT_KEYS).nullable().default(null),
+  fonts: slideFontsSchema.default(DEFAULT_SLIDE_FONTS),
 })
 
 export type StudioSlide = z.infer<typeof studioSlideSchema>
@@ -352,8 +351,7 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     showBrandMark: true,
     progressAlignment: "left",
     progressSize: "medium",
-    textFontKey: DEFAULT_TEXT_FONT_KEY,
-    highlightFontKey: null,
+    fonts: { ...DEFAULT_SLIDE_FONTS },
     ...overrides,
   }
 }
