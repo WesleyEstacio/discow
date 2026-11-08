@@ -12,10 +12,15 @@ import {
   collectCarouselAlbumIds,
 } from "@/lib/studio/blurred-covers"
 import { arrangeCoverEcho, resolveCoverEchoAlbumId, type CoverEchoCopy } from "@/lib/studio/cover-echo"
-import { buildHighlightTypography, HIGHLIGHT_FONTS, type HighlightFontKey } from "@/lib/studio/highlight-fonts"
+import {
+  DEFAULT_TEXT_FONT_FAMILY,
+  DEFAULT_TEXT_FONT_KEY,
+  HIGHLIGHT_FONTS,
+  type HighlightFontKey,
+} from "@/lib/studio/highlight-fonts"
 import { resolveSlideColors, SLIDE_HEIGHT, SLIDE_WIDTH, type StudioSlide } from "@/lib/studio/slides"
 
-const SLIDE_FONT_FAMILY = "Geist"
+const SLIDE_FONT_FAMILY = DEFAULT_TEXT_FONT_FAMILY.export
 const COVER_FETCH_TIMEOUT_MS = 8000
 const MAX_COVER_BYTES = 8 * 1024 * 1024
 const FORMATS_SATORI_DECODES = new Set(["image/jpeg", "image/png"])
@@ -272,7 +277,12 @@ export async function renderSlideImage(
   const slide = slides[slideIndex]
   if (!slide) throw new Error(`Slide ${slideIndex + 1} não existe`)
 
-  const [slideFonts, highlightFont] = await Promise.all([loadSlideFonts(), loadHighlightFont(assets.highlightFontKey)])
+  const fontKeysUsedBySlide = new Set<HighlightFontKey>([slide.highlightFontKey ?? assets.highlightFontKey])
+  if (slide.textFontKey !== DEFAULT_TEXT_FONT_KEY) fontKeysUsedBySlide.add(slide.textFontKey)
+  const [slideFonts, ...highlightFonts] = await Promise.all([
+    loadSlideFonts(),
+    ...[...fontKeysUsedBySlide].map((fontKey) => loadHighlightFont(fontKey)),
+  ])
 
   return new ImageResponse(
     (
@@ -282,14 +292,14 @@ export async function renderSlideImage(
         carouselAlbumIds={collectCarouselAlbumIds(slides)}
         slideNumber={slideIndex + 1}
         slideCount={slides.length}
-        fontFamily={SLIDE_FONT_FAMILY}
-        highlightTypography={buildHighlightTypography(assets.highlightFontKey, "export")}
+        fontTarget="export"
+        defaultHighlightFontKey={assets.highlightFontKey}
         backgroundImageSrc={assets.backgroundImagesBySlideId[slide.id] ?? null}
         blurredCoversSrc={assets.blurredCoversBySlideId[slide.id] ?? null}
         backgroundEffectsMode="prerendered"
       />
     ),
-    { width: SLIDE_WIDTH, height: SLIDE_HEIGHT, fonts: [...slideFonts, highlightFont], headers }
+    { width: SLIDE_WIDTH, height: SLIDE_HEIGHT, fonts: [...slideFonts, ...highlightFonts], headers }
   )
 }
 

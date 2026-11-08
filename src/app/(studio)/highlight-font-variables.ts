@@ -1,4 +1,4 @@
-import { Bebas_Neue, Caveat, Pacifico, Permanent_Marker, Playfair_Display, Space_Mono } from "next/font/google"
+import { Bebas_Neue, Caveat, Chewy, Pacifico, Permanent_Marker, Playfair_Display, Space_Mono } from "next/font/google"
 
 // Live-preview copies of the highlight fonts (src/lib/studio/highlight-fonts.ts).
 // Not preloaded: the browser only downloads the one a slide actually uses.
@@ -8,7 +8,8 @@ const permanentMarker = Permanent_Marker({ weight: "400", subsets: ["latin"], va
 const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-highlight-bebas", preload: false })
 const spaceMono = Space_Mono({ weight: "700", style: "italic", subsets: ["latin"], variable: "--font-highlight-space-mono", preload: false })
 const pacifico = Pacifico({ weight: "400", subsets: ["latin"], variable: "--font-highlight-pacifico", preload: false })
+const chewy = Chewy({ weight: "400", subsets: ["latin"], variable: "--font-highlight-chewy", preload: false })
 
-export const highlightFontVariableClassNames = [playfairDisplay, caveat, permanentMarker, bebasNeue, spaceMono, pacifico]
+export const highlightFontVariableClassNames = [playfairDisplay, caveat, permanentMarker, bebasNeue, spaceMono, pacifico, chewy]
   .map((font) => font.variable)
   .join(" ")

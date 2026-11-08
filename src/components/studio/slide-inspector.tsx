@@ -1,7 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { AlignCenterIcon, AlignLeftIcon, ArrowDownIcon, ArrowUpIcon, CopyCheckIcon, RotateCcwIcon, ShuffleIcon, XIcon } from "lucide-react"
+import {
+  AlignCenterIcon,
+  AlignLeftIcon,
+  AlignRightIcon,
+  ArrowDownIcon,
+  ArrowUpIcon,
+  CopyCheckIcon,
+  RotateCcwIcon,
+  ShuffleIcon,
+  XIcon,
+  type LucideIcon,
+} from "lucide-react"
 import { SlideBackgroundImageField } from "@/components/studio/slide-background-image-field"
 import { StudioCoverImage } from "@/components/studio/studio-cover-image"
 import { Button } from "@/components/ui/button"
@@ -13,6 +24,17 @@ import { Slider } from "@/components/ui/slider"
 import { Textarea } from "@/components/ui/textarea"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { StudioImageSummary } from "@/lib/studio/background-images"
+import {
+  buildHighlightTypography,
+  HIGHLIGHT_FONT_KEYS,
+  HIGHLIGHT_FONTS,
+  isHighlightFontKey,
+  resolveTextFontFamily,
+  TEXT_FONT_KEYS,
+  textFontLabel,
+  type HighlightFontKey,
+  type TextFontKey,
+} from "@/lib/studio/highlight-fonts"
 import {
   BACKGROUND_STYLE_LABELS,
   BACKGROUND_STYLES,
@@ -28,6 +50,11 @@ import {
   MAX_ALBUMS_BY_LAYOUT,
   MAX_BACKGROUND_SEED,
   pickSlideElementToggles,
+  pickSlideFonts,
+  PROGRESS_ALIGNMENT_LABELS,
+  PROGRESS_ALIGNMENTS,
+  PROGRESS_SIZE_LABELS,
+  PROGRESS_SIZES,
   readableTextColorFor,
   resolveSecondaryBackgroundColor,
   resolveSlideColors,
@@ -45,6 +72,7 @@ import {
   TYPE_STYLE_LABELS,
   TYPE_STYLES,
   type ContentPosition,
+  type ProgressAlignment,
   type SlideComposition,
   type SlideElementToggle,
   type SlideLayout,
@@ -66,6 +94,7 @@ type SlideInspectorProps = {
   albums: EditorAlbumOption[]
   carouselAlbumCount: number
   uploadedImages: StudioImageSummary[]
+  studioHighlightFontKey: HighlightFontKey
   onChange: (patch: Partial<StudioSlide>) => void
   onImageUploaded: (image: StudioImageSummary) => void
   onApplyToAllSlides: (patch: Partial<StudioSlide>, confirmationMessage: string) => void
@@ -73,6 +102,14 @@ type SlideInspectorProps = {
 }
 
 const LAYOUTS_WITH_SOURCE_NOTE = new Set<SlideLayout>(["album", "ranked-album", "text", "quote"])
+
+const PROGRESS_ALIGNMENT_ICONS: Record<ProgressAlignment, LucideIcon> = {
+  left: AlignLeftIcon,
+  center: AlignCenterIcon,
+  right: AlignRightIcon,
+}
+
+const STUDIO_DEFAULT_HIGHLIGHT_FONT = "studio-default"
 
 const BODY_LABELS: Partial<Record<SlideLayout, string>> = {
   quote: "Autor da citação",
@@ -99,6 +136,7 @@ export function SlideInspector({
   albums,
   carouselAlbumCount,
   uploadedImages,
+  studioHighlightFontKey,
   onChange,
   onImageUploaded,
   onApplyToAllSlides,
@@ -181,7 +219,7 @@ export function SlideInspector({
             />
             <FieldDescription>
               {slide.layout === "album" || slide.layout === "ranked-album" ? "Vazio = usa o título do álbum. " : ""}
-              Use *asteriscos* para escrever um trecho (ex.: o nome do artista) com a fonte de destaque.
+              Use *asteriscos* para escrever uma palavra ou frase (ex.: o nome do artista) com a fonte do destaque.
             </FieldDescription>
           </Field>
         )}
@@ -197,6 +235,7 @@ export function SlideInspector({
             ) : (
               <Textarea id="slide-body" rows={5} value={slide.body} onChange={(event) => onChange({ body: event.target.value })} />
             )}
+            <FieldDescription>Aqui os *asteriscos* também trocam a fonte do trecho.</FieldDescription>
           </Field>
         ) : null}
 
@@ -417,6 +456,13 @@ export function SlideInspector({
           onChange={(kickerStyle) => onChange({ kickerStyle })}
         />
 
+        <SlideFontsField
+          slide={slide}
+          studioHighlightFontKey={studioHighlightFontKey}
+          onChange={onChange}
+          onApplyToAllSlides={() => onApplyToAllSlides(pickSlideFonts(slide), "Fontes aplicadas a todos os slides")}
+        />
+
         <div className="grid grid-cols-2 gap-4">
           <Field>
             <FieldLabel>Tamanho do título</FieldLabel>
@@ -527,6 +573,51 @@ export function SlideInspector({
             </FieldLabel>
           </Field>
         ))}
+        {slide.showProgress ? (
+          <div className="grid grid-cols-2 gap-4 pt-1">
+            <Field>
+              <FieldLabel>Posição do contador</FieldLabel>
+              <ToggleGroup
+                variant="outline"
+                size="sm"
+                value={[slide.progressAlignment]}
+                onValueChange={(values) => {
+                  const nextAlignment = PROGRESS_ALIGNMENTS.find((alignment) => alignment === values[0])
+                  if (nextAlignment) onChange({ progressAlignment: nextAlignment })
+                }}
+                aria-label="Posição do contador de páginas"
+              >
+                {PROGRESS_ALIGNMENTS.map((alignment) => {
+                  const AlignmentIcon = PROGRESS_ALIGNMENT_ICONS[alignment]
+                  return (
+                    <ToggleGroupItem key={alignment} value={alignment} aria-label={`Contador: ${PROGRESS_ALIGNMENT_LABELS[alignment]}`}>
+                      <AlignmentIcon />
+                    </ToggleGroupItem>
+                  )
+                })}
+              </ToggleGroup>
+            </Field>
+            <Field>
+              <FieldLabel>Tamanho do contador</FieldLabel>
+              <ToggleGroup
+                variant="outline"
+                size="sm"
+                value={[slide.progressSize]}
+                onValueChange={(values) => {
+                  const nextSize = PROGRESS_SIZES.find((size) => size === values[0])
+                  if (nextSize) onChange({ progressSize: nextSize })
+                }}
+                aria-label="Tamanho do contador de páginas"
+              >
+                {PROGRESS_SIZES.map((size) => (
+                  <ToggleGroupItem key={size} value={size} aria-label={`Contador ${PROGRESS_SIZE_LABELS[size]}`}>
+                    {PROGRESS_SIZE_LABELS[size]}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </Field>
+          </div>
+        ) : null}
         <Button
           variant="ghost"
           size="sm"
@@ -556,6 +647,77 @@ export function SlideInspector({
         onDefaultBackgroundChanged={onDefaultBackgroundChanged}
       />
     </FieldGroup>
+  )
+}
+
+function SlideFontsField({
+  slide,
+  studioHighlightFontKey,
+  onChange,
+  onApplyToAllSlides,
+}: {
+  slide: StudioSlide
+  studioHighlightFontKey: HighlightFontKey
+  onChange: (patch: Partial<StudioSlide>) => void
+  onApplyToAllSlides: () => void
+}) {
+  const studioDefaultHighlightLabel = `Padrão do Studio (${HIGHLIGHT_FONTS[studioHighlightFontKey].label})`
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Field>
+        <FieldLabel htmlFor="slide-text-font">Fonte dos textos</FieldLabel>
+        <Select
+          value={slide.textFontKey}
+          onValueChange={(value) => {
+            const nextTextFontKey = TEXT_FONT_KEYS.find((fontKey) => fontKey === value)
+            if (nextTextFontKey) onChange({ textFontKey: nextTextFontKey })
+          }}
+        >
+          <SelectTrigger id="slide-text-font" className="w-full">
+            <SelectValue>{(value: TextFontKey) => textFontLabel(value)}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {TEXT_FONT_KEYS.map((fontKey) => (
+              <SelectItem key={fontKey} value={fontKey}>
+                <span style={{ fontFamily: resolveTextFontFamily(fontKey, "preview") }}>{textFontLabel(fontKey)}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <FieldDescription>Título, rótulo, texto, nomes dos álbuns e rodapé.</FieldDescription>
+      </Field>
+
+      <Field>
+        <FieldLabel htmlFor="slide-highlight-font">Fonte do destaque (*asteriscos*)</FieldLabel>
+        <Select
+          value={slide.highlightFontKey ?? STUDIO_DEFAULT_HIGHLIGHT_FONT}
+          onValueChange={(value) => {
+            if (value === STUDIO_DEFAULT_HIGHLIGHT_FONT) onChange({ highlightFontKey: null })
+            else if (typeof value === "string" && isHighlightFontKey(value)) onChange({ highlightFontKey: value })
+          }}
+        >
+          <SelectTrigger id="slide-highlight-font" className="w-full">
+            <SelectValue>
+              {(value: string) => (isHighlightFontKey(value) ? HIGHLIGHT_FONTS[value].label : studioDefaultHighlightLabel)}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={STUDIO_DEFAULT_HIGHLIGHT_FONT}>{studioDefaultHighlightLabel}</SelectItem>
+            {HIGHLIGHT_FONT_KEYS.map((fontKey) => (
+              <SelectItem key={fontKey} value={fontKey}>
+                <span style={buildHighlightTypography(fontKey, "preview")}>{HIGHLIGHT_FONTS[fontKey].label}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
+
+      <Button variant="ghost" size="sm" className="w-fit" onClick={onApplyToAllSlides}>
+        <CopyCheckIcon data-icon="inline-start" />
+        Usar estas fontes em todos os slides
+      </Button>
+    </div>
   )
 }
 
