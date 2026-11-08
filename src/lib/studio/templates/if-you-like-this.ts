@@ -1,4 +1,4 @@
-import { createEmptySlide, MAX_SLIDES_PER_POST, type StudioSlide } from "@/lib/studio/slides"
+import { createEmptySlide, MAX_ALBUMS_PER_COVER_SLIDE, MAX_SLIDES_PER_POST, type StudioSlide } from "@/lib/studio/slides"
 import {
   buildHashtags,
   createVariantPicker,
@@ -323,10 +323,11 @@ export const ifYouLikeThisTemplate: StudioTemplate = {
         : text.multiplePairsCoverHeadline(joinWithOr(referenceArtists, copy.or))
     const coverHeadline = settings.theme?.trim() || defaultCoverHeadline
 
-    const coverAlbumIds =
+    const coverAlbums =
       recommendationPairs.length === 1
-        ? [firstPair.referenceAlbum, ...firstPair.recommendedAlbums].slice(0, 3).map((album) => album.id)
-        : recommendationPairs.map((pair) => pair.referenceAlbum.id).concat(firstPair.recommendedAlbums[0]!.id).slice(0, 4)
+        ? [firstPair.referenceAlbum, ...firstPair.recommendedAlbums]
+        : recommendationPairs.map((pair) => pair.referenceAlbum)
+    const coverAlbumIds = [...new Set(coverAlbums.map((album) => album.id))].slice(0, MAX_ALBUMS_PER_COVER_SLIDE)
 
     const slides: StudioSlide[] = [
       createEmptySlide("cover", {

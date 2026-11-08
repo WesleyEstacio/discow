@@ -5,6 +5,7 @@ export const SLIDE_HEIGHT = 1350
 export const MAX_SLIDES_PER_POST = 20
 export const MAX_ALBUMS_PER_GRID_SLIDE = 4
 export const MAX_ALBUMS_PER_LIST_SLIDE = 8
+export const MAX_ALBUMS_PER_COVER_SLIDE = 6
 
 export const SLIDE_LAYOUTS = ["cover", "album", "ranked-album", "album-pair", "album-grid", "album-list", "text", "quote", "cta"] as const
 export type SlideLayout = (typeof SLIDE_LAYOUTS)[number]
@@ -22,7 +23,7 @@ export const SLIDE_LAYOUT_LABELS: Record<SlideLayout, string> = {
 }
 
 export const MAX_ALBUMS_BY_LAYOUT: Record<SlideLayout, number> = {
-  cover: MAX_ALBUMS_PER_GRID_SLIDE,
+  cover: MAX_ALBUMS_PER_COVER_SLIDE,
   album: 1,
   "ranked-album": 1,
   "album-pair": 2,
