@@ -1,4 +1,4 @@
-export const HIGHLIGHT_FONT_KEYS = ["playfair", "caveat", "marker", "bebas", "space-mono", "pacifico"] as const
+export const HIGHLIGHT_FONT_KEYS = ["playfair", "caveat", "marker", "bebas", "space-mono", "pacifico", "chewy"] as const
 export type HighlightFontKey = (typeof HIGHLIGHT_FONT_KEYS)[number]
 
 export const DEFAULT_HIGHLIGHT_FONT_KEY: HighlightFontKey = "playfair"
@@ -70,11 +70,31 @@ export const HIGHLIGHT_FONTS: Record<HighlightFontKey, HighlightFont> = {
     style: "normal",
     cssVariable: "--font-highlight-pacifico",
   },
+  chewy: {
+    label: "Chewy",
+    description: "Arredondada divertida",
+    exportFamily: "Highlight Chewy",
+    fileName: "chewy-latin-400-normal.woff",
+    weight: 400,
+    style: "normal",
+    cssVariable: "--font-highlight-chewy",
+  },
 }
 
 export function isHighlightFontKey(value: string): value is HighlightFontKey {
   return (HIGHLIGHT_FONT_KEYS as readonly string[]).includes(value)
 }
+
+// The slide's main text font: the Studio default (Geist) or any highlight font.
+export const DEFAULT_TEXT_FONT_KEY = "default"
+export const TEXT_FONT_KEYS = [DEFAULT_TEXT_FONT_KEY, ...HIGHLIGHT_FONT_KEYS] as const
+export type TextFontKey = (typeof TEXT_FONT_KEYS)[number]
+
+export function textFontLabel(textFontKey: TextFontKey): string {
+  return textFontKey === DEFAULT_TEXT_FONT_KEY ? "Padrão (Geist)" : HIGHLIGHT_FONTS[textFontKey].label
+}
+
+export type FontTarget = "preview" | "export"
 
 export type HighlightTypography = {
   fontFamily: string
@@ -82,7 +102,7 @@ export type HighlightTypography = {
   fontStyle: HighlightFont["style"]
 }
 
-export function buildHighlightTypography(fontKey: HighlightFontKey, target: "preview" | "export"): HighlightTypography {
+export function buildHighlightTypography(fontKey: HighlightFontKey, target: FontTarget): HighlightTypography {
   const font = HIGHLIGHT_FONTS[fontKey]
   return {
     fontFamily: target === "preview" ? `var(${font.cssVariable}), serif` : font.exportFamily,
@@ -91,12 +111,23 @@ export function buildHighlightTypography(fontKey: HighlightFontKey, target: "pre
   }
 }
 
-export type HeadlineSegment = { text: string; isHighlighted: boolean }
+export const DEFAULT_TEXT_FONT_FAMILY: Record<FontTarget, string> = {
+  preview: "var(--font-sans), sans-serif",
+  export: "Geist",
+}
 
-// "The worst song on every *Kanye* album" → the word between asterisks is
+export function resolveTextFontFamily(textFontKey: TextFontKey, target: FontTarget): string {
+  return textFontKey === DEFAULT_TEXT_FONT_KEY
+    ? DEFAULT_TEXT_FONT_FAMILY[target]
+    : buildHighlightTypography(textFontKey, target).fontFamily
+}
+
+export type HighlightedTextSegment = { text: string; isHighlighted: boolean }
+
+// "The worst song on every *Kanye* album" → the words between asterisks are
 // drawn with the highlight font. An unmatched asterisk stays as plain text.
-export function splitHighlightedHeadline(headline: string): HeadlineSegment[] {
-  return headline
+export function splitHighlightedText(text: string): HighlightedTextSegment[] {
+  return text
     .split(/(\*[^*\n]+\*)/)
     .filter((part) => part.length > 0)
     .map((part) =>

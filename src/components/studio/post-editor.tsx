@@ -53,6 +53,7 @@ import {
   findTextOverLimit,
   MAX_SLIDES_PER_POST,
   pickSlideElementToggles,
+  pickSlideFonts,
   SLIDE_LAYOUT_LABELS,
   SLIDE_LAYOUTS,
   type StudioSlide,
@@ -155,6 +156,7 @@ export function PostEditor({
       kickerStyle: selectedSlide.kickerStyle,
       albumCoverRadius: selectedSlide.albumCoverRadius,
       ...pickSlideElementToggles(selectedSlide),
+      ...pickSlideFonts(selectedSlide),
     })
     updateSlides((slides) => [...slides.slice(0, selectedSlideIndex + 1), newSlide, ...slides.slice(selectedSlideIndex + 1)])
     setSelectedSlideId(newSlide.id)
@@ -554,6 +556,7 @@ export function PostEditor({
             albums={albums}
             carouselAlbumCount={carouselAlbumIds.length}
             uploadedImages={uploadedImages}
+            studioHighlightFontKey={highlightFontKey}
             onChange={updateSelectedSlide}
             onImageUploaded={(image) => setUploadedImages((currentImages) => [image, ...currentImages])}
             onApplyToAllSlides={applyToAllSlides}

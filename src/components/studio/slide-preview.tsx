@@ -1,5 +1,5 @@
 import { SlideCanvas, type SlideCanvasAlbum } from "@/components/studio/slide-canvas"
-import { buildHighlightTypography, type HighlightFontKey } from "@/lib/studio/highlight-fonts"
+import type { HighlightFontKey } from "@/lib/studio/highlight-fonts"
 import { SLIDE_HEIGHT, SLIDE_WIDTH, studioImageUrl, type StudioSlide } from "@/lib/studio/slides"
 import { cn } from "@/lib/utils"
 
@@ -31,8 +31,8 @@ export function SlidePreview({ slide, albumsById, carouselAlbumIds, slideNumber,
           carouselAlbumIds={carouselAlbumIds}
           slideNumber={slideNumber}
           slideCount={slideCount}
-          fontFamily="var(--font-sans), sans-serif"
-          highlightTypography={buildHighlightTypography(highlightFontKey, "preview")}
+          fontTarget="preview"
+          defaultHighlightFontKey={highlightFontKey}
           backgroundImageSrc={slide.backgroundImage ? studioImageUrl(slide.backgroundImage.imageId) : null}
           blurredCoversSrc={null}
           backgroundEffectsMode="css"

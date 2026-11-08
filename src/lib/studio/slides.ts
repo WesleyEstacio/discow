@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { DEFAULT_TEXT_FONT_KEY, HIGHLIGHT_FONT_KEYS, TEXT_FONT_KEYS } from "@/lib/studio/highlight-fonts"
 
 export const SLIDE_WIDTH = 1080
 export const SLIDE_HEIGHT = 1350
@@ -155,13 +156,21 @@ export const KICKER_STYLE_LABELS: Record<KickerStyle, string> = {
 
 export const SLIDE_ELEMENT_TOGGLES = ["showProgress", "showCoverCredit", "showSwipeHint", "showBrandMark"] as const
 export type SlideElementToggle = (typeof SLIDE_ELEMENT_TOGGLES)[number]
-export function pickSlideElementToggles(slide: StudioSlide): Pick<StudioSlide, SlideElementToggle> {
+export function pickSlideElementToggles(
+  slide: StudioSlide
+): Pick<StudioSlide, SlideElementToggle | "progressAlignment" | "progressSize"> {
   return {
     showProgress: slide.showProgress,
     showCoverCredit: slide.showCoverCredit,
     showSwipeHint: slide.showSwipeHint,
     showBrandMark: slide.showBrandMark,
+    progressAlignment: slide.progressAlignment,
+    progressSize: slide.progressSize,
   }
+}
+
+export function pickSlideFonts(slide: StudioSlide): Pick<StudioSlide, "textFontKey" | "highlightFontKey"> {
+  return { textFontKey: slide.textFontKey, highlightFontKey: slide.highlightFontKey }
 }
 
 export const SLIDE_ELEMENT_TOGGLE_LABELS: Record<SlideElementToggle, string> = {
@@ -175,6 +184,19 @@ export const HEADLINE_SIZES = ["small", "medium", "large"] as const
 export type HeadlineSize = (typeof HEADLINE_SIZES)[number]
 export const HEADLINE_SIZE_LABELS: Record<HeadlineSize, string> = { small: "P", medium: "M", large: "G" }
 export const HEADLINE_SIZE_SCALE: Record<HeadlineSize, number> = { small: 0.82, medium: 1, large: 1.18 }
+
+export const PROGRESS_ALIGNMENTS = ["left", "center", "right"] as const
+export type ProgressAlignment = (typeof PROGRESS_ALIGNMENTS)[number]
+export const PROGRESS_ALIGNMENT_LABELS: Record<ProgressAlignment, string> = {
+  left: "Esquerda",
+  center: "Centro",
+  right: "Direita",
+}
+
+export const PROGRESS_SIZES = ["small", "medium", "large"] as const
+export type ProgressSize = (typeof PROGRESS_SIZES)[number]
+export const PROGRESS_SIZE_LABELS: Record<ProgressSize, string> = { small: "P", medium: "M", large: "G" }
+export const PROGRESS_SIZE_SCALE: Record<ProgressSize, number> = { small: 0.8, medium: 1, large: 1.45 }
 
 export const CONTENT_POSITIONS = ["auto", "top", "center", "bottom"] as const
 export type ContentPosition = (typeof CONTENT_POSITIONS)[number]
@@ -278,6 +300,10 @@ export const studioSlideSchema = z.object({
   showCoverCredit: z.boolean().default(true),
   showSwipeHint: z.boolean().default(true),
   showBrandMark: z.boolean().default(true),
+  progressAlignment: z.enum(PROGRESS_ALIGNMENTS).default("left"),
+  progressSize: z.enum(PROGRESS_SIZES).default("medium"),
+  textFontKey: z.enum(TEXT_FONT_KEYS).default(DEFAULT_TEXT_FONT_KEY),
+  highlightFontKey: z.enum(HIGHLIGHT_FONT_KEYS).nullable().default(null),
 })
 
 export type StudioSlide = z.infer<typeof studioSlideSchema>
@@ -324,6 +350,10 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     showCoverCredit: true,
     showSwipeHint: true,
     showBrandMark: true,
+    progressAlignment: "left",
+    progressSize: "medium",
+    textFontKey: DEFAULT_TEXT_FONT_KEY,
+    highlightFontKey: null,
     ...overrides,
   }
 }
