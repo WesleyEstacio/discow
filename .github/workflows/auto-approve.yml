@@ -22,3 +22,10 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Usa auto-merge (espera os checks obrigatórios) e, se o repo não permitir auto-merge, faz o merge direto.
+      - name: Fazer o merge da PR
+        run: gh pr merge "$PR_URL" --auto --merge || gh pr merge "$PR_URL" --merge
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
