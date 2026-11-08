@@ -798,7 +798,17 @@ function CoverArt({
   )
 }
 
-const COLLAGE_ROTATIONS = [-6, 4, -3, 7]
+const COLLAGE_ROTATIONS = [-6, 4, -3, 7, -5, 3]
+const COLLAGE_MAX_COVER_SIZE = 300
+const COLLAGE_OVERLAP_RATIO = 0.3
+const COLLAGE_AVAILABLE_WIDTH = CONTENT_WIDTH - 24
+
+function collageCoverSizeFor(albumCount: number) {
+  if (albumCount === 1) return 440
+  if (albumCount === 2) return 360
+  const visibleCoverWidths = albumCount - COLLAGE_OVERLAP_RATIO * (albumCount - 1)
+  return Math.min(COLLAGE_MAX_COVER_SIZE, Math.floor(COLLAGE_AVAILABLE_WIDTH / visibleCoverWidths))
+}
 
 type CoverBodyProps = SlideBodyProps & { composition: SlideComposition }
 
@@ -855,7 +865,7 @@ function CoverBody({ slide, slideAlbums, colors, isCentered, composition, highli
     }
     case "stack": {
       const coverSize = 400
-      const stepX = 120
+      const stepX = slideAlbums.length > 1 ? Math.min(120, Math.floor((CONTENT_WIDTH - coverSize) / (slideAlbums.length - 1))) : 0
       const stepY = 44
       const stackWidth = coverSize + stepX * (slideAlbums.length - 1)
       const stackHeight = coverSize + stepY * (slideAlbums.length - 1)
@@ -898,8 +908,8 @@ function CoverBody({ slide, slideAlbums, colors, isCentered, composition, highli
       )
     }
     default: {
-      const coverSize = slideAlbums.length === 1 ? 440 : slideAlbums.length === 2 ? 360 : 300
-      const overlap = slideAlbums.length > 2 ? 90 : 60
+      const coverSize = collageCoverSizeFor(slideAlbums.length)
+      const overlap = slideAlbums.length > 2 ? Math.round(coverSize * COLLAGE_OVERLAP_RATIO) : 60
       return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
           <div style={{ display: "flex", alignItems: "center", marginBottom: 72, paddingLeft: 12 }}>
