@@ -94,7 +94,7 @@ export const SLIDE_COMPOSITIONS_BY_LAYOUT = {
   "album-list": ["classic", "cards"],
   text: ["classic", "card", "accent-bar"],
   quote: ["classic", "card"],
-  cta: ["classic", "outline", "minimal"],
+  cta: ["classic", "outline", "minimal", "subtle", "checklist", "grid"],
 } as const satisfies Record<SlideLayout, readonly string[]>
 
 export type SlideComposition = (typeof SLIDE_COMPOSITIONS_BY_LAYOUT)[SlideLayout][number]
@@ -117,6 +117,9 @@ export const SLIDE_COMPOSITION_LABELS: Record<SlideComposition, string> = {
   "accent-bar": "Barra lateral",
   outline: "Contorno",
   minimal: "Minimalista",
+  subtle: "Discreta",
+  checklist: "Lista para completar",
+  grid: "Grade",
   diagonal: "Diagonal",
   mirrored: "Diagonal invertida",
   "from-to": "From → To",
@@ -215,6 +218,22 @@ export const COVER_ECHO_ANCHOR_LABELS: Record<CoverEchoAnchor, string> = {
   bottom: "Base",
 }
 
+export const COVER_GRID_TILTS = ["left", "none", "right", "split"] as const
+export type CoverGridTilt = (typeof COVER_GRID_TILTS)[number]
+export const COVER_GRID_TILT_LABELS: Record<CoverGridTilt, string> = {
+  left: "Esquerda",
+  none: "Reta",
+  right: "Direita",
+  split: "Para os lados",
+}
+
+export const CTA_RECAP_POSITIONS = ["above", "below"] as const
+export type CtaRecapPosition = (typeof CTA_RECAP_POSITIONS)[number]
+export const CTA_RECAP_POSITION_LABELS: Record<CtaRecapPosition, string> = {
+  above: "Acima do título",
+  below: "Abaixo do botão",
+}
+
 export const BACKGROUND_IMAGE_FILTERS = ["none", "mono", "sepia", "vivid", "faded", "dark"] as const
 export type BackgroundImageFilter = (typeof BACKGROUND_IMAGE_FILTERS)[number]
 export const BACKGROUND_IMAGE_FILTER_LABELS: Record<BackgroundImageFilter, string> = {
@@ -289,6 +308,10 @@ export const studioSlideSchema = z.object({
   backgroundStyle: z.enum(BACKGROUND_STYLES).default("glow"),
   secondaryBackgroundHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   coverEchoAnchor: z.enum(COVER_ECHO_ANCHORS).default("top"),
+  coverGridTilt: z.enum(COVER_GRID_TILTS).default("left"),
+  ctaRecapPosition: z.enum(CTA_RECAP_POSITIONS).default("above"),
+  ctaButtonHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
+  ctaEmptySlotHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   backgroundImage: slideBackgroundImageSchema.nullable().default(null),
   backgroundSeed: z.number().int().min(0).max(MAX_BACKGROUND_SEED).default(0),
   albumCoverRadius: z.number().int().min(0).max(MAX_ALBUM_COVER_RADIUS_PERCENT).default(0),
@@ -341,6 +364,10 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     backgroundStyle: "glow",
     secondaryBackgroundHex: null,
     coverEchoAnchor: "top",
+    coverGridTilt: "left",
+    ctaRecapPosition: "above",
+    ctaButtonHex: null,
+    ctaEmptySlotHex: null,
     backgroundImage: null,
     backgroundSeed: 0,
     albumCoverRadius: 0,

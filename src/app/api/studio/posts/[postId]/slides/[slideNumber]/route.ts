@@ -33,7 +33,8 @@ export async function GET(request: Request, context: RouteContext) {
 
   const slide = post.slides[slideIndex]!
   const carouselAlbumIds = collectCarouselAlbumIds(post.slides)
-  const albumIdsToLoad = slide.backgroundStyle === "blurred-covers" ? carouselAlbumIds : slide.albumIds
+  const needsCarouselAlbums = slide.backgroundStyle === "blurred-covers" || slide.layout === "cta"
+  const albumIdsToLoad = needsCarouselAlbums ? carouselAlbumIds : slide.albumIds
   const [albumsById, backgroundImagesBySlideId] = await Promise.all([
     getStudioAlbumsByIds(albumIdsToLoad).then(buildRenderableAlbums),
     buildRenderableBackgrounds([slide]),

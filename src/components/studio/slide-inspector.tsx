@@ -38,6 +38,10 @@ import {
   CONTENT_POSITION_LABELS,
   COVER_ECHO_ANCHOR_LABELS,
   COVER_ECHO_ANCHORS,
+  COVER_GRID_TILT_LABELS,
+  COVER_GRID_TILTS,
+  CTA_RECAP_POSITION_LABELS,
+  CTA_RECAP_POSITIONS,
   CONTENT_POSITIONS,
   HEADLINE_SIZE_LABELS,
   HEADLINE_SIZES,
@@ -142,6 +146,7 @@ export function SlideInspector({
   const currentAccentColor = currentColors.accent
   const availableCompositions: readonly SlideComposition[] = SLIDE_COMPOSITIONS_BY_LAYOUT[slide.layout]
   const usesGiantPairWords = slide.layout === "album-pair" && isTextDrivenComposition(resolveSlideComposition(slide))
+  const showsCtaCovers = slide.layout === "cta" && resolveSlideComposition(slide) !== "minimal"
   const pairLabelNoun = usesGiantPairWords ? "Palavra gigante" : "Rótulo"
 
   function changeLayout(nextLayout: SlideLayout) {
@@ -180,6 +185,31 @@ export function SlideInspector({
             value={resolveSlideComposition(slide)}
             onChange={(composition) => onChange({ composition })}
           />
+        ) : null}
+
+        {showsCtaCovers ? (
+          <OptionToggleField
+            label="Posição das capas"
+            options={CTA_RECAP_POSITIONS}
+            optionLabels={CTA_RECAP_POSITION_LABELS}
+            value={slide.ctaRecapPosition}
+            onChange={(ctaRecapPosition) => onChange({ ctaRecapPosition })}
+          />
+        ) : null}
+
+        {slide.layout === "cta" && resolveSlideComposition(slide) === "grid" ? (
+          <div className="flex flex-col gap-2">
+            <OptionToggleField
+              label="Inclinação da grade"
+              options={COVER_GRID_TILTS}
+              optionLabels={COVER_GRID_TILT_LABELS}
+              value={slide.coverGridTilt}
+              onChange={(coverGridTilt) => onChange({ coverGridTilt })}
+            />
+            <FieldDescription>
+              Mostra as capas dos álbuns do carrossel (até 6) e um espaço com “?”. Em “Para os lados”, as colunas da esquerda tombam para a esquerda e as da direita para a direita.
+            </FieldDescription>
+          </div>
         ) : null}
 
         <Field>
@@ -412,6 +442,32 @@ export function SlideInspector({
           resetLabel="Usar a cor automática"
           onChange={(customTextHex) => onChange({ customTextHex })}
         />
+
+        {slide.layout === "cta" ? (
+          <OverridableColorField
+            id="slide-cta-button-color"
+            label="Cor do botão do site"
+            color={slide.ctaButtonHex ?? currentColors.text}
+            fallbackColor="#f7f5fa"
+            isOverridden={slide.ctaButtonHex !== null}
+            automaticHint="Segue a cor do texto"
+            resetLabel="Seguir a cor do texto"
+            onChange={(ctaButtonHex) => onChange({ ctaButtonHex })}
+          />
+        ) : null}
+
+        {showsCtaCovers ? (
+          <OverridableColorField
+            id="slide-cta-empty-slot-color"
+            label="Cor do espaço vazio (+ / ?)"
+            color={slide.ctaEmptySlotHex ?? currentColors.text}
+            fallbackColor="#f7f5fa"
+            isOverridden={slide.ctaEmptySlotHex !== null}
+            automaticHint="Segue a cor do texto"
+            resetLabel="Seguir a cor do texto"
+            onChange={(ctaEmptySlotHex) => onChange({ ctaEmptySlotHex })}
+          />
+        ) : null}
 
         {usesGiantPairWords ? (
           <>
