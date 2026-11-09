@@ -299,6 +299,8 @@ export function applyVisualIdentity(
       contentPosition: "auto",
       accentHex: null,
       customTextHex: null,
+      firstPairWordHex: null,
+      secondPairWordHex: null,
       showProgress: identity.showProgress,
     }
   })

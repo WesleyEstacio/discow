@@ -391,47 +391,64 @@ export function SlideInspector({
           />
         ) : null}
 
-        <Field>
-          <FieldLabel htmlFor="slide-accent">Cor de destaque</FieldLabel>
-          <div className="flex items-center gap-2">
-            <input
-              id="slide-accent"
-              type="color"
-              value={currentAccentColor.startsWith("#") ? currentAccentColor : "#e879c9"}
-              onChange={(event) => onChange({ accentHex: event.target.value })}
-              className="h-8 w-10 cursor-pointer rounded-md border border-input bg-transparent p-0.5"
-            />
-            {slide.accentHex ? (
-              <Button variant="ghost" size="sm" onClick={() => onChange({ accentHex: null })}>
-                <RotateCcwIcon data-icon="inline-start" />
-                Usar a cor do tema
-              </Button>
-            ) : (
-              <span className="text-xs text-muted-foreground">Rótulo, números e detalhes</span>
-            )}
-          </div>
-        </Field>
+        <OverridableColorField
+          id="slide-accent"
+          label="Cor de destaque"
+          color={currentAccentColor}
+          fallbackColor="#e879c9"
+          isOverridden={slide.accentHex !== null}
+          automaticHint="Rótulo, números e detalhes"
+          resetLabel="Usar a cor do tema"
+          onChange={(accentHex) => onChange({ accentHex })}
+        />
 
-        <Field>
-          <FieldLabel htmlFor="slide-text-color">Cor do texto</FieldLabel>
-          <div className="flex items-center gap-2">
-            <input
-              id="slide-text-color"
-              type="color"
-              value={currentColors.text.startsWith("#") ? currentColors.text : "#f7f5fa"}
-              onChange={(event) => onChange({ customTextHex: event.target.value })}
-              className="h-8 w-10 cursor-pointer rounded-md border border-input bg-transparent p-0.5"
+        <OverridableColorField
+          id="slide-text-color"
+          label="Cor do texto"
+          color={currentColors.text}
+          fallbackColor="#f7f5fa"
+          isOverridden={slide.customTextHex !== null}
+          automaticHint="Automática, com contraste pelo fundo"
+          resetLabel="Usar a cor automática"
+          onChange={(customTextHex) => onChange({ customTextHex })}
+        />
+
+        {usesGiantPairWords ? (
+          <>
+            <OverridableColorField
+              id="slide-first-pair-word-color"
+              label="Cor da primeira palavra gigante"
+              color={slide.firstPairWordHex ?? currentColors.text}
+              fallbackColor="#f7f5fa"
+              isOverridden={slide.firstPairWordHex !== null}
+              automaticHint="Segue a cor do texto"
+              resetLabel="Seguir a cor do texto"
+              onChange={(firstPairWordHex) => onChange({ firstPairWordHex })}
             />
-            {slide.customTextHex ? (
-              <Button variant="ghost" size="sm" onClick={() => onChange({ customTextHex: null })}>
-                <RotateCcwIcon data-icon="inline-start" />
-                Usar a cor automática
-              </Button>
-            ) : (
-              <span className="text-xs text-muted-foreground">Automática, com contraste pelo fundo</span>
-            )}
-          </div>
-        </Field>
+
+            <OverridableColorField
+              id="slide-second-pair-word-color"
+              label="Cor da segunda palavra gigante"
+              color={slide.secondPairWordHex ?? currentAccentColor}
+              fallbackColor="#e879c9"
+              isOverridden={slide.secondPairWordHex !== null}
+              automaticHint="Segue a cor de destaque"
+              resetLabel="Seguir a cor de destaque"
+              onChange={(secondPairWordHex) => onChange({ secondPairWordHex })}
+            />
+
+            <Field orientation="horizontal">
+              <Checkbox
+                id="slide-pair-word-shadow"
+                checked={slide.showPairWordShadow}
+                onCheckedChange={(isChecked) => onChange({ showPairWordShadow: isChecked })}
+              />
+              <FieldLabel htmlFor="slide-pair-word-shadow" className="font-normal">
+                Brilho atrás das palavras gigantes
+              </FieldLabel>
+            </Field>
+          </>
+        ) : null}
 
         <OptionToggleField
           label="Estilo do título"
@@ -684,6 +701,49 @@ function SlideFontsField({
         <CopyCheckIcon data-icon="inline-start" />
         Usar estas fontes em todos os slides
       </Button>
+    </Field>
+  )
+}
+
+function OverridableColorField({
+  id,
+  label,
+  color,
+  fallbackColor,
+  isOverridden,
+  automaticHint,
+  resetLabel,
+  onChange,
+}: {
+  id: string
+  label: string
+  color: string
+  fallbackColor: string
+  isOverridden: boolean
+  automaticHint: string
+  resetLabel: string
+  onChange: (hexColor: string | null) => void
+}) {
+  return (
+    <Field>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <div className="flex items-center gap-2">
+        <input
+          id={id}
+          type="color"
+          value={color.startsWith("#") ? color : fallbackColor}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-8 w-10 cursor-pointer rounded-md border border-input bg-transparent p-0.5"
+        />
+        {isOverridden ? (
+          <Button variant="ghost" size="sm" onClick={() => onChange(null)}>
+            <RotateCcwIcon data-icon="inline-start" />
+            {resetLabel}
+          </Button>
+        ) : (
+          <span className="text-xs text-muted-foreground">{automaticHint}</span>
+        )}
+      </div>
     </Field>
   )
 }
