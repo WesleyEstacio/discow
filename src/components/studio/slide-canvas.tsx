@@ -1457,7 +1457,7 @@ function AlbumPairFromToRow({
           textTransform: "uppercase",
           whiteSpace: "nowrap",
           color: wordColor,
-          textShadow: `0 8px 40px ${hexToRgba(colors.background, 0.7)}`,
+          ...(slide.showPairWordShadow ? { textShadow: `0 8px 40px ${hexToRgba(colors.background, 0.7)}` } : {}),
         }}
       >
         {word}
@@ -1490,7 +1490,7 @@ function AlbumPairFromToBody({
         album={slideAlbums[0]}
         word={slide.kicker}
         wordFontFamily={typography.kicker}
-        wordColor={colors.text}
+        wordColor={slide.firstPairWordHex ?? colors.text}
         colors={colors}
         coverSize={coverSize}
         coverIsOnRight={firstCoverIsOnRight}
@@ -1501,7 +1501,7 @@ function AlbumPairFromToBody({
         album={slideAlbums[1]}
         word={slide.headline}
         wordFontFamily={typography.headline}
-        wordColor={colors.accent}
+        wordColor={slide.secondPairWordHex ?? colors.accent}
         colors={colors}
         coverSize={coverSize}
         coverIsOnRight={!firstCoverIsOnRight}
