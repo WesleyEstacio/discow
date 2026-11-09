@@ -13,12 +13,15 @@ import {
   HEADLINE_SIZE_SCALE,
   hexToRgba,
   PROGRESS_SIZE_SCALE,
+  readableTextColorFor,
   resolveSecondaryBackgroundColor,
   resolveSlideColors,
   resolveSlideComposition,
   SLIDE_HEIGHT,
   SLIDE_WIDTH,
   type ContentPosition,
+  type CoverGridTilt,
+  type CtaRecapPosition,
   type SlideBackgroundImage,
   type SlideColors,
   type SlideComposition,
@@ -132,6 +135,10 @@ export function SlideCanvas({
   const isCentered = slide.textAlign === "center"
   const contentPosition = resolveContentPosition(slide)
   const footerNote = buildFooterNote(slide, slideAlbums, slideNumber, slideCount)
+  const carouselAlbums = carouselAlbumIds.flatMap((albumId) => {
+    const album = albumsById[albumId]
+    return album ? [album] : []
+  })
 
   return (
     <div
@@ -212,7 +219,14 @@ export function SlideCanvas({
             textAlign: isCentered ? "center" : "left",
           }}
         >
-          <SlideBody slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} typography={typography} />
+          <SlideBody
+            slide={slide}
+            slideAlbums={slideAlbums}
+            carouselAlbums={carouselAlbums}
+            colors={colors}
+            isCentered={isCentered}
+            typography={typography}
+          />
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", fontFamily: typography.footer }}>
@@ -648,6 +662,7 @@ function SlideProgress({
 type SlideBodyProps = {
   slide: StudioSlide
   slideAlbums: (SlideCanvasAlbum | undefined)[]
+  carouselAlbums: SlideCanvasAlbum[]
   colors: SlideColors
   isCentered: boolean
   typography: SlideTypography
@@ -801,7 +816,7 @@ function SourceNote({ slide, colors }: { slide: StudioSlide; colors: SlideColors
   )
 }
 
-function SlideBody({ slide, slideAlbums, colors, isCentered, typography }: SlideBodyProps) {
+function SlideBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, typography }: SlideBodyProps) {
   const composition = resolveSlideComposition(slide)
 
   switch (slide.layout) {
@@ -845,7 +860,16 @@ function SlideBody({ slide, slideAlbums, colors, isCentered, typography }: Slide
         </TextFrame>
       )
     case "cta":
-      return <CtaBody slide={slide} colors={colors} isCentered={isCentered} composition={composition} typography={typography} />
+      return (
+        <CtaBody
+          slide={slide}
+          carouselAlbums={carouselAlbums}
+          colors={colors}
+          isCentered={isCentered}
+          composition={composition}
+          typography={typography}
+        />
+      )
   }
 }
 
@@ -884,36 +908,326 @@ function TextFrame({
   return <div style={columnStyle}>{children}</div>
 }
 
+const CTA_RECAP_MAX_ALBUMS = 3
+
+function pickRecapAlbums(carouselAlbums: SlideCanvasAlbum[], maxAlbums: number): SlideCanvasAlbum[] {
+  return carouselAlbums.filter((album) => album.coverImageUrl).slice(0, maxAlbums)
+}
+
+// The empty spot in the list the reader is invited to fill.
+function CtaEmptySlot({
+  size,
+  symbol,
+  color,
+  backdropColor,
+  cornerRadiusPercent,
+  style,
+}: {
+  size: number
+  symbol: "+" | "?"
+  color: string
+  backdropColor: string
+  cornerRadiusPercent: number
+  style?: CSSProperties
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: size,
+        height: size,
+        flexShrink: 0,
+        borderRadius: Math.round((size * cornerRadiusPercent) / 100),
+        border: `4px solid ${hexToRgba(color, 0.55)}`,
+        backgroundColor: hexToRgba(backdropColor, 0.55),
+        boxShadow: COVER_SHADOW,
+        color,
+        fontSize: Math.round(size * 0.56),
+        fontWeight: 400,
+        lineHeight: 1,
+        ...style,
+      }}
+    >
+      {symbol}
+    </div>
+  )
+}
+
+type CtaRecapProps = { albums: SlideCanvasAlbum[]; colors: SlideColors; emptySlotColor: string; cornerRadiusPercent: number }
+
+const CTA_FAN_COVER_SIZE = 210
+const CTA_FAN_COVER_OVERLAP = 70
+const CTA_FAN_ROTATIONS = [-10, -3, 5]
+const CTA_FAN_EMPTY_SLOT_ROTATION = 9
+
+function CtaCoverFan({ albums, colors, emptySlotColor, cornerRadiusPercent }: CtaRecapProps) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", paddingLeft: CTA_FAN_COVER_OVERLAP }}>
+      {albums.map((album, index) => (
+        <CoverArt
+          key={album.id}
+          album={album}
+          size={CTA_FAN_COVER_SIZE}
+          colors={colors}
+          cornerRadiusPercent={cornerRadiusPercent}
+          style={{ marginLeft: -CTA_FAN_COVER_OVERLAP, transform: `rotate(${CTA_FAN_ROTATIONS[index] ?? 0}deg)` }}
+        />
+      ))}
+      <CtaEmptySlot
+        size={CTA_FAN_COVER_SIZE}
+        symbol="+"
+        color={emptySlotColor}
+        backdropColor={colors.background}
+        cornerRadiusPercent={cornerRadiusPercent}
+        style={{ marginLeft: -CTA_FAN_COVER_OVERLAP / 2, transform: `rotate(${CTA_FAN_EMPTY_SLOT_ROTATION}deg)` }}
+      />
+    </div>
+  )
+}
+
+const CTA_CHECKLIST_WIDTH = 720
+const CTA_CHECKLIST_POSITION_WIDTH = 64
+const CTA_CHECKLIST_COVER_SIZE = 88
+const CTA_CHECKLIST_COVER_TO_TEXT_GAP = 28
+const CTA_CHECKLIST_ROW_GAP = 18
+const CTA_CHECKLIST_BLANK_LINE_WIDTH = 320
+
+function CtaChecklistRow({ position, colors, children }: { position: number; colors: SlideColors; children: ReactNode }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", marginTop: position === 1 ? 0 : CTA_CHECKLIST_ROW_GAP }}>
+      <div style={{ display: "flex", width: CTA_CHECKLIST_POSITION_WIDTH, fontSize: 26, fontWeight: 700, letterSpacing: 1, color: colors.mutedText }}>
+        {formatSlideNumber(position)}
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function CtaAlbumChecklist({ albums, colors, emptySlotColor, cornerRadiusPercent }: CtaRecapProps) {
+  const textWidth = CTA_CHECKLIST_WIDTH - CTA_CHECKLIST_POSITION_WIDTH - CTA_CHECKLIST_COVER_SIZE - CTA_CHECKLIST_COVER_TO_TEXT_GAP
+  const singleLine: CSSProperties = { display: "block", width: textWidth, lineClamp: 1 }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", width: CTA_CHECKLIST_WIDTH, textAlign: "left" }}>
+      {albums.map((album, index) => (
+        <CtaChecklistRow key={album.id} position={index + 1} colors={colors}>
+          <CoverArt album={album} size={CTA_CHECKLIST_COVER_SIZE} colors={colors} cornerRadiusPercent={cornerRadiusPercent} />
+          <div style={{ display: "flex", flexDirection: "column", marginLeft: CTA_CHECKLIST_COVER_TO_TEXT_GAP }}>
+            <div style={{ ...singleLine, fontSize: 34, fontWeight: 700, lineHeight: 1.15 }}>{album.title}</div>
+            <div style={{ ...singleLine, fontSize: 26, lineHeight: 1.3, marginTop: 4, color: colors.mutedText }}>{album.artistNames.join(", ")}</div>
+          </div>
+        </CtaChecklistRow>
+      ))}
+      <CtaChecklistRow position={albums.length + 1} colors={colors}>
+        <CtaEmptySlot size={CTA_CHECKLIST_COVER_SIZE} symbol="+" color={emptySlotColor} backdropColor={colors.background} cornerRadiusPercent={cornerRadiusPercent} />
+        <div
+          style={{
+            display: "flex",
+            width: CTA_CHECKLIST_BLANK_LINE_WIDTH,
+            height: 4,
+            marginLeft: CTA_CHECKLIST_COVER_TO_TEXT_GAP,
+            borderRadius: 2,
+            backgroundColor: hexToRgba(colors.text, 0.45),
+          }}
+        />
+      </CtaChecklistRow>
+    </div>
+  )
+}
+
+const CTA_GRID_MAX_TILE_SIZE = 190
+const CTA_GRID_GAP = 18
+const CTA_GRID_ROTATION_ROOM = 80
+const CTA_GRID_WHOLE_ROTATION = 4
+const CTA_GRID_SPLIT_ROTATION = 6
+const CTA_GRID_SPLIT_EXTRA_GAP = 28
+
+function gridColumnCountFor(tileCount: number): number {
+  if (tileCount <= 4) return 2
+  if (tileCount <= 6) return 3
+  return 4
+}
+
+function wholeGridRotation(tilt: CoverGridTilt): number {
+  switch (tilt) {
+    case "left":
+      return -CTA_GRID_WHOLE_ROTATION
+    case "right":
+      return CTA_GRID_WHOLE_ROTATION
+    case "none":
+    case "split":
+      return 0
+  }
+}
+
+// "split" leans the left half of the columns to the left and the right half
+// to the right; with an odd count the middle column stays straight.
+function splitColumnRotation(columnIndex: number, columnCount: number): number {
+  const middleColumnIndex = (columnCount - 1) / 2
+  if (columnIndex < middleColumnIndex) return -CTA_GRID_SPLIT_ROTATION
+  if (columnIndex > middleColumnIndex) return CTA_GRID_SPLIT_ROTATION
+  return 0
+}
+
+function CtaCoverGrid({ albums, colors, emptySlotColor, cornerRadiusPercent, tilt }: CtaRecapProps & { tilt: CoverGridTilt }) {
+  const tileCount = albums.length + 1
+  const columnCount = gridColumnCountFor(tileCount)
+  const isSplit = tilt === "split"
+  const totalGapWidth = CTA_GRID_GAP * (columnCount - 1) + (isSplit ? CTA_GRID_SPLIT_EXTRA_GAP : 0)
+  const tileSize = Math.min(CTA_GRID_MAX_TILE_SIZE, Math.floor((CONTENT_WIDTH - CTA_GRID_ROTATION_ROOM - totalGapWidth) / columnCount))
+  const firstRightColumnIndex = Math.ceil(columnCount / 2)
+
+  const tiles = [
+    ...albums.map((album) => (
+      <CoverArt key={album.id} album={album} size={tileSize} colors={colors} cornerRadiusPercent={cornerRadiusPercent} />
+    )),
+    <CtaEmptySlot key="empty-slot" size={tileSize} symbol="?" color={emptySlotColor} backdropColor={colors.background} cornerRadiusPercent={cornerRadiusPercent} />,
+  ]
+  const tilesByColumn = Array.from({ length: columnCount }, (_, columnIndex) =>
+    tiles.filter((_, tileIndex) => tileIndex % columnCount === columnIndex)
+  )
+
+  return (
+    <div style={{ display: "flex", alignItems: "flex-start", transform: `rotate(${wholeGridRotation(tilt)}deg)` }}>
+      {tilesByColumn.map((columnTiles, columnIndex) => (
+        <div
+          key={columnIndex}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: CTA_GRID_GAP,
+            marginLeft: columnIndex === 0 ? 0 : CTA_GRID_GAP + (isSplit && columnIndex === firstRightColumnIndex ? CTA_GRID_SPLIT_EXTRA_GAP : 0),
+            transform: `rotate(${isSplit ? splitColumnRotation(columnIndex, columnCount) : 0}deg)`,
+          }}
+        >
+          {columnTiles}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const CTA_STRIP_COVER_SIZE = 96
+const CTA_STRIP_COVER_OVERLAP = 22
+
+// A small row of overlapping covers, like a stack of avatars, ending in "+".
+function CtaCoverStrip({ albums, colors, emptySlotColor, cornerRadiusPercent }: CtaRecapProps) {
+  const ringStyle: CSSProperties = { border: `4px solid ${colors.background}`, boxShadow: "0 10px 24px rgba(0, 0, 0, 0.3)" }
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      {albums.map((album, index) => (
+        <CoverArt
+          key={album.id}
+          album={album}
+          size={CTA_STRIP_COVER_SIZE}
+          colors={colors}
+          cornerRadiusPercent={cornerRadiusPercent}
+          style={{ ...ringStyle, marginLeft: index === 0 ? 0 : -CTA_STRIP_COVER_OVERLAP }}
+        />
+      ))}
+      <CtaEmptySlot
+        size={CTA_STRIP_COVER_SIZE}
+        symbol="+"
+        color={emptySlotColor}
+        backdropColor={colors.background}
+        cornerRadiusPercent={cornerRadiusPercent}
+        style={{ ...ringStyle, marginLeft: -CTA_STRIP_COVER_OVERLAP, backgroundColor: emptySlotColor, color: readableTextColorFor(emptySlotColor) }}
+      />
+    </div>
+  )
+}
+
+const CTA_MAX_ALBUMS_BY_COMPOSITION: Partial<Record<SlideComposition, number>> = { grid: 6, subtle: 5 }
+
+function maxRecapAlbumsFor(composition: SlideComposition): number {
+  return CTA_MAX_ALBUMS_BY_COMPOSITION[composition] ?? CTA_RECAP_MAX_ALBUMS
+}
+
+function CtaRecapArrangement({ composition, gridTilt, ...recapProps }: CtaRecapProps & { composition: SlideComposition; gridTilt: CoverGridTilt }) {
+  switch (composition) {
+    case "checklist":
+      return <CtaAlbumChecklist {...recapProps} />
+    case "grid":
+      return <CtaCoverGrid {...recapProps} tilt={gridTilt} />
+    case "subtle":
+      return <CtaCoverStrip {...recapProps} />
+    default:
+      return <CtaCoverFan {...recapProps} />
+  }
+}
+
+const CTA_RECAP_DEFAULT_SPACING = 72
+const CTA_RECAP_SPACING_BY_COMPOSITION: Partial<Record<SlideComposition, number>> = { classic: 76, checklist: 64, subtle: 56 }
+
+function CtaRecap({
+  composition,
+  position,
+  ...arrangementProps
+}: CtaRecapProps & { composition: SlideComposition; gridTilt: CoverGridTilt; position: CtaRecapPosition }) {
+  if (composition === "minimal" || !arrangementProps.albums.length) return null
+  const spacing = CTA_RECAP_SPACING_BY_COMPOSITION[composition] ?? CTA_RECAP_DEFAULT_SPACING
+  return (
+    <div style={{ display: "flex", ...(position === "above" ? { marginBottom: spacing } : { marginTop: spacing }) }}>
+      <CtaRecapArrangement composition={composition} {...arrangementProps} />
+    </div>
+  )
+}
+
+const CTA_COMPACT_HEADLINE_COMPOSITIONS: readonly SlideComposition[] = ["checklist", "grid"]
+
 function CtaBody({
   slide,
+  carouselAlbums,
   colors,
   isCentered,
   composition,
   typography,
 }: {
   slide: StudioSlide
+  carouselAlbums: SlideCanvasAlbum[]
   colors: SlideColors
   isCentered: boolean
   composition: SlideComposition
   typography: SlideTypography
 }) {
+  const buttonColor = slide.ctaButtonHex ?? colors.text
+  const filledButtonTextColor = slide.ctaButtonHex ? readableTextColorFor(slide.ctaButtonHex) : colors.background
   const websiteStyles: Record<"classic" | "outline" | "minimal", CSSProperties> = {
-    classic: { padding: "20px 44px", borderRadius: 999, backgroundColor: colors.text, color: colors.background },
-    outline: { padding: "18px 42px", borderRadius: 999, border: `3px solid ${colors.text}`, color: colors.text },
-    minimal: { paddingBottom: 6, borderBottom: `4px solid ${colors.accent}`, color: colors.text },
+    classic: { padding: "22px 46px", borderRadius: 999, backgroundColor: buttonColor, color: filledButtonTextColor, boxShadow: COVER_SHADOW },
+    outline: { padding: "20px 44px", borderRadius: 999, border: `3px solid ${buttonColor}`, color: buttonColor },
+    minimal: { paddingBottom: 6, borderBottom: `4px solid ${slide.ctaButtonHex ?? colors.accent}`, color: colors.text },
   }
   const websiteStyle = composition === "outline" || composition === "minimal" ? websiteStyles[composition] : websiteStyles.classic
+  const headlineBaseSize = CTA_COMPACT_HEADLINE_COMPOSITIONS.includes(composition) ? 80 : 92
+  const recap = (
+    <CtaRecap
+      composition={composition}
+      position={slide.ctaRecapPosition}
+      gridTilt={slide.coverGridTilt}
+      albums={pickRecapAlbums(carouselAlbums, maxRecapAlbumsFor(composition))}
+      colors={colors}
+      emptySlotColor={slide.ctaEmptySlotHex ?? colors.text}
+      cornerRadiusPercent={slide.albumCoverRadius}
+    />
+  )
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start" }}>
-      <Headline slide={slide} typography={typography} baseSize={92} lineHeight={1.04}>{slide.headline}</Headline>
+      {slide.ctaRecapPosition === "above" ? recap : null}
+      <Headline slide={slide} typography={typography} baseSize={headlineBaseSize} lineHeight={1.04}>{slide.headline}</Headline>
       <BodyText
         text={slide.body}
         typography={typography}
         alignment={slide.textAlign}
-        style={{ fontSize: 36, lineHeight: 1.35, marginTop: 40, color: colors.mutedText }}
+        style={{ fontSize: 36, lineHeight: 1.35, marginTop: 36, color: colors.mutedText }}
       />
-      <div style={{ display: "flex", alignItems: "center", marginTop: 64, fontSize: 30, fontWeight: 700, ...websiteStyle }}>discows.com</div>
+      <div style={{ display: "flex", alignItems: "center", marginTop: 60, fontSize: 30, fontWeight: 700, ...websiteStyle }}>
+        <span>discows.com</span>
+        <span style={{ marginLeft: 14 }}>→</span>
+      </div>
+      {slide.ctaRecapPosition === "below" ? recap : null}
     </div>
   )
 }
@@ -980,7 +1294,7 @@ function collageCoverSizeFor(albumCount: number) {
   return Math.min(COLLAGE_MAX_COVER_SIZE, Math.floor(COLLAGE_AVAILABLE_WIDTH / visibleCoverWidths))
 }
 
-type CoverBodyProps = SlideBodyProps & { composition: SlideComposition }
+type CoverBodyProps = Omit<SlideBodyProps, "carouselAlbums"> & { composition: SlideComposition }
 
 function CoverBody({ slide, slideAlbums, colors, isCentered, composition, typography }: CoverBodyProps) {
   const columnAlignment = isCentered ? "center" : "flex-start"
