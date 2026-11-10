@@ -888,7 +888,17 @@ function SlideBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, typ
     case "album-pair":
       return <AlbumPairBody slide={slide} slideAlbums={slideAlbums} colors={colors} composition={composition} typography={typography} />
     case "album-grid":
-      return <AlbumGridBody slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} composition={composition} typography={typography} />
+      return (
+        <AlbumGridBody
+          slide={slide}
+          slideAlbums={slideAlbums}
+          carouselAlbums={carouselAlbums}
+          colors={colors}
+          isCentered={isCentered}
+          composition={composition}
+          typography={typography}
+        />
+      )
     case "album-list":
       return <AlbumListBody slide={slide} slideAlbums={slideAlbums} colors={colors} composition={composition} typography={typography} />
     case "text":
@@ -1298,12 +1308,14 @@ function CoverArt({
   size,
   colors,
   cornerRadiusPercent,
+  hasShadow = true,
   style,
 }: {
   album: SlideCanvasAlbum | undefined
   size: number
   colors: SlideColors
   cornerRadiusPercent: number
+  hasShadow?: boolean
   style?: CSSProperties
 }) {
   const borderRadius = Math.round((size * cornerRadiusPercent) / 100)
@@ -1331,6 +1343,8 @@ function CoverArt({
   }
 
   // Covers are shown whole and untouched: no cropping, overlays or filters.
+  // A shadow is left out instead of set to "none": Satori paints
+  // boxShadow "none" on an image as a black square at the slide origin.
   return (
     // eslint-disable-next-line @next/next/no-img-element -- Satori and the live preview both need a plain <img>
     <img
@@ -1338,7 +1352,7 @@ function CoverArt({
       width={size}
       height={size}
       alt={`Capa de ${album.title}`}
-      style={{ width: size, height: size, flexShrink: 0, objectFit: "contain", boxShadow: COVER_SHADOW, borderRadius, ...style }}
+      style={{ width: size, height: size, flexShrink: 0, objectFit: "contain", ...(hasShadow ? { boxShadow: COVER_SHADOW } : {}), borderRadius, ...style }}
     />
   )
 }
@@ -1391,6 +1405,24 @@ function CoverBody({ slide, slideAlbums, colors, isCentered, composition, typogr
   }
 
   switch (composition) {
+    case "fan-deck":
+      return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
+          <Headline slide={slide} typography={typography} baseSize={132} lineHeight={0.98}>{slide.headline}</Headline>
+          {slide.customBackgroundHex ? (
+            <div style={{ display: "flex", fontSize: 32, fontWeight: 700, letterSpacing: 6, marginTop: 20, color: colors.mutedText }}>
+              {slide.customBackgroundHex.toUpperCase()}
+            </div>
+          ) : null}
+          <BodyText
+            text={slide.body}
+            typography={typography}
+            alignment={slide.textAlign}
+            style={{ fontSize: 34, lineHeight: 1.3, marginTop: 20, color: colors.mutedText }}
+          />
+          <PaintChipFanDeck albums={slideAlbums} swatchColor={colors.background} cornerRadiusPercent={radius} />
+        </div>
+      )
     case "spotlight":
       return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
@@ -1404,7 +1436,7 @@ function CoverBody({ slide, slideAlbums, colors, isCentered, composition, typogr
         <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
           <div style={{ display: "flex", marginBottom: 64 }}>
             {slideAlbums.map((album, index) => (
-              <CoverArt key={album?.id ?? index} album={album} size={tileSize} colors={colors} cornerRadiusPercent={radius} style={{ boxShadow: "none" }} />
+              <CoverArt key={album?.id ?? index} album={album} size={tileSize} colors={colors} cornerRadiusPercent={radius} hasShadow={false} />
             ))}
           </div>
           {coverText(100)}
@@ -1480,6 +1512,247 @@ function CoverBody({ slide, slideAlbums, colors, isCentered, composition, typogr
       )
     }
   }
+}
+
+const PAINT_CHIP_CARD_COLORS = { background: "#ffffff", text: "#17121b", mutedText: "#6e6573" }
+const PAINT_CHIP_SHADOW = "0 18px 40px rgba(0, 0, 0, 0.24)"
+
+function formatChipNumber(position: number): string {
+  return `Nº ${String(position).padStart(2, "0")}`
+}
+
+function PaintChipLabel({
+  album,
+  position,
+  titleFontSize,
+  width,
+}: {
+  album: SlideCanvasAlbum | undefined
+  position: number
+  titleFontSize: number
+  width: number
+}) {
+  const singleLine: CSSProperties = { display: "flex", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", width }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", width, color: PAINT_CHIP_CARD_COLORS.text, textAlign: "left" }}>
+      <div style={{ ...singleLine, fontSize: titleFontSize, fontWeight: 700, lineHeight: 1.2 }}>{album?.title ?? "Álbum removido"}</div>
+      <div style={{ ...singleLine, fontSize: Math.round(titleFontSize * 0.8), lineHeight: 1.3, marginTop: 4, color: PAINT_CHIP_CARD_COLORS.mutedText }}>
+        {album ? album.artistNames.join(", ") : ""}
+      </div>
+      <div style={{ display: "flex", fontSize: Math.round(titleFontSize * 0.68), fontWeight: 700, letterSpacing: 2, marginTop: 10, color: PAINT_CHIP_CARD_COLORS.mutedText }}>
+        {formatChipNumber(position)}
+      </div>
+    </div>
+  )
+}
+
+const FAN_CHIP_PADDING = 14
+const FAN_CHIP_COVER_SIZE = 240
+const FAN_CHIP_WIDTH = FAN_CHIP_COVER_SIZE + FAN_CHIP_PADDING * 2
+const FAN_CHIP_END_RADIUS = FAN_CHIP_WIDTH / 2
+const FAN_CHIP_LABEL_HEIGHT = 96
+const FAN_RIVET_DEPTH_IN_SWATCH = 44
+const FAN_CHIP_HANDLE_HEIGHT = FAN_CHIP_END_RADIUS + FAN_RIVET_DEPTH_IN_SWATCH
+const FAN_CHIP_HEIGHT = FAN_CHIP_PADDING + FAN_CHIP_COVER_SIZE + FAN_CHIP_LABEL_HEIGHT + FAN_CHIP_HANDLE_HEIGHT
+const FAN_PIVOT_TO_CHIP_CENTER = FAN_CHIP_HEIGHT / 2 - FAN_CHIP_END_RADIUS
+const FAN_PIVOT_TO_COVER_CENTER = FAN_CHIP_HEIGHT - FAN_CHIP_END_RADIUS - FAN_CHIP_PADDING - FAN_CHIP_COVER_SIZE / 2
+const FAN_MAX_SPREAD_DEGREES = 108
+const FAN_MAX_ANGLE_STEP_DEGREES = 27
+const FAN_RIVET_SIZE = 30
+const FAN_CHIP_EDGE_WIDTH = 2
+const FAN_CHIP_EDGE_COLOR = "rgba(23, 18, 27, 0.16)"
+
+function fanChipAngles(chipCount: number): number[] {
+  const angleStep = chipCount > 1 ? Math.min(FAN_MAX_ANGLE_STEP_DEGREES, FAN_MAX_SPREAD_DEGREES / (chipCount - 1)) : 0
+  const middleIndex = (chipCount - 1) / 2
+  return Array.from({ length: chipCount }, (_, index) => (index - middleIndex) * angleStep)
+}
+
+function rotatePoint(x: number, y: number, angleRadians: number) {
+  return {
+    x: x * Math.cos(angleRadians) - y * Math.sin(angleRadians),
+    y: x * Math.sin(angleRadians) + y * Math.cos(angleRadians),
+  }
+}
+
+function highestPointOfRotatedChip(chipCenterY: number, angleRadians: number): number {
+  const cornerHeights = [-1, 1].map(
+    (horizontalSide) => chipCenterY + rotatePoint((horizontalSide * FAN_CHIP_WIDTH) / 2, -FAN_CHIP_HEIGHT / 2, angleRadians).y
+  )
+  return Math.min(...cornerHeights)
+}
+
+// Chips pivot around one rivet, like a paint fan deck. Each chip ends in a
+// half circle centered on the rivet, so all their ends merge into one disc.
+// Positions are computed by hand instead of transform-origin, and each cover
+// gets its own rotation: Satori neither rotates an <img> inside a rotated
+// parent nor draws box-shadows on rotated boxes correctly.
+function PaintChipFanDeck({
+  albums,
+  swatchColor,
+  cornerRadiusPercent,
+}: {
+  albums: (SlideCanvasAlbum | undefined)[]
+  swatchColor: string
+  cornerRadiusPercent: number
+}) {
+  const chipsAroundPivot = fanChipAngles(albums.length).map((angleDegrees, index) => {
+    const angleRadians = (angleDegrees * Math.PI) / 180
+    const chipCenter = rotatePoint(0, -FAN_PIVOT_TO_CHIP_CENTER, angleRadians)
+    return {
+      album: albums[index],
+      position: index + 1,
+      angleDegrees,
+      chipCenter,
+      coverCenter: rotatePoint(0, -FAN_PIVOT_TO_COVER_CENTER, angleRadians),
+      highestPoint: highestPointOfRotatedChip(chipCenter.y, angleRadians),
+    }
+  })
+  const pivotX = CONTENT_WIDTH / 2
+  const pivotY = -Math.min(...chipsAroundPivot.map((chip) => chip.highestPoint))
+  const fanHeight = Math.ceil(pivotY + FAN_CHIP_END_RADIUS)
+  const chipsFromOutsideIn = [...chipsAroundPivot].sort((first, second) => Math.abs(second.angleDegrees) - Math.abs(first.angleDegrees))
+  const frontChipPosition = chipsFromOutsideIn.at(-1)?.position
+  const handleSwatchColor = readableTextColorFor(swatchColor) === "#17121b" ? mixTowardInk(swatchColor) : swatchColor
+  const swatchEndRadius = FAN_CHIP_END_RADIUS - FAN_CHIP_PADDING
+
+  return (
+    <div style={{ display: "flex", position: "relative", width: CONTENT_WIDTH, height: fanHeight, marginTop: 64 }}>
+      {chipsFromOutsideIn.flatMap(({ album, position, angleDegrees, chipCenter, coverCenter }) => [
+        <div
+          key={`chip-${position}`}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            position: "absolute",
+            left: pivotX + chipCenter.x - FAN_CHIP_WIDTH / 2,
+            top: pivotY + chipCenter.y - FAN_CHIP_HEIGHT / 2,
+            width: FAN_CHIP_WIDTH,
+            height: FAN_CHIP_HEIGHT,
+            boxSizing: "border-box",
+            padding: FAN_CHIP_PADDING - FAN_CHIP_EDGE_WIDTH,
+            border: `${FAN_CHIP_EDGE_WIDTH}px solid ${FAN_CHIP_EDGE_COLOR}`,
+            borderBottomLeftRadius: FAN_CHIP_END_RADIUS,
+            borderBottomRightRadius: FAN_CHIP_END_RADIUS,
+            backgroundColor: PAINT_CHIP_CARD_COLORS.background,
+            transform: `rotate(${angleDegrees}deg)`,
+          }}
+        >
+          <div style={{ display: "flex", width: FAN_CHIP_COVER_SIZE, height: FAN_CHIP_COVER_SIZE, flexShrink: 0 }} />
+          <div style={{ display: "flex", height: FAN_CHIP_LABEL_HEIGHT, paddingTop: 14, flexShrink: 0 }}>
+            {position === frontChipPosition ? (
+              <PaintChipLabel album={album} position={position} titleFontSize={24} width={FAN_CHIP_COVER_SIZE} />
+            ) : null}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexGrow: 1,
+              width: FAN_CHIP_COVER_SIZE,
+              backgroundColor: handleSwatchColor,
+              borderBottomLeftRadius: swatchEndRadius,
+              borderBottomRightRadius: swatchEndRadius,
+            }}
+          />
+        </div>,
+        <CoverArt
+          key={`cover-${position}`}
+          album={album}
+          size={FAN_CHIP_COVER_SIZE}
+          colors={PAINT_CHIP_CARD_COLORS_AS_SLIDE}
+          cornerRadiusPercent={cornerRadiusPercent}
+          hasShadow={false}
+          style={{
+            position: "absolute",
+            left: pivotX + coverCenter.x - FAN_CHIP_COVER_SIZE / 2,
+            top: pivotY + coverCenter.y - FAN_CHIP_COVER_SIZE / 2,
+            transform: `rotate(${angleDegrees}deg)`,
+          }}
+        />,
+      ])}
+      <div
+        style={{
+          display: "flex",
+          position: "absolute",
+          left: pivotX - FAN_RIVET_SIZE / 2,
+          top: pivotY - FAN_RIVET_SIZE / 2,
+          width: FAN_RIVET_SIZE,
+          height: FAN_RIVET_SIZE,
+          borderRadius: FAN_RIVET_SIZE / 2,
+          backgroundColor: PAINT_CHIP_CARD_COLORS.text,
+          border: `7px solid ${PAINT_CHIP_CARD_COLORS.background}`,
+        }}
+      />
+    </div>
+  )
+}
+
+const PAINT_CHIP_CARD_COLORS_AS_SLIDE: SlideColors = { ...PAINT_CHIP_CARD_COLORS, accent: PAINT_CHIP_CARD_COLORS.text }
+
+// A light swatch on its own light slide would vanish inside the white chip,
+// so the handle darkens it a little to stay visible.
+function mixTowardInk(hexColor: string): string {
+  const darkenChannel = (channelStart: number) =>
+    Math.round(parseInt(hexColor.slice(channelStart, channelStart + 2), 16) * 0.82)
+      .toString(16)
+      .padStart(2, "0")
+  return `#${darkenChannel(1)}${darkenChannel(3)}${darkenChannel(5)}`
+}
+
+const SWATCH_CARD_PADDING = 16
+
+function SwatchCardGrid({
+  slideAlbums,
+  carouselAlbums,
+  cornerRadiusPercent,
+  isCentered,
+}: {
+  slideAlbums: (SlideCanvasAlbum | undefined)[]
+  carouselAlbums: SlideCanvasAlbum[]
+  cornerRadiusPercent: number
+  isCentered: boolean
+}) {
+  const isDuel = slideAlbums.length === 2
+  const coverSize = isDuel ? 380 : 300
+  const columnGap = isDuel ? 48 : 40
+  const cardWidth = coverSize + SWATCH_CARD_PADDING * 2
+  const positionInCarousel = (album: SlideCanvasAlbum | undefined, fallbackIndex: number) => {
+    const carouselIndex = album ? carouselAlbums.findIndex((carouselAlbum) => carouselAlbum.id === album.id) : -1
+    return (carouselIndex === -1 ? fallbackIndex : carouselIndex) + 1
+  }
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        width: cardWidth * 2 + columnGap,
+        columnGap,
+        rowGap: 36,
+        justifyContent: isCentered ? "center" : "flex-start",
+      }}
+    >
+      {slideAlbums.map((album, index) => (
+        <div
+          key={album?.id ?? index}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: cardWidth,
+            padding: SWATCH_CARD_PADDING,
+            paddingBottom: 20,
+            backgroundColor: PAINT_CHIP_CARD_COLORS.background,
+            boxShadow: PAINT_CHIP_SHADOW,
+          }}
+        >
+          <CoverArt album={album} size={coverSize} colors={PAINT_CHIP_CARD_COLORS_AS_SLIDE} cornerRadiusPercent={cornerRadiusPercent} hasShadow={false} />
+          <div style={{ display: "flex", marginTop: 16 }}>
+            <PaintChipLabel album={album} position={positionInCarousel(album, index)} titleFontSize={isDuel ? 28 : 24} width={coverSize} />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 function AlbumByline({ album, colors, fontSize }: { album: SlideCanvasAlbum | undefined; colors: SlideColors; fontSize: number }) {
@@ -1896,6 +2169,7 @@ function AlbumPairFromToBody({
 function AlbumGridBody({
   slide,
   slideAlbums,
+  carouselAlbums,
   colors,
   isCentered,
   composition,
@@ -1903,11 +2177,28 @@ function AlbumGridBody({
 }: {
   slide: StudioSlide
   slideAlbums: (SlideCanvasAlbum | undefined)[]
+  carouselAlbums: SlideCanvasAlbum[]
   colors: SlideColors
   isCentered: boolean
   composition: SlideComposition
   typography: SlideTypography
 }) {
+  if (composition === "swatch-cards") {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start", width: "100%" }}>
+        {slide.headline ? (
+          <Headline slide={slide} typography={typography} baseSize={64} style={{ marginBottom: 40 }}>{slide.headline}</Headline>
+        ) : null}
+        <SwatchCardGrid
+          slideAlbums={slideAlbums}
+          carouselAlbums={carouselAlbums}
+          cornerRadiusPercent={slide.albumCoverRadius}
+          isCentered={isCentered}
+        />
+      </div>
+    )
+  }
+
   const isDuel = slideAlbums.length === 2
   const isTight = composition === "tight"
   const columnGap = isTight ? 0 : isDuel ? 64 : 40
@@ -1936,7 +2227,7 @@ function AlbumGridBody({
               size={coverSize}
               colors={colors}
               cornerRadiusPercent={slide.albumCoverRadius}
-              style={{ boxShadow: "none" }}
+              hasShadow={false}
             />
           ) : (
             <div key={album?.id ?? index} style={{ display: "flex", flexDirection: "column", width: coverSize }}>

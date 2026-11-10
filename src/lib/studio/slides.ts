@@ -86,11 +86,11 @@ export const MAX_BACKGROUND_SEED = 9999
 // Each layout can be arranged in a few ways. The first option is the
 // original arrangement, so slides saved before compositions existed keep it.
 export const SLIDE_COMPOSITIONS_BY_LAYOUT = {
-  cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type"],
+  cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type", "fan-deck"],
   album: ["classic", "side", "vinyl", "poster"],
   "ranked-album": ["classic", "giant-number", "side"],
   "album-pair": ["diagonal", "mirrored", "from-to", "from-to-mirrored"],
-  "album-grid": ["classic", "tight"],
+  "album-grid": ["classic", "tight", "swatch-cards"],
   "album-list": ["classic", "cards"],
   text: ["classic", "card", "accent-bar"],
   quote: ["classic", "card"],
@@ -107,11 +107,13 @@ export const SLIDE_COMPOSITION_LABELS: Record<SlideComposition, string> = {
   stack: "Pilha",
   poster: "Pôster",
   type: "Tipográfica",
+  "fan-deck": "Leque de amostras",
   classic: "Clássico",
   side: "Lado a lado",
   vinyl: "Vinil",
   "giant-number": "Número gigante",
   tight: "Colado",
+  "swatch-cards": "Amostras de tinta",
   cards: "Cartões",
   card: "Cartão",
   "accent-bar": "Barra lateral",

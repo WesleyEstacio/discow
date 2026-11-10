@@ -9,6 +9,7 @@ import {
 import { COMMON_SETTING_FIELDS, type StudioTemplate } from "@/lib/studio/templates/types"
 
 const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/
+const MAX_ALBUMS_ON_COVER_FAN = 5
 
 const COPY = {
   pt: {
@@ -65,13 +66,13 @@ export const colorMeDiscowsTemplate: StudioTemplate = {
   tagline: "Descoberta pela identidade visual das capas.",
   objective: "Descobrir álbuns por meio de sua identidade visual.",
   slideStructure: [
-    "Capa destacando a cor escolhida",
-    "Grade editorial com as capas dessa cor",
+    "Capa com as capas em leque, como amostras de tinta",
+    "Cartões de amostra com as capas dessa cor",
     "Recomendações adicionais (opcional)",
     "Chamada final para salvar ou descobrir",
   ],
   isAvailable: true,
-  defaultIdentityKey: "minimal",
+  defaultIdentityKey: "paint-chip",
   albumSlots: [
     {
       key: "albums",
@@ -116,7 +117,7 @@ export const colorMeDiscowsTemplate: StudioTemplate = {
         kicker: copy.coverKicker,
         headline: colorName,
         body: pick(copy.coverBody),
-        albumIds: approvedAlbums.slice(0, 3).map((album) => album.id),
+        albumIds: approvedAlbums.slice(0, MAX_ALBUMS_ON_COVER_FAN).map((album) => album.id),
         customBackgroundHex: colorHex,
       }),
       ...chunkAlbums(approvedAlbums, MAX_ALBUMS_PER_GRID_SLIDE).map((albumsOnSlide, chunkIndex) =>
@@ -124,6 +125,7 @@ export const colorMeDiscowsTemplate: StudioTemplate = {
           kicker: colorName,
           headline: chunkIndex === 0 && gridHeadline ? `${gridHeadline} ${colorName.toLowerCase()}` : "",
           albumIds: albumsOnSlide.map((album) => album.id),
+          customBackgroundHex: colorHex,
         })
       ),
       createEmptySlide("cta", {
