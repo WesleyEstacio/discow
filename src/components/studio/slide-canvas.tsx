@@ -13,8 +13,10 @@ import {
   BACKGROUND_IMAGE_FILTER_CSS,
   HEADLINE_SIZE_SCALE,
   hexToRgba,
+  LOGO_SIZE_SCALE,
   PROGRESS_SIZE_SCALE,
   readableTextColorFor,
+  resolveLogoZone,
   resolveSecondaryBackgroundColor,
   resolveSlideColors,
   resolveSlideComposition,
@@ -27,6 +29,7 @@ import {
   type SlideColors,
   type SlideComposition,
   type SlideLayout,
+  type SlideZone,
   type StudioSlide,
 } from "@/lib/studio/slides"
 
@@ -98,14 +101,7 @@ function resolveContentPosition(slide: StudioSlide): Exclude<ContentPosition, "a
   return DEFAULT_CONTENT_POSITION[slide.layout]
 }
 
-const CORNER_WORDMARK_HEIGHT = 40
-const FINAL_SLIDE_WORDMARK_HEIGHT = 84
-
-// On the final slide the new logo moves from the corner into the content,
-// so the post signs off with the brand instead of repeating it twice.
-function featuresLogoOnFinalSlide(slide: StudioSlide): boolean {
-  return slide.layout === "cta" && slide.showBrandMark && slide.brandMarkStyle === "logo"
-}
+const LOGO_BASE_HEIGHT_BY_ZONE: Record<SlideZone, number> = { top: 40, content: 84, bottom: 56 }
 
 function formatSlideNumber(slideNumber: number): string {
   return String(slideNumber).padStart(2, "0")
@@ -149,7 +145,20 @@ export function SlideCanvas({
     const album = albumsById[albumId]
     return album ? [album] : []
   })
-  const showsCornerBrandMark = slide.showBrandMark && !featuresLogoOnFinalSlide(slide)
+  const logoZone = resolveLogoZone(slide)
+  const showsLogo = slide.showBrandMark && slide.brandMarkStyle === "logo"
+  const showsTextBrandMark = slide.showBrandMark && slide.brandMarkStyle === "text"
+  const showsPositionedKicker = slide.showKicker && slide.kicker.length > 0 && slide.layout !== "album-pair"
+  const logo = (
+    <DiscowsWordmark
+      height={Math.round(LOGO_BASE_HEIGHT_BY_ZONE[logoZone] * LOGO_SIZE_SCALE[slide.logoSize])}
+      inkColor={colors.text}
+      accentColor={colors.accent}
+    />
+  )
+  const kicker = <Kicker slide={slide} colors={colors} fontFamily={typography.kicker} />
+  const showsLogoIn = (zone: SlideZone) => showsLogo && logoZone === zone
+  const showsKickerIn = (zone: SlideZone) => showsPositionedKicker && slide.kickerPosition === zone
 
   return (
     <div
@@ -208,12 +217,10 @@ export function SlideCanvas({
           padding: PAGE_PADDING,
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 44 }}>
-          {slide.layout === "album-pair" ? <div style={{ display: "flex" }} /> : <Kicker slide={slide} colors={colors} fontFamily={typography.kicker} />}
-          {showsCornerBrandMark && slide.brandMarkStyle === "logo" ? (
-            <DiscowsWordmark height={CORNER_WORDMARK_HEIGHT} inkColor={colors.text} accentColor={colors.accent} />
-          ) : null}
-          {showsCornerBrandMark && slide.brandMarkStyle === "text" ? (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: 44 }}>
+          {showsKickerIn("top") ? kicker : <div style={{ display: "flex" }} />}
+          {showsLogoIn("top") ? logo : null}
+          {showsTextBrandMark ? (
             <div style={{ display: "flex", alignItems: "baseline", fontSize: 30, fontWeight: 700, letterSpacing: -0.8, fontFamily: typography.brandMark }}>
               <span style={{ color: colors.text }}>discows</span>
               <span style={{ color: colors.accent }}>.</span>
@@ -233,6 +240,8 @@ export function SlideCanvas({
             textAlign: isCentered ? "center" : "left",
           }}
         >
+          {showsLogoIn("content") ? <div style={{ display: "flex", marginBottom: 48 }}>{logo}</div> : null}
+          {showsKickerIn("content") ? <div style={{ display: "flex", marginBottom: 32 }}>{kicker}</div> : null}
           <SlideBody
             slide={slide}
             slideAlbums={slideAlbums}
@@ -242,6 +251,13 @@ export function SlideCanvas({
             typography={typography}
           />
         </div>
+
+        {showsKickerIn("bottom") || showsLogoIn("bottom") ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start", marginBottom: 32 }}>
+            {showsKickerIn("bottom") ? <div style={{ display: "flex", marginBottom: showsLogoIn("bottom") ? 24 : 0 }}>{kicker}</div> : null}
+            {showsLogoIn("bottom") ? logo : null}
+          </div>
+        ) : null}
 
         <div style={{ display: "flex", flexDirection: "column", fontFamily: typography.footer }}>
           <SlideFooter slide={slide} slideNumber={slideNumber} slideCount={slideCount} colors={colors} footerNote={footerNote} />
@@ -1229,11 +1245,6 @@ function CtaBody({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start" }}>
-      {featuresLogoOnFinalSlide(slide) ? (
-        <div style={{ display: "flex", marginBottom: 56 }}>
-          <DiscowsWordmark height={FINAL_SLIDE_WORDMARK_HEIGHT} inkColor={colors.text} accentColor={colors.accent} />
-        </div>
-      ) : null}
       {slide.ctaRecapPosition === "above" ? recap : null}
       <Headline slide={slide} typography={typography} baseSize={headlineBaseSize} lineHeight={1.04}>{slide.headline}</Headline>
       <BodyText
