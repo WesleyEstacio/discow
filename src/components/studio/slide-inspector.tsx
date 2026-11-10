@@ -50,6 +50,8 @@ import {
   KICKER_STYLE_LABELS,
   KICKER_STYLES,
   LOGO_ALIGNMENT_LABELS,
+  LOGO_COLOR_LABELS,
+  LOGO_COLORS,
   LOGO_ALIGNMENTS,
   LOGO_POSITION_LABELS,
   LOGO_POSITIONS,
@@ -708,6 +710,18 @@ export function SlideInspector({
                   value={slide.logoSize}
                   onChange={(logoSize) => onChange({ logoSize })}
                 />
+                <OptionToggleField
+                  label="Cor do logo"
+                  options={LOGO_COLORS}
+                  optionLabels={LOGO_COLOR_LABELS}
+                  value={slide.logoColor}
+                  onChange={(logoColor) => onChange({ logoColor })}
+                />
+                <FieldDescription>
+                  {slide.logoColor === "slide"
+                    ? "Usa a cor do texto e a cor de destaque do slide."
+                    : "Versão oficial da marca: não muda com as cores do slide."}
+                </FieldDescription>
               </>
             ) : null}
           </div>

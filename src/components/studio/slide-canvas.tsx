@@ -17,6 +17,7 @@ import {
   PROGRESS_SIZE_SCALE,
   readableTextColorFor,
   resolveLogoAlignment,
+  resolveLogoColors,
   resolveLogoZone,
   resolveSecondaryBackgroundColor,
   resolveSlideColors,
@@ -153,14 +154,15 @@ export function SlideCanvas({
     return album ? [album] : []
   })
   const logoZone = resolveLogoZone(slide)
+  const logoColors = resolveLogoColors(slide.logoColor, colors)
   const showsLogo = slide.showBrandMark && slide.brandMarkStyle === "logo"
   const showsTextBrandMark = slide.showBrandMark && slide.brandMarkStyle === "text"
   const showsPositionedKicker = slide.showKicker && slide.kicker.length > 0 && slide.layout !== "album-pair"
   const logo = (
     <DiscowsWordmark
       height={Math.round(LOGO_BASE_HEIGHT_BY_ZONE[logoZone] * LOGO_SIZE_SCALE[slide.logoSize])}
-      inkColor={colors.text}
-      accentColor={colors.accent}
+      inkColor={logoColors.ink}
+      accentColor={logoColors.accent}
     />
   )
   const kicker = <Kicker slide={slide} colors={colors} fontFamily={typography.kicker} />
