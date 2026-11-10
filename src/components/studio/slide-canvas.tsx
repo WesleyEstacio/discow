@@ -1253,10 +1253,12 @@ function CtaBody({
         alignment={slide.textAlign}
         style={{ fontSize: 36, lineHeight: 1.35, marginTop: 36, color: colors.mutedText }}
       />
-      <div style={{ display: "flex", alignItems: "center", marginTop: 60, fontSize: 30, fontWeight: 700, ...websiteStyle }}>
-        <span>discows.com</span>
-        <span style={{ marginLeft: 14 }}>→</span>
-      </div>
+      {slide.showCtaWebsite ? (
+        <div style={{ display: "flex", alignItems: "center", marginTop: 60, fontSize: 30, fontWeight: 700, ...websiteStyle }}>
+          <span>discows.com</span>
+          <span style={{ marginLeft: 14 }}>→</span>
+        </div>
+      ) : null}
       {slide.ctaRecapPosition === "below" ? recap : null}
     </div>
   )

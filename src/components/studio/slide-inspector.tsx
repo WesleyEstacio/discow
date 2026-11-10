@@ -451,7 +451,7 @@ export function SlideInspector({
           onChange={(customTextHex) => onChange({ customTextHex })}
         />
 
-        {slide.layout === "cta" ? (
+        {slide.layout === "cta" && slide.showCtaWebsite ? (
           <OverridableColorField
             id="slide-cta-button-color"
             label="Cor do botão do site"
@@ -656,6 +656,18 @@ export function SlideInspector({
             </FieldLabel>
           </Field>
         ))}
+        {slide.layout === "cta" ? (
+          <Field orientation="horizontal">
+            <Checkbox
+              id="slide-showCtaWebsite"
+              checked={slide.showCtaWebsite}
+              onCheckedChange={(isChecked) => onChange({ showCtaWebsite: isChecked })}
+            />
+            <FieldLabel htmlFor="slide-showCtaWebsite" className="font-normal">
+              Botão “discows.com →”
+            </FieldLabel>
+          </Field>
+        ) : null}
         {slide.showBrandMark ? (
           <div className="flex flex-col gap-2 pt-1">
             <OptionToggleField
