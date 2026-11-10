@@ -186,13 +186,38 @@ export function resolveLogoZone(slide: Pick<StudioSlide, "layout" | "logoPositio
   return slide.layout === "cta" ? "content" : "top"
 }
 
+export const LOGO_ALIGNMENTS = ["auto", "left", "center", "right"] as const
+export type LogoAlignment = (typeof LOGO_ALIGNMENTS)[number]
+export type ResolvedLogoAlignment = Exclude<LogoAlignment, "auto">
+export const LOGO_ALIGNMENT_LABELS: Record<LogoAlignment, string> = {
+  auto: "Automático",
+  left: "Esquerda",
+  center: "Centro",
+  right: "Direita",
+}
+
+export function resolveLogoAlignment(
+  slide: Pick<StudioSlide, "layout" | "logoPosition" | "logoAlignment" | "textAlign">
+): ResolvedLogoAlignment {
+  if (slide.logoAlignment !== "auto") return slide.logoAlignment
+  if (resolveLogoZone(slide) === "top") return "right"
+  return slide.textAlign === "center" ? "center" : "left"
+}
+
 export const SLIDE_ELEMENT_TOGGLES = ["showKicker", "showProgress", "showCoverCredit", "showSwipeHint", "showBrandMark"] as const
 export type SlideElementToggle = (typeof SLIDE_ELEMENT_TOGGLES)[number]
 export function pickSlideElementToggles(
   slide: StudioSlide
 ): Pick<
   StudioSlide,
-  SlideElementToggle | "progressAlignment" | "progressSize" | "brandMarkStyle" | "kickerPosition" | "logoPosition" | "logoSize"
+  | SlideElementToggle
+  | "progressAlignment"
+  | "progressSize"
+  | "brandMarkStyle"
+  | "kickerPosition"
+  | "logoPosition"
+  | "logoAlignment"
+  | "logoSize"
 > {
   return {
     showKicker: slide.showKicker,
@@ -203,6 +228,7 @@ export function pickSlideElementToggles(
     showBrandMark: slide.showBrandMark,
     brandMarkStyle: slide.brandMarkStyle,
     logoPosition: slide.logoPosition,
+    logoAlignment: slide.logoAlignment,
     logoSize: slide.logoSize,
     progressAlignment: slide.progressAlignment,
     progressSize: slide.progressSize,
@@ -367,6 +393,7 @@ export const studioSlideSchema = z.object({
   showBrandMark: z.boolean().default(true),
   brandMarkStyle: z.enum(BRAND_MARK_STYLES).default("text"),
   logoPosition: z.enum(LOGO_POSITIONS).default("auto"),
+  logoAlignment: z.enum(LOGO_ALIGNMENTS).default("auto"),
   logoSize: z.enum(LOGO_SIZES).default("medium"),
   showKicker: z.boolean().default(true),
   kickerPosition: z.enum(SLIDE_ZONES).default("top"),
@@ -429,6 +456,7 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     showBrandMark: true,
     brandMarkStyle: "text",
     logoPosition: "auto",
+    logoAlignment: "auto",
     logoSize: "medium",
     showKicker: true,
     kickerPosition: "top",
