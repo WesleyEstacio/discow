@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: D de capa e disco</title>
+  <path fill="#000" d="M48 40H124V216H48a8 8 0 0 1-8-8V48a8 8 0 0 1 8-8Z"/>
+  <path fill="#000" fill-rule="evenodd" d="M134 40.1A88 88 0 0 1 134 215.9ZM134 66.3A62 62 0 0 1 134 189.7V182.7A55 55 0 0 0 134 73.3Z"/>
+</svg>

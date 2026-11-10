@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: vaca-CD sem chifres</title>
+  <defs><clipPath id="face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="url(#iri)" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="url(#iri)" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="url(#iri)" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/><path d="M96 50C108 62 124 66 132 78C138 88 128 96 116 92C104 88 96 76 84 72C80 62 86 52 96 50Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>

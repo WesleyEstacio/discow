@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: disco com brinco</title>
+  <defs><clipPath id="disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="iri" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(18 30) scale(0.76)">
+    <circle cx="128" cy="128" r="106" fill="url(#iri)"/>
+    <g clip-path="url(#disc)" fill="#0b0910">
+      <path d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+      <path d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+      <path fill-rule="evenodd" d="M128 58a70 70 0 1 1 0 140a70 70 0 1 1 0-140ZM128 64a64 64 0 1 0 0 128a64 64 0 1 0 0-128Z"/>
+    </g>
+    <circle cx="128" cy="128" r="11" fill="#0b0910"/>
+    <g transform="translate(214 150) rotate(-18)">
+      <path fill="#e6b816" stroke="#0b0910" stroke-width="8" paint-order="stroke" fill-rule="evenodd" d="M-14 0H14L28 60A10 10 0 0 1 18 72H-18A10 10 0 0 1 -28 60ZM0 6a6 6 0 1 0 0 12a6 6 0 1 0 0-12ZM0.0 33.0 L2.7 40.3 L10.5 40.6 L4.4 45.4 L6.5 52.9 L0.0 48.6 L-6.5 52.9 L-4.4 45.4 L-10.5 40.6 L-2.7 40.3Z"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: disco-vaca com estrela</title>
+  <defs><clipPath id="disc"><path d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/></clipPath><linearGradient id="iri" gradientUnits="userSpaceOnUse" x1="20" y1="30" x2="236" y2="226"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="url(#iri)" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="url(#iri)" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="url(#iri)" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <g clip-path="url(#disc)" fill="#0b0910"><path fill-rule="evenodd" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148ZM128 67a69 69 0 1 0 0 138a69 69 0 1 0 0-138Z"/><path d="M162 52C186 44 214 62 220 90C222 104 210 110 200 116C190 122 178 116 176 104C174 94 178 86 170 78C160 68 152 58 162 52Z"/></g>
+    <circle cx="98" cy="122" r="8" fill="#0b0910"/><circle cx="158" cy="122" r="8" fill="#0b0910"/>
+    <path fill="#0b0910" d="M128 98a9 9 0 1 0 0 18a9 9 0 1 0 0-18Z"/>
+    <path fill="#f6eff8" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: disco com chifres</title>
+  <path fill="#000" fill-rule="evenodd" d="M128 64a84 84 0 1 1 0 168a84 84 0 1 1 0-168ZM128 96a52 52 0 1 0 0 104a52 52 0 1 0 0-104ZM128 104a44 44 0 1 1 0 88a44 44 0 1 1 0-88ZM128 136a12 12 0 1 0 0 24a12 12 0 1 0 0-24Z"/>
+  <path fill="#000" d="M96 90C70 76 50 54 50 24C70 46 92 58 118 66Z"/>
+  <path fill="#000" d="M160 90C186 76 206 54 206 24C186 46 164 58 138 66Z"/>
+</svg>

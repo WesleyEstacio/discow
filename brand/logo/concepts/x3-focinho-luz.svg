@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: disco-focinho, manchas de luz</title>
+  <defs><clipPath id="disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="spotWarm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f44dab"/><stop offset="0.55" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="spotCool" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00b7c1"/><stop offset="1" stop-color="#d777ed"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <circle cx="128" cy="128" r="106" fill="#f6eff8"/>
+    <g clip-path="url(#disc)">
+      <path fill="url(#spotWarm)" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+      <path fill="url(#spotCool)" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+    </g>
+    <path fill="#0b0910" d="M96 108H160C178 108 190 120 190 134C190 150 176 160 160 160H96C80 160 66 150 66 134C66 120 78 108 96 108Z"/>
+    <path fill="#f6eff8" d="M96 124C88 124 82 132 86 142C88 148 98 148 104 142C110 136 106 124 96 124Z"/>
+    <path fill="#f6eff8" d="M160 124C168 124 174 132 170 142C168 148 158 148 152 142C146 136 150 124 160 124Z"/>
+  </g>
+</svg>

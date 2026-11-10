@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: disco malhado iridescente</title>
+  <defs>
+    <linearGradient id="spotWarm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f44dab"/><stop offset="0.55" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient>
+    <linearGradient id="spotCool" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00b7c1"/><stop offset="1" stop-color="#d777ed"/></linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(128 128) scale(0.8) translate(-128 -128)">
+    <path fill="#f7f5fa" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="url(#spotWarm)" d="M138 40C162 34 196 48 208 70C214 84 202 96 196 108C188 126 166 132 154 120C144 110 150 98 140 88C128 76 124 48 138 40Z"/>
+    <path fill="url(#spotCool)" d="M36 150C50 138 76 140 86 156C94 170 88 188 74 194C62 200 48 194 42 184Z"/>
+    <path fill="#f7f5fa" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+  </g>
+</svg>
