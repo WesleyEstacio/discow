@@ -49,6 +49,10 @@ import {
   HEADLINE_SIZES,
   KICKER_STYLE_LABELS,
   KICKER_STYLES,
+  LOGO_POSITION_LABELS,
+  LOGO_POSITIONS,
+  LOGO_SIZE_LABELS,
+  LOGO_SIZES,
   MAX_ALBUM_COVER_RADIUS_PERCENT,
   MAX_ALBUMS_BY_LAYOUT,
   MAX_BACKGROUND_SEED,
@@ -72,6 +76,8 @@ import {
   SLIDE_LAYOUT_LABELS,
   SLIDE_LAYOUTS,
   SLIDE_TEXT_LIMITS,
+  SLIDE_ZONE_LABELS,
+  SLIDE_ZONES,
   TYPE_STYLE_LABELS,
   TYPE_STYLES,
   type ContentPosition,
@@ -524,6 +530,16 @@ export function SlideInspector({
           onChange={(kickerStyle) => onChange({ kickerStyle })}
         />
 
+        {slide.showKicker && slide.layout !== "album-pair" ? (
+          <OptionToggleField
+            label="Posição do rótulo"
+            options={SLIDE_ZONES}
+            optionLabels={SLIDE_ZONE_LABELS}
+            value={slide.kickerPosition}
+            onChange={(kickerPosition) => onChange({ kickerPosition })}
+          />
+        ) : null}
+
         <SlideFontsField
           fonts={slide.fonts}
           onChange={(fonts) => onChange({ fonts })}
@@ -649,8 +665,26 @@ export function SlideInspector({
               value={slide.brandMarkStyle}
               onChange={(brandMarkStyle) => onChange({ brandMarkStyle })}
             />
-            {slide.layout === "cta" && slide.brandMarkStyle === "logo" ? (
-              <FieldDescription>No slide final, o novo logo aparece em destaque acima do conteúdo.</FieldDescription>
+            {slide.brandMarkStyle === "logo" ? (
+              <>
+                <OptionToggleField
+                  label="Posição do logo"
+                  options={LOGO_POSITIONS}
+                  optionLabels={LOGO_POSITION_LABELS}
+                  value={slide.logoPosition}
+                  onChange={(logoPosition) => onChange({ logoPosition })}
+                />
+                {slide.logoPosition === "auto" ? (
+                  <FieldDescription>Automático: no topo, e junto do texto no slide final.</FieldDescription>
+                ) : null}
+                <OptionToggleField
+                  label="Tamanho do logo"
+                  options={LOGO_SIZES}
+                  optionLabels={LOGO_SIZE_LABELS}
+                  value={slide.logoSize}
+                  onChange={(logoSize) => onChange({ logoSize })}
+                />
+              </>
             ) : null}
           </div>
         ) : null}

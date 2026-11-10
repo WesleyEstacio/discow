@@ -164,17 +164,46 @@ export const BRAND_MARK_STYLE_LABELS: Record<BrandMarkStyle, string> = {
   logo: "Novo logo",
 }
 
-export const SLIDE_ELEMENT_TOGGLES = ["showProgress", "showCoverCredit", "showSwipeHint", "showBrandMark"] as const
+export const SLIDE_ZONES = ["top", "content", "bottom"] as const
+export type SlideZone = (typeof SLIDE_ZONES)[number]
+export const SLIDE_ZONE_LABELS: Record<SlideZone, string> = {
+  top: "Topo",
+  content: "Junto do texto",
+  bottom: "Embaixo",
+}
+
+export const LOGO_POSITIONS = ["auto", ...SLIDE_ZONES] as const
+export type LogoPosition = (typeof LOGO_POSITIONS)[number]
+export const LOGO_POSITION_LABELS: Record<LogoPosition, string> = { auto: "Automático", ...SLIDE_ZONE_LABELS }
+
+export const LOGO_SIZES = ["small", "medium", "large"] as const
+export type LogoSize = (typeof LOGO_SIZES)[number]
+export const LOGO_SIZE_LABELS: Record<LogoSize, string> = { small: "P", medium: "M", large: "G" }
+export const LOGO_SIZE_SCALE: Record<LogoSize, number> = { small: 0.75, medium: 1, large: 1.35 }
+
+export function resolveLogoZone(slide: Pick<StudioSlide, "layout" | "logoPosition">): SlideZone {
+  if (slide.logoPosition !== "auto") return slide.logoPosition
+  return slide.layout === "cta" ? "content" : "top"
+}
+
+export const SLIDE_ELEMENT_TOGGLES = ["showKicker", "showProgress", "showCoverCredit", "showSwipeHint", "showBrandMark"] as const
 export type SlideElementToggle = (typeof SLIDE_ELEMENT_TOGGLES)[number]
 export function pickSlideElementToggles(
   slide: StudioSlide
-): Pick<StudioSlide, SlideElementToggle | "progressAlignment" | "progressSize" | "brandMarkStyle"> {
+): Pick<
+  StudioSlide,
+  SlideElementToggle | "progressAlignment" | "progressSize" | "brandMarkStyle" | "kickerPosition" | "logoPosition" | "logoSize"
+> {
   return {
+    showKicker: slide.showKicker,
+    kickerPosition: slide.kickerPosition,
     showProgress: slide.showProgress,
     showCoverCredit: slide.showCoverCredit,
     showSwipeHint: slide.showSwipeHint,
     showBrandMark: slide.showBrandMark,
     brandMarkStyle: slide.brandMarkStyle,
+    logoPosition: slide.logoPosition,
+    logoSize: slide.logoSize,
     progressAlignment: slide.progressAlignment,
     progressSize: slide.progressSize,
   }
@@ -185,6 +214,7 @@ export function pickSlideFonts(slide: StudioSlide): Pick<StudioSlide, "fonts"> {
 }
 
 export const SLIDE_ELEMENT_TOGGLE_LABELS: Record<SlideElementToggle, string> = {
+  showKicker: "Rótulo",
   showProgress: "Contador de páginas",
   showCoverCredit: "Crédito das capas (Spotify, Cover Art Archive)",
   showSwipeHint: "“Arraste →” na capa",
@@ -335,6 +365,10 @@ export const studioSlideSchema = z.object({
   showSwipeHint: z.boolean().default(true),
   showBrandMark: z.boolean().default(true),
   brandMarkStyle: z.enum(BRAND_MARK_STYLES).default("text"),
+  logoPosition: z.enum(LOGO_POSITIONS).default("auto"),
+  logoSize: z.enum(LOGO_SIZES).default("medium"),
+  showKicker: z.boolean().default(true),
+  kickerPosition: z.enum(SLIDE_ZONES).default("top"),
   progressAlignment: z.enum(PROGRESS_ALIGNMENTS).default("left"),
   progressSize: z.enum(PROGRESS_SIZES).default("medium"),
   fonts: slideFontsSchema.default(DEFAULT_SLIDE_FONTS),
@@ -392,6 +426,10 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     showSwipeHint: true,
     showBrandMark: true,
     brandMarkStyle: "text",
+    logoPosition: "auto",
+    logoSize: "medium",
+    showKicker: true,
+    kickerPosition: "top",
     progressAlignment: "left",
     progressSize: "medium",
     fonts: { ...DEFAULT_SLIDE_FONTS },
