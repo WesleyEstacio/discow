@@ -718,8 +718,8 @@ export function SlideInspector({
                   onChange={(logoColor) => onChange({ logoColor })}
                 />
                 <FieldDescription>
-                  {slide.logoColor === "slide"
-                    ? "Usa a cor do texto e a cor de destaque do slide."
+                  {slide.logoColor === "auto"
+                    ? "Preto em fundo claro e branco em fundo escuro, sempre com o rosa da marca. Não muda com a cor de destaque."
                     : "Versão oficial da marca: não muda com as cores do slide."}
                 </FieldDescription>
               </>
