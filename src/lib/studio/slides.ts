@@ -204,6 +204,24 @@ export function resolveLogoAlignment(
   return slide.textAlign === "center" ? "center" : "left"
 }
 
+export const LOGO_COLORS = ["slide", "black", "white"] as const
+export type LogoColor = (typeof LOGO_COLORS)[number]
+export const LOGO_COLOR_LABELS: Record<LogoColor, string> = {
+  slide: "Cores do slide",
+  black: "Preto",
+  white: "Branco",
+}
+
+// The official brand versions (brand/logo/final/GUIA.md): the cow spots stay
+// brand pink, so changing the slide accent no longer recolors the logo.
+const BRAND_LOGO_PINK = "#E0349A"
+const BRAND_LOGO_INK: Record<Exclude<LogoColor, "slide">, string> = { black: "#1A1020", white: "#FFFFFF" }
+
+export function resolveLogoColors(logoColor: LogoColor, slideColors: SlideColors): { ink: string; accent: string } {
+  if (logoColor === "slide") return { ink: slideColors.text, accent: slideColors.accent }
+  return { ink: BRAND_LOGO_INK[logoColor], accent: BRAND_LOGO_PINK }
+}
+
 export const SLIDE_ELEMENT_TOGGLES = ["showKicker", "showProgress", "showCoverCredit", "showSwipeHint", "showBrandMark"] as const
 export type SlideElementToggle = (typeof SLIDE_ELEMENT_TOGGLES)[number]
 export function pickSlideElementToggles(
@@ -218,6 +236,7 @@ export function pickSlideElementToggles(
   | "logoPosition"
   | "logoAlignment"
   | "logoSize"
+  | "logoColor"
 > {
   return {
     showKicker: slide.showKicker,
@@ -230,6 +249,7 @@ export function pickSlideElementToggles(
     logoPosition: slide.logoPosition,
     logoAlignment: slide.logoAlignment,
     logoSize: slide.logoSize,
+    logoColor: slide.logoColor,
     progressAlignment: slide.progressAlignment,
     progressSize: slide.progressSize,
   }
@@ -394,6 +414,7 @@ export const studioSlideSchema = z.object({
   brandMarkStyle: z.enum(BRAND_MARK_STYLES).default("text"),
   logoPosition: z.enum(LOGO_POSITIONS).default("auto"),
   logoAlignment: z.enum(LOGO_ALIGNMENTS).default("auto"),
+  logoColor: z.enum(LOGO_COLORS).default("slide"),
   logoSize: z.enum(LOGO_SIZES).default("medium"),
   showKicker: z.boolean().default(true),
   kickerPosition: z.enum(SLIDE_ZONES).default("top"),
@@ -498,6 +519,7 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     logoPosition: "auto",
     logoAlignment: "auto",
     logoSize: "medium",
+    logoColor: "slide",
     showKicker: true,
     kickerPosition: "top",
     progressAlignment: "left",
