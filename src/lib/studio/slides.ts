@@ -157,16 +157,24 @@ export const KICKER_STYLE_LABELS: Record<KickerStyle, string> = {
   plain: "Simples",
 }
 
+export const BRAND_MARK_STYLES = ["text", "logo"] as const
+export type BrandMarkStyle = (typeof BRAND_MARK_STYLES)[number]
+export const BRAND_MARK_STYLE_LABELS: Record<BrandMarkStyle, string> = {
+  text: "Atual (discows.)",
+  logo: "Novo logo",
+}
+
 export const SLIDE_ELEMENT_TOGGLES = ["showProgress", "showCoverCredit", "showSwipeHint", "showBrandMark"] as const
 export type SlideElementToggle = (typeof SLIDE_ELEMENT_TOGGLES)[number]
 export function pickSlideElementToggles(
   slide: StudioSlide
-): Pick<StudioSlide, SlideElementToggle | "progressAlignment" | "progressSize"> {
+): Pick<StudioSlide, SlideElementToggle | "progressAlignment" | "progressSize" | "brandMarkStyle"> {
   return {
     showProgress: slide.showProgress,
     showCoverCredit: slide.showCoverCredit,
     showSwipeHint: slide.showSwipeHint,
     showBrandMark: slide.showBrandMark,
+    brandMarkStyle: slide.brandMarkStyle,
     progressAlignment: slide.progressAlignment,
     progressSize: slide.progressSize,
   }
@@ -326,6 +334,7 @@ export const studioSlideSchema = z.object({
   showCoverCredit: z.boolean().default(true),
   showSwipeHint: z.boolean().default(true),
   showBrandMark: z.boolean().default(true),
+  brandMarkStyle: z.enum(BRAND_MARK_STYLES).default("text"),
   progressAlignment: z.enum(PROGRESS_ALIGNMENTS).default("left"),
   progressSize: z.enum(PROGRESS_SIZES).default("medium"),
   fonts: slideFontsSchema.default(DEFAULT_SLIDE_FONTS),
@@ -382,6 +391,7 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     showCoverCredit: true,
     showSwipeHint: true,
     showBrandMark: true,
+    brandMarkStyle: "text",
     progressAlignment: "left",
     progressSize: "medium",
     fonts: { ...DEFAULT_SLIDE_FONTS },

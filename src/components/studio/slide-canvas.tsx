@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react"
 import type { StudioCoverSource } from "@/lib/db/schema"
+import { DiscowsWordmark } from "@/components/brand/discows-wordmark"
 import { arrangeBlurredCovers, BLURRED_COVERS_BLEED, BLURRED_COVERS_BLUR_RADIUS } from "@/lib/studio/blurred-covers"
 import { arrangeCoverEcho, resolveCoverEchoAlbumId, textPositionAroundCoverEcho } from "@/lib/studio/cover-echo"
 import {
@@ -97,6 +98,15 @@ function resolveContentPosition(slide: StudioSlide): Exclude<ContentPosition, "a
   return DEFAULT_CONTENT_POSITION[slide.layout]
 }
 
+const CORNER_WORDMARK_HEIGHT = 40
+const FINAL_SLIDE_WORDMARK_HEIGHT = 84
+
+// On the final slide the new logo moves from the corner into the content,
+// so the post signs off with the brand instead of repeating it twice.
+function featuresLogoOnFinalSlide(slide: StudioSlide): boolean {
+  return slide.layout === "cta" && slide.showBrandMark && slide.brandMarkStyle === "logo"
+}
+
 function formatSlideNumber(slideNumber: number): string {
   return String(slideNumber).padStart(2, "0")
 }
@@ -139,6 +149,7 @@ export function SlideCanvas({
     const album = albumsById[albumId]
     return album ? [album] : []
   })
+  const showsCornerBrandMark = slide.showBrandMark && !featuresLogoOnFinalSlide(slide)
 
   return (
     <div
@@ -199,7 +210,10 @@ export function SlideCanvas({
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 44 }}>
           {slide.layout === "album-pair" ? <div style={{ display: "flex" }} /> : <Kicker slide={slide} colors={colors} fontFamily={typography.kicker} />}
-          {slide.showBrandMark ? (
+          {showsCornerBrandMark && slide.brandMarkStyle === "logo" ? (
+            <DiscowsWordmark height={CORNER_WORDMARK_HEIGHT} inkColor={colors.text} accentColor={colors.accent} />
+          ) : null}
+          {showsCornerBrandMark && slide.brandMarkStyle === "text" ? (
             <div style={{ display: "flex", alignItems: "baseline", fontSize: 30, fontWeight: 700, letterSpacing: -0.8, fontFamily: typography.brandMark }}>
               <span style={{ color: colors.text }}>discows</span>
               <span style={{ color: colors.accent }}>.</span>
@@ -1215,6 +1229,11 @@ function CtaBody({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start" }}>
+      {featuresLogoOnFinalSlide(slide) ? (
+        <div style={{ display: "flex", marginBottom: 56 }}>
+          <DiscowsWordmark height={FINAL_SLIDE_WORDMARK_HEIGHT} inkColor={colors.text} accentColor={colors.accent} />
+        </div>
+      ) : null}
       {slide.ctaRecapPosition === "above" ? recap : null}
       <Headline slide={slide} typography={typography} baseSize={headlineBaseSize} lineHeight={1.04}>{slide.headline}</Headline>
       <BodyText
