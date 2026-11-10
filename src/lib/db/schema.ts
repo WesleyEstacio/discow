@@ -1,6 +1,6 @@
 import type { AdapterAccountType } from "next-auth/adapters"
 import type { PostLanguage, PostStatus } from "@/lib/studio/post-status"
-import type { StoredStudioSlide } from "@/lib/studio/slides"
+import type { StoredStudioSlide, StoredStudioSlideStyle } from "@/lib/studio/slides"
 import type { UserRole } from "@/lib/user-role"
 import {
   customType,
@@ -335,6 +335,29 @@ export const studioPosts = pgTable(
     index("studio_post_status_idx").on(studioPost.status),
     index("studio_post_scheduled_for_idx").on(studioPost.scheduledFor),
     index("studio_post_updated_at_idx").on(studioPost.updatedAt),
+  ]
+)
+
+// A saved look for one template: the style of each slide (colors, background,
+// composition, fonts, kicker, logo) without texts or albums. New posts of the
+// same template can start from it (see applySlideStyles in slides.ts).
+export const studioPostPresets = pgTable(
+  "studio_post_preset",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    name: text("name").notNull(),
+    templateKey: text("template_key").notNull(),
+    slideStyles: jsonb("slide_styles").$type<StoredStudioSlideStyle[]>().notNull(),
+    createdByUserId: text("created_by_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
+  },
+  (studioPostPreset) => [
+    unique("studio_post_preset_template_name_unique").on(studioPostPreset.templateKey, studioPostPreset.name),
   ]
 )
 

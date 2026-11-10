@@ -20,6 +20,8 @@ import { POST_LANGUAGE_LABELS, POST_LANGUAGES, type PostLanguage } from "@/lib/s
 import { studioImageUrl } from "@/lib/studio/slides"
 import type { TemplateAlbumSlot, TemplateAlbumSlotGroup, TemplateSettingField } from "@/lib/studio/templates/types"
 import { SURPRISE_IDENTITY_KEY, VISUAL_IDENTITIES } from "@/lib/studio/visual-identities"
+import { PresetSwatches } from "@/components/studio/post-preset-dialog"
+import type { PostPresetSummary } from "@/lib/studio/post-presets"
 import { cn } from "@/lib/utils"
 
 export type CreatePostAlbumOption = {
@@ -43,8 +45,11 @@ type CreatePostFormProps = {
   }
   albums: CreatePostAlbumOption[]
   defaultBackgroundImages: StudioImageSummary[]
+  postPresets: PostPresetSummary[]
   action: (state: CreatePostFormState, formData: FormData) => Promise<CreatePostFormState>
 }
+
+const NO_PRESET_ID = ""
 
 const INITIAL_CREATE_POST_STATE: CreatePostFormState = { message: null }
 
@@ -77,7 +82,8 @@ function matchesAlbumFilter(album: CreatePostAlbumOption, filterText: string): b
     .includes(normalizedFilter)
 }
 
-export function CreatePostForm({ template, albums, defaultBackgroundImages, action }: CreatePostFormProps) {
+export function CreatePostForm({ template, albums, defaultBackgroundImages, postPresets, action }: CreatePostFormProps) {
+  const [presetId, setPresetId] = useState(NO_PRESET_ID)
   const [formState, formAction] = useActionState(action, INITIAL_CREATE_POST_STATE)
   const [language, setLanguage] = useState<PostLanguage>("pt")
   const [selectedAlbumIdsBySlot, setSelectedAlbumIdsBySlot] = useState<Record<string, string[]>>(() =>
@@ -149,6 +155,7 @@ export function CreatePostForm({ template, albums, defaultBackgroundImages, acti
       <input type="hidden" name="language" value={language} />
       <input type="hidden" name="backgroundImageId" value={backgroundImageId} />
       <input type="hidden" name="visualIdentity" value={visualIdentityKey} />
+      <input type="hidden" name="presetId" value={presetId} />
 
       <div className="flex min-w-0 flex-col gap-12">
         {albums.length === 0 ? (
@@ -257,17 +264,25 @@ export function CreatePostForm({ template, albums, defaultBackgroundImages, acti
           </div>
 
           <div className="flex flex-col gap-8 rounded-xl border border-border bg-card p-5 md:p-6">
-            <VisualIdentityPicker
-              selectedIdentityKey={visualIdentityKey}
-              suggestedIdentityKey={template.defaultIdentityKey}
-              onSelectIdentity={setVisualIdentityKey}
-            />
+            {postPresets.length > 0 ? (
+              <PostPresetPicker presets={postPresets} selectedPresetId={presetId} onSelectPreset={setPresetId} />
+            ) : null}
 
-            <DefaultBackgroundPicker
-              images={defaultBackgroundImages}
-              selectedImageId={backgroundImageId}
-              onSelectImage={setBackgroundImageId}
-            />
+            {presetId === NO_PRESET_ID ? (
+              <>
+                <VisualIdentityPicker
+                  selectedIdentityKey={visualIdentityKey}
+                  suggestedIdentityKey={template.defaultIdentityKey}
+                  onSelectIdentity={setVisualIdentityKey}
+                />
+
+                <DefaultBackgroundPicker
+                  images={defaultBackgroundImages}
+                  selectedImageId={backgroundImageId}
+                  onSelectImage={setBackgroundImageId}
+                />
+              </>
+            ) : null}
           </div>
         </section>
       </div>
@@ -623,6 +638,55 @@ function DefaultBackgroundPicker({ images, selectedImageId, onSelectImage }: Def
           Nenhum fundo padrão ainda. No editor, envie uma imagem e marque a estrela para guardá-la para os próximos posts.
         </FieldDescription>
       )}
+    </FieldSet>
+  )
+}
+
+type PostPresetPickerProps = {
+  presets: PostPresetSummary[]
+  selectedPresetId: string
+  onSelectPreset: (presetId: string) => void
+}
+
+function PostPresetPicker({ presets, selectedPresetId, onSelectPreset }: PostPresetPickerProps) {
+  const presetOptions = [
+    { id: NO_PRESET_ID, name: "Nenhuma", description: "Escolher a identidade visual abaixo.", slideBackgroundColors: [] },
+    ...presets.map((preset) => ({ ...preset, description: "Mesmo visual, slide a slide." })),
+  ]
+
+  return (
+    <FieldSet>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <FieldLegend variant="label" className="mb-0">Pré-definição</FieldLegend>
+        <AppearsIn location="visual de todos os slides" />
+      </div>
+      <div role="radiogroup" aria-label="Pré-definição" className="grid gap-2 sm:grid-cols-2 2xl:grid-cols-3">
+        {presetOptions.map((option) => {
+          const isSelected = option.id === selectedPresetId
+          return (
+            <button
+              key={option.id || "none"}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              onClick={() => onSelectPreset(option.id)}
+              className={cn(
+                "flex items-start gap-3 rounded-lg border border-border p-3 text-left outline-none transition-colors hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/50",
+                isSelected && "border-primary bg-primary/10"
+              )}
+            >
+              {option.slideBackgroundColors.length > 0 ? <PresetSwatches colors={option.slideBackgroundColors.slice(0, 4)} /> : null}
+              <span className="flex min-w-0 flex-col gap-0.5">
+                <span className="text-sm font-medium">{option.name}</span>
+                <span className="text-xs text-muted-foreground">{option.description}</span>
+              </span>
+            </button>
+          )
+        })}
+      </div>
+      <FieldDescription>
+        Com uma pré-definição, cada slide novo copia o visual do slide equivalente do post salvo. Textos e álbuns vêm do que você escolher aqui.
+      </FieldDescription>
     </FieldSet>
   )
 }

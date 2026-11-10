@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import type { SlideCanvasAlbum } from "@/components/studio/slide-canvas"
 import { IdentitySwatches } from "@/components/studio/identity-swatches"
+import { PostPresetDialog } from "@/components/studio/post-preset-dialog"
 import { SlideInspector, type EditorAlbumOption } from "@/components/studio/slide-inspector"
 import { SlidePreview } from "@/components/studio/slide-preview"
 import { Badge } from "@/components/ui/badge"
@@ -35,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/toast"
 import type { StudioImageSummary } from "@/lib/studio/background-images"
 import { savePostAction } from "@/lib/studio/post-actions"
+import type { PostPresetSummary } from "@/lib/studio/post-presets"
 import { collectCarouselAlbumIds } from "@/lib/studio/blurred-covers"
 import { MAX_CAPTION_LENGTH, type StudioPostDraft } from "@/lib/studio/post-input"
 import {
@@ -68,7 +70,9 @@ import { cn } from "@/lib/utils"
 
 type PostEditorProps = {
   postId: string
+  templateKey: string
   templateName: string
+  postPresets: PostPresetSummary[]
   initialDraft: StudioPostDraft
   albums: EditorAlbumOption[]
   coverSourcesByAlbumId: Record<string, SlideCanvasAlbum["coverSource"]>
@@ -85,7 +89,9 @@ function moveItem<Item>(items: Item[], fromIndex: number, toIndex: number): Item
 
 export function PostEditor({
   postId,
+  templateKey,
   templateName,
+  postPresets,
   initialDraft,
   albums,
   coverSourcesByAlbumId,
@@ -278,6 +284,8 @@ export function PostEditor({
             ))}
           </SelectContent>
         </Select>
+
+        <PostPresetDialog templateKey={templateKey} templateName={templateName} slides={draft.slides} presets={postPresets} />
 
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="outline" />}>

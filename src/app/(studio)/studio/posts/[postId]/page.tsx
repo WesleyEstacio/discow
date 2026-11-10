@@ -5,6 +5,7 @@ import { requireStudioAdmin } from "@/lib/studio/admin"
 import { getStudioAlbumsByIds, listStudioAlbums } from "@/lib/studio/albums"
 import { listRecentStudioImages } from "@/lib/studio/background-images"
 import { timestampToScheduledDate } from "@/lib/studio/post-input"
+import { listPostPresetSummaries } from "@/lib/studio/post-presets"
 import { getStudioPost } from "@/lib/studio/posts"
 import { findTemplateName } from "@/lib/studio/templates"
 
@@ -25,15 +26,18 @@ export default async function PostEditorPage({ params }: PostEditorPageProps) {
   if (!post) notFound()
 
   const libraryAlbumIds = new Set(libraryAlbums.map((album) => album.id))
-  const postAlbumsOutsideFirstPage = await getStudioAlbumsByIds(
-    post.albumIds.filter((albumId) => !libraryAlbumIds.has(albumId))
-  )
+  const [postAlbumsOutsideFirstPage, postPresets] = await Promise.all([
+    getStudioAlbumsByIds(post.albumIds.filter((albumId) => !libraryAlbumIds.has(albumId))),
+    listPostPresetSummaries(post.templateKey),
+  ])
   const albums = [...libraryAlbums, ...postAlbumsOutsideFirstPage]
 
   return (
     <PostEditor
       postId={post.id}
+      templateKey={post.templateKey}
       templateName={findTemplateName(post.templateKey)}
+      postPresets={postPresets}
       initialDraft={{
         title: post.title,
         status: post.status,

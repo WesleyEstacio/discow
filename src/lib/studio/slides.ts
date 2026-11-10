@@ -411,6 +411,46 @@ export function normalizeStoredSlides(storedSlides: unknown): StudioSlide[] {
   return studioSlidesSchema.parse(storedSlides)
 }
 
+// Everything a slide says (texts, albums) as opposed to how it looks.
+// Post presets keep only the look, so a new post brings its own content.
+const SLIDE_CONTENT_FIELDS = {
+  id: true,
+  kicker: true,
+  headline: true,
+  body: true,
+  albumIds: true,
+  rankNumber: true,
+  sourceNote: true,
+  requiresSource: true,
+} as const
+
+export const studioSlideStyleSchema = studioSlideSchema.omit(SLIDE_CONTENT_FIELDS)
+export type StudioSlideStyle = z.infer<typeof studioSlideStyleSchema>
+export type StoredStudioSlideStyle = z.input<typeof studioSlideStyleSchema>
+export const studioSlideStylesSchema = z.array(studioSlideStyleSchema).min(1).max(MAX_SLIDES_PER_POST)
+
+export function extractSlideStyles(slides: StudioSlide[]): StudioSlideStyle[] {
+  return slides.map((slide) => studioSlideStyleSchema.parse(slide))
+}
+
+// Each slide takes the style of the preset slide with the same layout in the
+// same order (1st album slide ← 1st album style). When the new post has more
+// slides of a layout than the preset, the last style of that layout repeats;
+// layouts the preset doesn't have keep their own look.
+export function applySlideStyles(slides: StudioSlide[], styles: StudioSlideStyle[]): StudioSlide[] {
+  const stylesByLayout = Map.groupBy(styles, (style) => style.layout)
+  const appliedCountByLayout = new Map<SlideLayout, number>()
+
+  return slides.map((slide) => {
+    const layoutStyles = stylesByLayout.get(slide.layout)
+    if (!layoutStyles?.length) return slide
+    const appliedCount = appliedCountByLayout.get(slide.layout) ?? 0
+    appliedCountByLayout.set(slide.layout, appliedCount + 1)
+    const matchingStyle = layoutStyles[Math.min(appliedCount, layoutStyles.length - 1)]!
+    return { ...slide, ...matchingStyle, layout: slide.layout }
+  })
+}
+
 export function createSlideId(): string {
   return crypto.randomUUID().slice(0, 8)
 }
