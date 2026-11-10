@@ -49,6 +49,8 @@ import {
   HEADLINE_SIZES,
   KICKER_STYLE_LABELS,
   KICKER_STYLES,
+  LOGO_ALIGNMENT_LABELS,
+  LOGO_ALIGNMENTS,
   LOGO_POSITION_LABELS,
   LOGO_POSITIONS,
   LOGO_SIZE_LABELS,
@@ -688,6 +690,16 @@ export function SlideInspector({
                 />
                 {slide.logoPosition === "auto" ? (
                   <FieldDescription>Automático: no topo, e junto do texto no slide final.</FieldDescription>
+                ) : null}
+                <OptionToggleField
+                  label="Alinhamento do logo"
+                  options={LOGO_ALIGNMENTS}
+                  optionLabels={LOGO_ALIGNMENT_LABELS}
+                  value={slide.logoAlignment}
+                  onChange={(logoAlignment) => onChange({ logoAlignment })}
+                />
+                {slide.logoAlignment === "auto" ? (
+                  <FieldDescription>Automático: à direita no topo; nas outras posições, segue o alinhamento do texto.</FieldDescription>
                 ) : null}
                 <OptionToggleField
                   label="Tamanho do logo"

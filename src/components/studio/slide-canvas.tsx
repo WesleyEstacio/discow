@@ -16,6 +16,7 @@ import {
   LOGO_SIZE_SCALE,
   PROGRESS_SIZE_SCALE,
   readableTextColorFor,
+  resolveLogoAlignment,
   resolveLogoZone,
   resolveSecondaryBackgroundColor,
   resolveSlideColors,
@@ -29,6 +30,7 @@ import {
   type SlideColors,
   type SlideComposition,
   type SlideLayout,
+  type ResolvedLogoAlignment,
   type SlideZone,
   type StudioSlide,
 } from "@/lib/studio/slides"
@@ -102,6 +104,11 @@ function resolveContentPosition(slide: StudioSlide): Exclude<ContentPosition, "a
 }
 
 const LOGO_BASE_HEIGHT_BY_ZONE: Record<SlideZone, number> = { top: 40, content: 84, bottom: 56 }
+const JUSTIFY_FOR_LOGO_ALIGNMENT: Record<ResolvedLogoAlignment, CSSProperties["justifyContent"]> = {
+  left: "flex-start",
+  center: "center",
+  right: "flex-end",
+}
 
 function formatSlideNumber(slideNumber: number): string {
   return String(slideNumber).padStart(2, "0")
@@ -157,8 +164,15 @@ export function SlideCanvas({
     />
   )
   const kicker = <Kicker slide={slide} colors={colors} fontFamily={typography.kicker} />
+  const logoAlignment = resolveLogoAlignment(slide)
   const showsLogoIn = (zone: SlideZone) => showsLogo && logoZone === zone
+  const showsTopLogoAt = (alignment: ResolvedLogoAlignment) => showsLogoIn("top") && logoAlignment === alignment
   const showsKickerIn = (zone: SlideZone) => showsPositionedKicker && slide.kickerPosition === zone
+  const alignedLogoRow = (spacingBelow: number) => (
+    <div style={{ display: "flex", width: "100%", marginBottom: spacingBelow, justifyContent: JUSTIFY_FOR_LOGO_ALIGNMENT[logoAlignment] }}>
+      {logo}
+    </div>
+  )
 
   return (
     <div
@@ -217,15 +231,28 @@ export function SlideCanvas({
           padding: PAGE_PADDING,
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: 44 }}>
-          {showsKickerIn("top") ? kicker : <div style={{ display: "flex" }} />}
-          {showsLogoIn("top") ? logo : null}
-          {showsTextBrandMark ? (
-            <div style={{ display: "flex", alignItems: "baseline", fontSize: 30, fontWeight: 700, letterSpacing: -0.8, fontFamily: typography.brandMark }}>
-              <span style={{ color: colors.text }}>discows</span>
-              <span style={{ color: colors.accent }}>.</span>
-            </div>
-          ) : null}
+        {showsTopLogoAt("center") ? alignedLogoRow(showsKickerIn("top") || showsTextBrandMark ? 24 : 0) : null}
+        <div
+          style={{
+            display: showsTopLogoAt("center") && !showsKickerIn("top") && !showsTextBrandMark ? "none" : "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            minHeight: 44,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {showsTopLogoAt("left") ? <div style={{ display: "flex", marginRight: showsKickerIn("top") ? 32 : 0 }}>{logo}</div> : null}
+            {showsKickerIn("top") ? kicker : null}
+          </div>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {showsTopLogoAt("right") ? logo : null}
+            {showsTextBrandMark ? (
+              <div style={{ display: "flex", alignItems: "baseline", fontSize: 30, fontWeight: 700, letterSpacing: -0.8, fontFamily: typography.brandMark }}>
+                <span style={{ color: colors.text }}>discows</span>
+                <span style={{ color: colors.accent }}>.</span>
+              </div>
+            ) : null}
+          </div>
         </div>
 
         <div
@@ -240,7 +267,7 @@ export function SlideCanvas({
             textAlign: isCentered ? "center" : "left",
           }}
         >
-          {showsLogoIn("content") ? <div style={{ display: "flex", marginBottom: 48 }}>{logo}</div> : null}
+          {showsLogoIn("content") ? alignedLogoRow(48) : null}
           {showsKickerIn("content") ? <div style={{ display: "flex", marginBottom: 32 }}>{kicker}</div> : null}
           <SlideBody
             slide={slide}
@@ -255,7 +282,7 @@ export function SlideCanvas({
         {showsKickerIn("bottom") || showsLogoIn("bottom") ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start", marginBottom: 32 }}>
             {showsKickerIn("bottom") ? <div style={{ display: "flex", marginBottom: showsLogoIn("bottom") ? 24 : 0 }}>{kicker}</div> : null}
-            {showsLogoIn("bottom") ? logo : null}
+            {showsLogoIn("bottom") ? alignedLogoRow(0) : null}
           </div>
         ) : null}
 
