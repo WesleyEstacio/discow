@@ -204,22 +204,32 @@ export function resolveLogoAlignment(
   return slide.textAlign === "center" ? "center" : "left"
 }
 
-export const LOGO_COLORS = ["slide", "black", "white"] as const
+export const LOGO_COLORS = ["auto", "black", "white"] as const
 export type LogoColor = (typeof LOGO_COLORS)[number]
 export const LOGO_COLOR_LABELS: Record<LogoColor, string> = {
-  slide: "Cores do slide",
+  auto: "Automático",
   black: "Preto",
   white: "Branco",
 }
 
-// The official brand versions (brand/logo/final/GUIA.md): the cow spots stay
-// brand pink, so changing the slide accent no longer recolors the logo.
-const BRAND_LOGO_PINK = "#E0349A"
-const BRAND_LOGO_INK: Record<Exclude<LogoColor, "slide">, string> = { black: "#1A1020", white: "#FFFFFF" }
+// Slides saved while the logo could follow the slide colors stored "slide";
+// the logo never follows the slide accent anymore, so they become "auto".
+const RETIRED_LOGO_COLOR = "slide"
+const logoColorSchema = z.preprocess(
+  (storedValue) => (storedValue === RETIRED_LOGO_COLOR ? "auto" : storedValue),
+  z.enum(LOGO_COLORS).default("auto")
+)
 
-export function resolveLogoColors(logoColor: LogoColor, slideColors: SlideColors): { ink: string; accent: string } {
-  if (logoColor === "slide") return { ink: slideColors.text, accent: slideColors.accent }
-  return { ink: BRAND_LOGO_INK[logoColor], accent: BRAND_LOGO_PINK }
+// Always one of the official brand versions (brand/logo/final/GUIA.md) with
+// the cow spots in brand pink, so slide colors never recolor the logo.
+// "auto" picks black or white by the slide background.
+const BRAND_LOGO_PINK = "#E0349A"
+const BRAND_LOGO_INK: Record<Exclude<LogoColor, "auto">, string> = { black: "#1A1020", white: "#FFFFFF" }
+
+export function resolveLogoColors(logoColor: LogoColor, slideBackground: string): { ink: string; accent: string } {
+  const backgroundIsLight = readableTextColorFor(slideBackground) === "#17121b"
+  const resolvedLogoColor = logoColor === "auto" ? (backgroundIsLight ? "black" : "white") : logoColor
+  return { ink: BRAND_LOGO_INK[resolvedLogoColor], accent: BRAND_LOGO_PINK }
 }
 
 export const SLIDE_ELEMENT_TOGGLES = ["showKicker", "showProgress", "showCoverCredit", "showSwipeHint", "showBrandMark"] as const
@@ -414,7 +424,7 @@ export const studioSlideSchema = z.object({
   brandMarkStyle: z.enum(BRAND_MARK_STYLES).default("text"),
   logoPosition: z.enum(LOGO_POSITIONS).default("auto"),
   logoAlignment: z.enum(LOGO_ALIGNMENTS).default("auto"),
-  logoColor: z.enum(LOGO_COLORS).default("slide"),
+  logoColor: logoColorSchema,
   logoSize: z.enum(LOGO_SIZES).default("medium"),
   showKicker: z.boolean().default(true),
   kickerPosition: z.enum(SLIDE_ZONES).default("top"),
@@ -519,7 +529,7 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     logoPosition: "auto",
     logoAlignment: "auto",
     logoSize: "medium",
-    logoColor: "slide",
+    logoColor: "auto",
     showKicker: true,
     kickerPosition: "top",
     progressAlignment: "left",

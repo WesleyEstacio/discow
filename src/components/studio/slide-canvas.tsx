@@ -154,7 +154,7 @@ export function SlideCanvas({
     return album ? [album] : []
   })
   const logoZone = resolveLogoZone(slide)
-  const logoColors = resolveLogoColors(slide.logoColor, colors)
+  const logoColors = resolveLogoColors(slide.logoColor, colors.background)
   const showsLogo = slide.showBrandMark && slide.brandMarkStyle === "logo"
   const showsTextBrandMark = slide.showBrandMark && slide.brandMarkStyle === "text"
   const showsPositionedKicker = slide.showKicker && slide.kicker.length > 0 && slide.layout !== "album-pair"
