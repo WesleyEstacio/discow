@@ -8,6 +8,7 @@ import { requireStudioAdmin } from "@/lib/studio/admin"
 import { listStudioAlbums } from "@/lib/studio/albums"
 import { listDefaultBackgroundImages } from "@/lib/studio/background-images"
 import { createPostFromTemplateAction } from "@/lib/studio/post-actions"
+import { listPostPresetSummaries } from "@/lib/studio/post-presets"
 import { findStudioTemplate } from "@/lib/studio/templates"
 
 type CreateFromTemplatePageProps = {
@@ -20,7 +21,11 @@ export default async function CreateFromTemplatePage({ params }: CreateFromTempl
   const template = findStudioTemplate(templateKey)
   if (!template) notFound()
 
-  const [albums, defaultBackgroundImages] = await Promise.all([listStudioAlbums({}, 400), listDefaultBackgroundImages()])
+  const [albums, defaultBackgroundImages, postPresets] = await Promise.all([
+    listStudioAlbums({}, 400),
+    listDefaultBackgroundImages(),
+    listPostPresetSummaries(template.key),
+  ])
   const templateForClient = {
     key: template.key,
     slideStructure: template.slideStructure,
@@ -56,6 +61,7 @@ export default async function CreateFromTemplatePage({ params }: CreateFromTempl
             tags: album.tags,
           }))}
           defaultBackgroundImages={defaultBackgroundImages}
+          postPresets={postPresets}
           action={createPostFromTemplateAction.bind(null, template.key)}
         />
       </div>
