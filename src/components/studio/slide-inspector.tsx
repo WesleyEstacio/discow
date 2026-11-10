@@ -35,6 +35,8 @@ import {
 import {
   BACKGROUND_STYLE_LABELS,
   BACKGROUND_STYLES,
+  BRAND_MARK_STYLE_LABELS,
+  BRAND_MARK_STYLES,
   CONTENT_POSITION_LABELS,
   COVER_ECHO_ANCHOR_LABELS,
   COVER_ECHO_ANCHORS,
@@ -638,6 +640,20 @@ export function SlideInspector({
             </FieldLabel>
           </Field>
         ))}
+        {slide.showBrandMark ? (
+          <div className="flex flex-col gap-2 pt-1">
+            <OptionToggleField
+              label="Estilo da marca"
+              options={BRAND_MARK_STYLES}
+              optionLabels={BRAND_MARK_STYLE_LABELS}
+              value={slide.brandMarkStyle}
+              onChange={(brandMarkStyle) => onChange({ brandMarkStyle })}
+            />
+            {slide.layout === "cta" && slide.brandMarkStyle === "logo" ? (
+              <FieldDescription>No slide final, o novo logo aparece em destaque acima do conteúdo.</FieldDescription>
+            ) : null}
+          </div>
+        ) : null}
         {slide.showProgress ? (
           <div className="grid grid-cols-2 gap-4 pt-1">
             <Field>

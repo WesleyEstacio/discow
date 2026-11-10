@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="1498" viewBox="0 0 1600 1498"><rect width="1600" height="1498" fill="#f7f7f4"/><text x="60" y="78" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="40" font-weight="700" fill="#161616">Discows: Disco Malhado em cores</text><text x="60" y="116" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="20" fill="#6b6b6b">Variações a partir do conceito escolhido, com as cores do globals.css</text><rect x="60" y="150" width="474.667" height="630" rx="18" fill="#fff" stroke="#161616" stroke-width="2"/><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="90" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: disco malhado, cor</title>
+  <defs><clipPath id="c0-disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="c0-brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ad22c2"/><stop offset="1" stop-color="#d2119a"/></linearGradient></defs>
+  <g clip-path="url(#c0-disc)">
+    <path fill="url(#c0-brand)" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="url(#c0-brand)" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="url(#c0-brand)" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#0c090d" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="90" y="516" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: disco malhado, cor</title>
+  <defs><clipPath id="s064-disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="s064-brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ad22c2"/><stop offset="1" stop-color="#d2119a"/></linearGradient></defs>
+  <g clip-path="url(#s064-disc)">
+    <path fill="url(#s064-brand)" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="url(#s064-brand)" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="url(#s064-brand)" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#0c090d" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</svg>
+</g><text x="122" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="180" y="548" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: disco malhado, cor</title>
+  <defs><clipPath id="s032-disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="s032-brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ad22c2"/><stop offset="1" stop-color="#d2119a"/></linearGradient></defs>
+  <g clip-path="url(#s032-disc)">
+    <path fill="url(#s032-brand)" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="url(#s032-brand)" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="url(#s032-brand)" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#0c090d" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</svg>
+</g><text x="196" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="238" y="564" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: disco malhado, cor</title>
+  <defs><clipPath id="s016-disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="s016-brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ad22c2"/><stop offset="1" stop-color="#d2119a"/></linearGradient></defs>
+  <g clip-path="url(#s016-disc)">
+    <path fill="url(#s016-brand)" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="url(#s016-brand)" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="url(#s016-brand)" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#0c090d" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</svg>
+</g><text x="246" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="90.0" y="636" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">A · Principal</text><text x="90.0" y="664" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#161616" letter-spacing="1.5">RECOMMENDED</text><text x="90.0" y="698" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Aro e manchas no gradiente primary para</text><text x="90.0" y="724" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">glow do projeto; selo escuro no centro.</text><rect x="562.667" y="150" width="474.667" height="630" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="592.667" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: ícone de app</title>
+  <defs><clipPath id="c1-disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="c1-brandDark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d777ed"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="url(#c1-brandDark)" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 117a11 11 0 1 0 0 22a11 11 0 1 0 0-22Z"/>
+    <g clip-path="url(#c1-disc)" fill="#0b0910">
+      <path d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+      <path d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+      <path fill-rule="evenodd" d="M128 58a70 70 0 1 1 0 140a70 70 0 1 1 0-140ZM128 64a64 64 0 1 0 0 128a64 64 0 1 0 0-128Z"/>
+    </g>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="592.667" y="516" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: ícone de app</title>
+  <defs><clipPath id="s164-disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="s164-brandDark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d777ed"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="url(#s164-brandDark)" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 117a11 11 0 1 0 0 22a11 11 0 1 0 0-22Z"/>
+    <g clip-path="url(#s164-disc)" fill="#0b0910">
+      <path d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+      <path d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+      <path fill-rule="evenodd" d="M128 58a70 70 0 1 1 0 140a70 70 0 1 1 0-140ZM128 64a64 64 0 1 0 0 128a64 64 0 1 0 0-128Z"/>
+    </g>
+  </g>
+</svg>
+</g><text x="624.667" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="682.667" y="548" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: ícone de app</title>
+  <defs><clipPath id="s132-disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="s132-brandDark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d777ed"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="url(#s132-brandDark)" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 117a11 11 0 1 0 0 22a11 11 0 1 0 0-22Z"/>
+    <g clip-path="url(#s132-disc)" fill="#0b0910">
+      <path d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+      <path d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+      <path fill-rule="evenodd" d="M128 58a70 70 0 1 1 0 140a70 70 0 1 1 0-140ZM128 64a64 64 0 1 0 0 128a64 64 0 1 0 0-128Z"/>
+    </g>
+  </g>
+</svg>
+</g><text x="698.667" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="740.667" y="564" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: ícone de app</title>
+  <defs><clipPath id="s116-disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="s116-brandDark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d777ed"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="url(#s116-brandDark)" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 117a11 11 0 1 0 0 22a11 11 0 1 0 0-22Z"/>
+    <g clip-path="url(#s116-disc)" fill="#0b0910">
+      <path d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+      <path d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+      <path fill-rule="evenodd" d="M128 58a70 70 0 1 1 0 140a70 70 0 1 1 0-140ZM128 64a64 64 0 1 0 0 128a64 64 0 1 0 0-128Z"/>
+    </g>
+  </g>
+</svg>
+</g><text x="748.667" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="592.6666666666667" y="636" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">B · Ícone de app</text><text x="592.6666666666667" y="670" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Versão invertida: disco rosa do tema escuro</text><text x="592.6666666666667" y="696" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">com as manchas vazadas e um sulco.</text><rect x="1065.33" y="150" width="474.667" height="630" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="1095.33" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet"><rect width="256" height="256" rx="56" fill="#0b0910"/><g transform="translate(25.6 25.6) scale(0.8)">
+  <title>Discows: disco malhado iridescente</title>
+  <defs><clipPath id="c2-disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="c2-spotWarm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f44dab"/><stop offset="0.55" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="c2-spotCool" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00b7c1"/><stop offset="1" stop-color="#d777ed"/></linearGradient></defs>
+  <g clip-path="url(#c2-disc)">
+    <path fill="#f7f5fa" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="url(#c2-spotWarm)" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="url(#c2-spotCool)" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#f7f5fa" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</g></svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="1095.33" y="516" width="64" height="64" preserveAspectRatio="xMidYMid meet"><rect width="256" height="256" rx="56" fill="#0b0910"/><g transform="translate(25.6 25.6) scale(0.8)">
+  <title>Discows: disco malhado iridescente</title>
+  <defs><clipPath id="s264-disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="s264-spotWarm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f44dab"/><stop offset="0.55" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="s264-spotCool" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00b7c1"/><stop offset="1" stop-color="#d777ed"/></linearGradient></defs>
+  <g clip-path="url(#s264-disc)">
+    <path fill="#f7f5fa" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="url(#s264-spotWarm)" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="url(#s264-spotCool)" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#f7f5fa" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</g></svg>
+</g><text x="1127.33" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="1185.33" y="548" width="32" height="32" preserveAspectRatio="xMidYMid meet"><rect width="256" height="256" rx="56" fill="#0b0910"/><g transform="translate(25.6 25.6) scale(0.8)">
+  <title>Discows: disco malhado iridescente</title>
+  <defs><clipPath id="s232-disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="s232-spotWarm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f44dab"/><stop offset="0.55" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="s232-spotCool" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00b7c1"/><stop offset="1" stop-color="#d777ed"/></linearGradient></defs>
+  <g clip-path="url(#s232-disc)">
+    <path fill="#f7f5fa" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="url(#s232-spotWarm)" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="url(#s232-spotCool)" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#f7f5fa" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</g></svg>
+</g><text x="1201.33" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="1243.33" y="564" width="16" height="16" preserveAspectRatio="xMidYMid meet"><rect width="256" height="256" rx="56" fill="#0b0910"/><g transform="translate(25.6 25.6) scale(0.8)">
+  <title>Discows: disco malhado iridescente</title>
+  <defs><clipPath id="s216-disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="s216-spotWarm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f44dab"/><stop offset="0.55" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="s216-spotCool" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00b7c1"/><stop offset="1" stop-color="#d777ed"/></linearGradient></defs>
+  <g clip-path="url(#s216-disc)">
+    <path fill="#f7f5fa" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="url(#s216-spotWarm)" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="url(#s216-spotCool)" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#f7f5fa" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</g></svg>
+</g><text x="1251.33" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="1095.3333333333335" y="636" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">C · Iridescente</text><text x="1095.3333333333335" y="670" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Releitura do logo atual: as manchas viram o</text><text x="1095.3333333333335" y="696" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">brilho arco-íris de um CD, nas cores dos</text><text x="1095.3333333333335" y="722" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">charts.</text><rect x="60" y="808" width="474.667" height="630" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="90" y="848" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: disco malhado</title>
+  <defs><clipPath id="c3-disc"><circle cx="128" cy="128" r="106"/></clipPath></defs>
+  <g clip-path="url(#c3-disc)">
+    <path fill="#000" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="#000" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="#000" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#000" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="90" y="1174" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: disco malhado</title>
+  <defs><clipPath id="s364-disc"><circle cx="128" cy="128" r="106"/></clipPath></defs>
+  <g clip-path="url(#s364-disc)">
+    <path fill="#000" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="#000" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="#000" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#000" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</svg>
+</g><text x="122" y="1258" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="180" y="1206" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: disco malhado</title>
+  <defs><clipPath id="s332-disc"><circle cx="128" cy="128" r="106"/></clipPath></defs>
+  <g clip-path="url(#s332-disc)">
+    <path fill="#000" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="#000" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="#000" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#000" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</svg>
+</g><text x="196" y="1258" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="238" y="1222" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: disco malhado</title>
+  <defs><clipPath id="s316-disc"><circle cx="128" cy="128" r="106"/></clipPath></defs>
+  <g clip-path="url(#s316-disc)">
+    <path fill="#000" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="#000" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="#000" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#000" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</svg>
+</g><text x="246" y="1258" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="90.0" y="1294" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">D · Uma cor</text><text x="90.0" y="1328" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Master em preto: prova que a forma funciona</text><text x="90.0" y="1354" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">sem cor (carimbo, bordado, gravação).</text></svg>

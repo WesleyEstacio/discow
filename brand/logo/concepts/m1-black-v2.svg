@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: disco malhado</title>
+  <defs><clipPath id="disc"><circle cx="128" cy="128" r="106"/></clipPath></defs>
+  <g clip-path="url(#disc)">
+    <path fill="#000" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 38a90 90 0 1 0 0 180a90 90 0 1 0 0-180Z"/>
+    <path fill="#000" d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+    <path fill="#000" d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+  </g>
+  <path fill="#000" fill-rule="evenodd" d="M128 106a22 22 0 1 1 0 44a22 22 0 1 1 0-44ZM128 121a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+</svg>

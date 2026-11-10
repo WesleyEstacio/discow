@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: vaca-disco sólida</title>
+  <path fill="#000" d="M94 72C66 70 50 58 46 34C58 48 74 54 100 60ZM162 72C190 70 206 58 210 34C198 48 182 54 156 60Z"/>
+  <path fill="#000" d="M50 104C36 90 16 90 4 100C12 118 32 126 50 120ZM206 104C220 90 240 90 252 100C244 118 224 126 206 120Z"/>
+  <path fill="#000" fill-rule="evenodd" d="M128 56a84 84 0 1 1 0 168a84 84 0 1 1 0-168ZM96 112a7 7 0 1 0 0 14a7 7 0 1 0 0-14ZM160 112a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+  <path fill="#fff" stroke="#000" stroke-width="10" d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/>
+  <path fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" d="M104 180C98 184 98 192 104 196M152 180C158 184 158 192 152 196"/>
+  <path fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+</svg>

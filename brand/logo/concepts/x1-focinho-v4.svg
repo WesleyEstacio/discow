@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: disco-focinho</title>
+  <defs><clipPath id="disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="iri" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <circle cx="128" cy="128" r="106" fill="url(#iri)"/>
+    <g clip-path="url(#disc)" fill="#0b0910">
+      <path fill-rule="evenodd" d="M128 52a76 76 0 1 1 0 152a76 76 0 1 1 0-152ZM128 58a70 70 0 1 0 0 140a70 70 0 1 0 0-140Z"/>
+      <path d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+      <path d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+    </g>
+    <path fill="#f6eff8" d="M128 118C156 118 172 122 176 134L184 164C188 184 162 194 128 194C94 194 68 184 72 164L80 134C84 122 100 118 128 118Z"/>
+    <path fill="#0b0910" d="M114 140C100 138 88 148 92 162C94 170 104 170 106 163C108 156 104 150 114 140Z"/><path fill="#0b0910" d="M142 140C156 138 168 148 164 162C162 170 152 170 150 163C148 156 152 150 142 140Z"/>
+  </g>
+</svg>

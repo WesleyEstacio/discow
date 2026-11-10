@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: ícone de app</title>
+  <defs><clipPath id="disc"><circle cx="128" cy="128" r="106"/></clipPath><linearGradient id="brandDark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d777ed"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="url(#brandDark)" fill-rule="evenodd" d="M128 22a106 106 0 1 1 0 212a106 106 0 1 1 0-212ZM128 117a11 11 0 1 0 0 22a11 11 0 1 0 0-22Z"/>
+    <g clip-path="url(#disc)" fill="#0b0910">
+      <path d="M136 56C120 36 140 4 180 8C210 14 236 40 240 70C242 92 206 98 198 110C188 128 166 132 154 120C144 110 150 98 140 88C130 80 144 70 136 56Z"/>
+      <path d="M10 140C30 134 76 138 86 156C94 170 90 188 76 196C62 204 40 210 20 200Z"/>
+      <path fill-rule="evenodd" d="M128 58a70 70 0 1 1 0 140a70 70 0 1 1 0-140ZM128 64a64 64 0 1 0 0 128a64 64 0 1 0 0-128Z"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,337 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="1498" viewBox="0 0 1600 1498"><rect width="1600" height="1498" fill="#f7f7f4"/><text x="60" y="78" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="40" font-weight="700" fill="#161616">Discows: disco com rosto de vaca</text><text x="60" y="116" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="20" fill="#6b6b6b">Orelhas e rosto num disco, com as cores iridescentes da opção C</text><rect x="60" y="150" width="474.667" height="630" rx="18" fill="#fff" stroke="#161616" stroke-width="2"/><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="90" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-CD</title>
+  <defs><clipPath id="c0-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="c0-iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="c0-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="#f6eff8" d="M90 62C84 48 86 34 96 22C100 36 106 46 114 54Z"/>
+    <path fill="#f6eff8" d="M166 62C172 48 170 34 160 22C156 36 150 46 142 54Z"/>
+    <path fill="url(#c0-iri)" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="url(#c0-iri)" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="url(#c0-iri)" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#c0-face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#c0-muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="90" y="516" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-CD</title>
+  <defs><clipPath id="s064-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="s064-iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="s064-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="#f6eff8" d="M90 62C84 48 86 34 96 22C100 36 106 46 114 54Z"/>
+    <path fill="#f6eff8" d="M166 62C172 48 170 34 160 22C156 36 150 46 142 54Z"/>
+    <path fill="url(#s064-iri)" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="url(#s064-iri)" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="url(#s064-iri)" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#s064-face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#s064-muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><text x="122" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="180" y="548" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-CD</title>
+  <defs><clipPath id="s032-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="s032-iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="s032-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="#f6eff8" d="M90 62C84 48 86 34 96 22C100 36 106 46 114 54Z"/>
+    <path fill="#f6eff8" d="M166 62C172 48 170 34 160 22C156 36 150 46 142 54Z"/>
+    <path fill="url(#s032-iri)" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="url(#s032-iri)" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="url(#s032-iri)" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#s032-face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#s032-muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><text x="196" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="238" y="564" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-CD</title>
+  <defs><clipPath id="s016-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="s016-iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="s016-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="#f6eff8" d="M90 62C84 48 86 34 96 22C100 36 106 46 114 54Z"/>
+    <path fill="#f6eff8" d="M166 62C172 48 170 34 160 22C156 36 150 46 142 54Z"/>
+    <path fill="url(#s016-iri)" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="url(#s016-iri)" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="url(#s016-iri)" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#s016-face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#s016-muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><text x="246" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="90.0" y="636" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">A · Vaca-CD</text><text x="90.0" y="664" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#161616" letter-spacing="1.5">RECOMMENDED</text><text x="90.0" y="698" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">O rosto da vaca dentro de um CD: o aro</text><text x="90.0" y="724" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">iridescente é o brilho do disco, com</text><text x="90.0" y="750" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">orelhas, chifres, mancha no olho e focinho</text><rect x="562.667" y="150" width="474.667" height="630" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="592.667" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-CD sem chifres</title>
+  <defs><clipPath id="c1-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="c1-iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="c1-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="url(#c1-iri)" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="url(#c1-iri)" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="url(#c1-iri)" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#c1-face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/><path d="M96 50C108 62 124 66 132 78C138 88 128 96 116 92C104 88 96 76 84 72C80 62 86 52 96 50Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#c1-muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="592.667" y="516" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-CD sem chifres</title>
+  <defs><clipPath id="s164-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="s164-iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="s164-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="url(#s164-iri)" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="url(#s164-iri)" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="url(#s164-iri)" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#s164-face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/><path d="M96 50C108 62 124 66 132 78C138 88 128 96 116 92C104 88 96 76 84 72C80 62 86 52 96 50Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#s164-muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><text x="624.667" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="682.667" y="548" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-CD sem chifres</title>
+  <defs><clipPath id="s132-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="s132-iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="s132-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="url(#s132-iri)" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="url(#s132-iri)" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="url(#s132-iri)" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#s132-face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/><path d="M96 50C108 62 124 66 132 78C138 88 128 96 116 92C104 88 96 76 84 72C80 62 86 52 96 50Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#s132-muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><text x="698.667" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="740.667" y="564" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-CD sem chifres</title>
+  <defs><clipPath id="s116-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="s116-iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="s116-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="url(#s116-iri)" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="url(#s116-iri)" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="url(#s116-iri)" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#s116-face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/><path d="M96 50C108 62 124 66 132 78C138 88 128 96 116 92C104 88 96 76 84 72C80 62 86 52 96 50Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#s116-muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><text x="748.667" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="592.6666666666667" y="636" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">B · Vaca-CD sem chifres</text><text x="592.6666666666667" y="670" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Mesma ideia, mais redonda e fofa: sem</text><text x="592.6666666666667" y="696" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">chifres, com uma segunda mancha no topo.</text><rect x="1065.33" y="150" width="474.667" height="630" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="1095.33" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca de vinil</title>
+  <defs><clipPath id="c2-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="c2-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#f6eff8"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="#0b0910" d="M90 62C84 48 86 34 96 22C100 36 106 46 114 54Z"/>
+    <path fill="#0b0910" d="M166 62C172 48 170 34 160 22C156 36 150 46 142 54Z"/>
+    <path fill="#0b0910" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="#0b0910" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="#0b0910" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <circle cx="128" cy="136" r="78" fill="none" stroke="#3a3342" stroke-width="1.6"/><circle cx="128" cy="136" r="83" fill="none" stroke="#3a3342" stroke-width="1.6"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#c2-face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#c2-muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="1095.33" y="516" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca de vinil</title>
+  <defs><clipPath id="s264-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="s264-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#f6eff8"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="#0b0910" d="M90 62C84 48 86 34 96 22C100 36 106 46 114 54Z"/>
+    <path fill="#0b0910" d="M166 62C172 48 170 34 160 22C156 36 150 46 142 54Z"/>
+    <path fill="#0b0910" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="#0b0910" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="#0b0910" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <circle cx="128" cy="136" r="78" fill="none" stroke="#3a3342" stroke-width="1.6"/><circle cx="128" cy="136" r="83" fill="none" stroke="#3a3342" stroke-width="1.6"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#s264-face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#s264-muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><text x="1127.33" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="1185.33" y="548" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca de vinil</title>
+  <defs><clipPath id="s232-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="s232-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#f6eff8"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="#0b0910" d="M90 62C84 48 86 34 96 22C100 36 106 46 114 54Z"/>
+    <path fill="#0b0910" d="M166 62C172 48 170 34 160 22C156 36 150 46 142 54Z"/>
+    <path fill="#0b0910" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="#0b0910" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="#0b0910" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <circle cx="128" cy="136" r="78" fill="none" stroke="#3a3342" stroke-width="1.6"/><circle cx="128" cy="136" r="83" fill="none" stroke="#3a3342" stroke-width="1.6"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#s232-face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#s232-muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><text x="1201.33" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="1243.33" y="564" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca de vinil</title>
+  <defs><clipPath id="s216-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="s216-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#f6eff8"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <path fill="#0b0910" d="M90 62C84 48 86 34 96 22C100 36 106 46 114 54Z"/>
+    <path fill="#0b0910" d="M166 62C172 48 170 34 160 22C156 36 150 46 142 54Z"/>
+    <path fill="#0b0910" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="#0b0910" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#f44dab" d="M50 104C40 98 28 97 20 101C28 110 40 114 52 113Z"/>
+    <path fill="#f44dab" d="M206 104C216 98 228 97 236 101C228 110 216 114 204 113Z"/>
+    <path fill="#0b0910" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <circle cx="128" cy="136" r="78" fill="none" stroke="#3a3342" stroke-width="1.6"/><circle cx="128" cy="136" r="83" fill="none" stroke="#3a3342" stroke-width="1.6"/>
+    <path fill="#f6eff8" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#s216-face)" fill="#0b0910"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#0b0910"/>
+    <circle cx="170" cy="118" r="10" fill="#f6eff8"/>
+    <circle cx="170" cy="118" r="5.5" fill="#0b0910"/>
+    <path fill="url(#s216-muz)" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#0b0910" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#0b0910" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><text x="1251.33" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="1095.3333333333335" y="636" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">C · Vaca de Vinil</text><text x="1095.3333333333335" y="670" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Para fundo claro: o aro vira um vinil preto</text><text x="1095.3333333333335" y="696" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">com sulcos. Mesmo rosto, outra mídia.</text><rect x="60" y="808" width="474.667" height="630" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="90" y="848" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-CD uma cor</title>
+  <defs><clipPath id="c3-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="c3-iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="c3-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <g>
+    <path fill="#000" d="M90 62C84 48 86 34 96 22C100 36 106 46 114 54Z"/>
+    <path fill="#000" d="M166 62C172 48 170 34 160 22C156 36 150 46 142 54Z"/>
+    <path fill="#000" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="#000" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#000" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#fff" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#c3-face)" fill="#000"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#000"/>
+    <circle cx="170" cy="118" r="10" fill="#fff"/>
+    <circle cx="170" cy="118" r="5.5" fill="#000"/>
+    <path fill="#000" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#fff" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#fff" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="90" y="1174" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-CD uma cor</title>
+  <defs><clipPath id="s364-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="s364-iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="s364-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <g>
+    <path fill="#000" d="M90 62C84 48 86 34 96 22C100 36 106 46 114 54Z"/>
+    <path fill="#000" d="M166 62C172 48 170 34 160 22C156 36 150 46 142 54Z"/>
+    <path fill="#000" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="#000" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#000" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#fff" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#s364-face)" fill="#000"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#000"/>
+    <circle cx="170" cy="118" r="10" fill="#fff"/>
+    <circle cx="170" cy="118" r="5.5" fill="#000"/>
+    <path fill="#000" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#fff" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#fff" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><text x="122" y="1258" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="180" y="1206" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-CD uma cor</title>
+  <defs><clipPath id="s332-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="s332-iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="s332-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <g>
+    <path fill="#000" d="M90 62C84 48 86 34 96 22C100 36 106 46 114 54Z"/>
+    <path fill="#000" d="M166 62C172 48 170 34 160 22C156 36 150 46 142 54Z"/>
+    <path fill="#000" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="#000" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#000" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#fff" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#s332-face)" fill="#000"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#000"/>
+    <circle cx="170" cy="118" r="10" fill="#fff"/>
+    <circle cx="170" cy="118" r="5.5" fill="#000"/>
+    <path fill="#000" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#fff" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#fff" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><text x="196" y="1258" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="238" y="1222" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-CD uma cor</title>
+  <defs><clipPath id="s316-face"><path d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/></clipPath><linearGradient id="s316-iri" gradientUnits="userSpaceOnUse" x1="40" y1="48" x2="216" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient><linearGradient id="s316-muz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f77fc4"/><stop offset="1" stop-color="#f44dab"/></linearGradient></defs>
+  <g>
+    <path fill="#000" d="M90 62C84 48 86 34 96 22C100 36 106 46 114 54Z"/>
+    <path fill="#000" d="M166 62C172 48 170 34 160 22C156 36 150 46 142 54Z"/>
+    <path fill="#000" d="M60 100C42 86 18 84 4 96C14 118 40 126 62 120Z"/>
+    <path fill="#000" d="M196 100C214 86 238 84 252 96C242 118 216 126 194 120Z"/>
+    <path fill="#000" d="M128 48a88 88 0 1 1 0 176a88 88 0 1 1 0-176Z"/>
+    <path fill="#fff" d="M128 62a74 74 0 1 1 0 148a74 74 0 1 1 0-148Z"/>
+    <g clip-path="url(#s316-face)" fill="#000"><path d="M146 94C164 78 196 84 204 106C210 124 198 146 176 148C158 150 142 138 140 120C139 108 138 100 146 94Z"/><path d="M40 150C58 144 76 154 76 170C76 186 60 196 44 192Z"/></g>
+    <circle cx="98" cy="120" r="8" fill="#000"/>
+    <circle cx="170" cy="118" r="10" fill="#fff"/>
+    <circle cx="170" cy="118" r="5.5" fill="#000"/>
+    <path fill="#000" d="M128 146C150 146 164 150 168 160L174 180C178 196 156 204 128 204C100 204 78 196 82 180L88 160C92 150 106 146 128 146Z"/>
+    <path fill="#fff" d="M116 162C104 160 94 168 98 180C100 186 108 186 110 181C112 176 108 172 116 162Z"/>
+    <path fill="#fff" d="M140 162C152 160 162 168 158 180C156 186 148 186 146 181C144 176 148 172 140 162Z"/>
+  </g>
+</svg>
+</g><text x="246" y="1258" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="90.0" y="1294" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">D · Uma cor</text><text x="90.0" y="1328" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Master em preto, para carimbo, bordado,</text><text x="90.0" y="1354" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">gravação e usos de uma cor só.</text></svg>

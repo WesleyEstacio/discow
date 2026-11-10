@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: vaca-disco em linha</title>
+  <defs><linearGradient id="iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <circle cx="96" cy="118" r="6" fill="#f6eff8"/><circle cx="160" cy="118" r="6" fill="#f6eff8"/>
+    <g fill="#0b0910" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>

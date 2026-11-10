@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: agulha-chifre</title>
+  <path fill="#000" fill-rule="evenodd" d="M112 56a88 88 0 1 1 0 176a88 88 0 1 1 0-176ZM112 84a60 60 0 1 0 0 120a60 60 0 1 0 0-120ZM112 93a51 51 0 1 1 0 102a51 51 0 1 1 0-102ZM112 132a12 12 0 1 0 0 24a12 12 0 1 0 0-24Z"/>
+  <path fill="#000" stroke="#fff" stroke-width="10" paint-order="stroke" stroke-linejoin="round" d="M240 46C236 18 196 10 172 36C152 58 146 88 150 122C160 94 172 68 192 54C206 44 222 44 232 70Z"/>
+</svg>

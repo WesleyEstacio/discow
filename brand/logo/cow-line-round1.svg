@@ -1,0 +1,205 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="1498" viewBox="0 0 1600 1498"><rect width="1600" height="1498" fill="#f7f7f4"/><text x="60" y="78" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="40" font-weight="700" fill="#161616">Discows: vaca-disco, versão profissional</text><text x="60" y="116" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="20" fill="#6b6b6b">Traço fino e uniforme, menos detalhes, cor só como acento</text><rect x="60" y="150" width="474.667" height="630" rx="18" fill="#fff" stroke="#161616" stroke-width="2"/><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="90" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco em linha</title>
+  <defs><linearGradient id="c0-iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#c0-iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <circle cx="96" cy="118" r="6" fill="#f6eff8"/><circle cx="160" cy="118" r="6" fill="#f6eff8"/>
+    <g fill="#0b0910" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="90" y="516" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco em linha</title>
+  <defs><linearGradient id="s064-iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#s064-iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <circle cx="96" cy="118" r="6" fill="#f6eff8"/><circle cx="160" cy="118" r="6" fill="#f6eff8"/>
+    <g fill="#0b0910" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>
+</g><text x="122" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="180" y="548" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco em linha</title>
+  <defs><linearGradient id="s032-iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#s032-iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <circle cx="96" cy="118" r="6" fill="#f6eff8"/><circle cx="160" cy="118" r="6" fill="#f6eff8"/>
+    <g fill="#0b0910" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>
+</g><text x="196" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="238" y="564" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco em linha</title>
+  <defs><linearGradient id="s016-iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#s016-iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <circle cx="96" cy="118" r="6" fill="#f6eff8"/><circle cx="160" cy="118" r="6" fill="#f6eff8"/>
+    <g fill="#0b0910" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>
+</g><text x="246" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="90.0" y="636" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">A · Linha</text><text x="90.0" y="664" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#161616" letter-spacing="1.5">RECOMMENDED</text><text x="90.0" y="698" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Monolinha fina e uniforme: aro iridescente</text><text x="90.0" y="724" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">do CD, reflexo no canto, chifres, orelhas e</text><text x="90.0" y="750" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">focinho largo. Sem pupila nem brilho de</text><rect x="562.667" y="150" width="474.667" height="630" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="592.667" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco em linha com mancha</title>
+  <defs><linearGradient id="c1-iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#c1-iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <clipPath id="c1-face"><circle cx="128" cy="140" r="84"/></clipPath><path clip-path="url(#c1-face)" fill="url(#c1-iri)" d="M150 60C172 56 202 70 210 96C214 112 204 120 196 128C186 140 166 142 154 132C142 122 146 110 140 100C132 86 132 64 150 60Z"/><circle cx="96" cy="118" r="6" fill="#f6eff8"/><circle cx="160" cy="118" r="6" fill="#0b0910"/>
+    <g fill="#0b0910" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="592.667" y="516" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco em linha com mancha</title>
+  <defs><linearGradient id="s164-iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#s164-iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <clipPath id="s164-face"><circle cx="128" cy="140" r="84"/></clipPath><path clip-path="url(#s164-face)" fill="url(#s164-iri)" d="M150 60C172 56 202 70 210 96C214 112 204 120 196 128C186 140 166 142 154 132C142 122 146 110 140 100C132 86 132 64 150 60Z"/><circle cx="96" cy="118" r="6" fill="#f6eff8"/><circle cx="160" cy="118" r="6" fill="#0b0910"/>
+    <g fill="#0b0910" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>
+</g><text x="624.667" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="682.667" y="548" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco em linha com mancha</title>
+  <defs><linearGradient id="s132-iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#s132-iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <clipPath id="s132-face"><circle cx="128" cy="140" r="84"/></clipPath><path clip-path="url(#s132-face)" fill="url(#s132-iri)" d="M150 60C172 56 202 70 210 96C214 112 204 120 196 128C186 140 166 142 154 132C142 122 146 110 140 100C132 86 132 64 150 60Z"/><circle cx="96" cy="118" r="6" fill="#f6eff8"/><circle cx="160" cy="118" r="6" fill="#0b0910"/>
+    <g fill="#0b0910" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>
+</g><text x="698.667" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="740.667" y="564" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco em linha com mancha</title>
+  <defs><linearGradient id="s116-iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#0b0910"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#s116-iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <clipPath id="s116-face"><circle cx="128" cy="140" r="84"/></clipPath><path clip-path="url(#s116-face)" fill="url(#s116-iri)" d="M150 60C172 56 202 70 210 96C214 112 204 120 196 128C186 140 166 142 154 132C142 122 146 110 140 100C132 86 132 64 150 60Z"/><circle cx="96" cy="118" r="6" fill="#f6eff8"/><circle cx="160" cy="118" r="6" fill="#0b0910"/>
+    <g fill="#0b0910" stroke="#f6eff8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#f6eff8" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>
+</g><text x="748.667" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="592.6666666666667" y="636" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">B · Linha com mancha</text><text x="592.6666666666667" y="670" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">A mesma, com uma mancha de vaca iridescente</text><text x="592.6666666666667" y="696" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">encostada no aro: o brilho do CD vira</text><text x="592.6666666666667" y="722" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">estampa.</text><rect x="1065.33" y="150" width="474.667" height="630" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="1095.33" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco em linha, fundo claro</title>
+  <defs><linearGradient id="c2-iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#f6eff8"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#0b0910" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#c2-iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <circle cx="96" cy="118" r="6" fill="#0b0910"/><circle cx="160" cy="118" r="6" fill="#0b0910"/>
+    <g fill="#f6eff8" stroke="#0b0910" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#0b0910" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="1095.33" y="516" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco em linha, fundo claro</title>
+  <defs><linearGradient id="s264-iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#f6eff8"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#0b0910" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#s264-iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <circle cx="96" cy="118" r="6" fill="#0b0910"/><circle cx="160" cy="118" r="6" fill="#0b0910"/>
+    <g fill="#f6eff8" stroke="#0b0910" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#0b0910" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>
+</g><text x="1127.33" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="1185.33" y="548" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco em linha, fundo claro</title>
+  <defs><linearGradient id="s232-iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#f6eff8"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#0b0910" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#s232-iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <circle cx="96" cy="118" r="6" fill="#0b0910"/><circle cx="160" cy="118" r="6" fill="#0b0910"/>
+    <g fill="#f6eff8" stroke="#0b0910" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#0b0910" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>
+</g><text x="1201.33" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="1243.33" y="564" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco em linha, fundo claro</title>
+  <defs><linearGradient id="s216-iri" gradientUnits="userSpaceOnUse" x1="44" y1="56" x2="212" y2="224"><stop offset="0" stop-color="#00b7c1"/><stop offset="0.35" stop-color="#d777ed"/><stop offset="0.6" stop-color="#f44dab"/><stop offset="0.82" stop-color="#f86f3c"/><stop offset="1" stop-color="#e6b816"/></linearGradient></defs>
+  <rect width="256" height="256" rx="56" fill="#f6eff8"/>
+  <g transform="translate(25.6 25.6) scale(0.8)">
+    <g fill="none" stroke="#0b0910" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M82 68C66 70 54 62 52 42"/><path d="M174 68C190 70 202 62 204 42"/><path d="M48 104C36 92 18 92 8 100C16 116 34 122 48 118"/><path d="M208 104C220 92 238 92 248 100C240 116 222 122 208 118"/><path d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+    </g>
+    <g fill="none" stroke="url(#s216-iri)" stroke-width="9"><circle cx="128" cy="140" r="84"/></g>
+    <circle cx="96" cy="118" r="6" fill="#0b0910"/><circle cx="160" cy="118" r="6" fill="#0b0910"/>
+    <g fill="#f6eff8" stroke="#0b0910" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/></g>
+    <g fill="none" stroke="#0b0910" stroke-width="9" stroke-linecap="round"><path d="M104 180C98 184 98 192 104 196"/><path d="M152 180C158 184 158 192 152 196"/></g>
+  </g>
+</svg>
+</g><text x="1251.33" y="600" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="1095.3333333333335" y="636" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">C · Linha, fundo claro</text><text x="1095.3333333333335" y="670" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Para o tema claro e materiais impressos:</text><text x="1095.3333333333335" y="696" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">traço escuro, aro colorido.</text><rect x="60" y="808" width="474.667" height="630" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="90" y="848" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco sólida</title>
+  <path fill="#000" d="M94 72C66 70 50 58 46 34C58 48 74 54 100 60ZM162 72C190 70 206 58 210 34C198 48 182 54 156 60Z"/>
+  <path fill="#000" d="M50 104C36 90 16 90 4 100C12 118 32 126 50 120ZM206 104C220 90 240 90 252 100C244 118 224 126 206 120Z"/>
+  <path fill="#000" fill-rule="evenodd" d="M128 56a84 84 0 1 1 0 168a84 84 0 1 1 0-168ZM96 112a7 7 0 1 0 0 14a7 7 0 1 0 0-14ZM160 112a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+  <path fill="#fff" stroke="#000" stroke-width="10" d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/>
+  <path fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" d="M104 180C98 184 98 192 104 196M152 180C158 184 158 192 152 196"/>
+  <path fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="90" y="1174" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco sólida</title>
+  <path fill="#000" d="M94 72C66 70 50 58 46 34C58 48 74 54 100 60ZM162 72C190 70 206 58 210 34C198 48 182 54 156 60Z"/>
+  <path fill="#000" d="M50 104C36 90 16 90 4 100C12 118 32 126 50 120ZM206 104C220 90 240 90 252 100C244 118 224 126 206 120Z"/>
+  <path fill="#000" fill-rule="evenodd" d="M128 56a84 84 0 1 1 0 168a84 84 0 1 1 0-168ZM96 112a7 7 0 1 0 0 14a7 7 0 1 0 0-14ZM160 112a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+  <path fill="#fff" stroke="#000" stroke-width="10" d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/>
+  <path fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" d="M104 180C98 184 98 192 104 196M152 180C158 184 158 192 152 196"/>
+  <path fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+</svg>
+</g><text x="122" y="1258" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="180" y="1206" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco sólida</title>
+  <path fill="#000" d="M94 72C66 70 50 58 46 34C58 48 74 54 100 60ZM162 72C190 70 206 58 210 34C198 48 182 54 156 60Z"/>
+  <path fill="#000" d="M50 104C36 90 16 90 4 100C12 118 32 126 50 120ZM206 104C220 90 240 90 252 100C244 118 224 126 206 120Z"/>
+  <path fill="#000" fill-rule="evenodd" d="M128 56a84 84 0 1 1 0 168a84 84 0 1 1 0-168ZM96 112a7 7 0 1 0 0 14a7 7 0 1 0 0-14ZM160 112a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+  <path fill="#fff" stroke="#000" stroke-width="10" d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/>
+  <path fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" d="M104 180C98 184 98 192 104 196M152 180C158 184 158 192 152 196"/>
+  <path fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+</svg>
+</g><text x="196" y="1258" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" x="238" y="1222" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title>Discows: vaca-disco sólida</title>
+  <path fill="#000" d="M94 72C66 70 50 58 46 34C58 48 74 54 100 60ZM162 72C190 70 206 58 210 34C198 48 182 54 156 60Z"/>
+  <path fill="#000" d="M50 104C36 90 16 90 4 100C12 118 32 126 50 120ZM206 104C220 90 240 90 252 100C244 118 224 126 206 120Z"/>
+  <path fill="#000" fill-rule="evenodd" d="M128 56a84 84 0 1 1 0 168a84 84 0 1 1 0-168ZM96 112a7 7 0 1 0 0 14a7 7 0 1 0 0-14ZM160 112a7 7 0 1 0 0 14a7 7 0 1 0 0-14Z"/>
+  <path fill="#fff" stroke="#000" stroke-width="10" d="M98 160H158C176 160 188 172 188 188C188 204 176 214 158 214H98C80 214 68 204 68 188C68 172 80 160 98 160Z"/>
+  <path fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" d="M104 180C98 184 98 192 104 196M152 180C158 184 158 192 152 196"/>
+  <path fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" d="M66.4 111.3A68 68 0 0 1 104.7 76.1"/>
+</svg>
+</g><text x="246" y="1258" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="90.0" y="1294" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">D · Sólida</text><text x="90.0" y="1328" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Silhueta em uma cor para usos pequenos,</text><text x="90.0" y="1354" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">carimbo e bordado, com o reflexo do CD em</text><text x="90.0" y="1380" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">negativo.</text></svg>

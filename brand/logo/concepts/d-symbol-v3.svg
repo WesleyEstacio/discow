@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Discows: D-touro</title>
+  <path fill="#000" fill-rule="evenodd" d="M56 62a8 8 0 0 1 8-8h64a80 80 0 0 1 0 160H64a8 8 0 0 1-8-8ZM128 78a56 56 0 1 0 0 112a56 56 0 1 0 0-112ZM128 87a47 47 0 1 1 0 94a47 47 0 1 1 0-94ZM128 122a12 12 0 1 0 0 24a12 12 0 1 0 0-24Z"/>
+  <path fill="#000" d="M60 78C40 78 22 68 16 44C28 56 42 60 62 58Z"/>
+  <path fill="#000" d="M178 72C200 74 222 66 236 42C238 68 222 90 198 96Z"/>
+</svg>
