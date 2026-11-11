@@ -37,6 +37,8 @@ import {
   BACKGROUND_STYLES,
   BRAND_MARK_STYLE_LABELS,
   BRAND_MARK_STYLES,
+  CASSETTE_SIZE_LABELS,
+  CASSETTE_SIZES,
   CONTENT_POSITION_LABELS,
   COVER_ECHO_ANCHOR_LABELS,
   COVER_ECHO_ANCHORS,
@@ -197,6 +199,21 @@ export function SlideInspector({
             value={resolveSlideComposition(slide)}
             onChange={(composition) => onChange({ composition })}
           />
+        ) : null}
+
+        {slide.layout === "cover" && resolveSlideComposition(slide) === "cassette" ? (
+          <div className="flex flex-col gap-2">
+            <OptionToggleField
+              label="Tamanho da fita"
+              options={CASSETTE_SIZES}
+              optionLabels={CASSETTE_SIZE_LABELS}
+              value={slide.cassetteSize}
+              onChange={(cassetteSize) => onChange({ cassetteSize })}
+            />
+            <FieldDescription>
+              As capas de todos os álbuns do slide aparecem atrás da fita (até 6). Em “Alinhamento”, centralizar move a fita e o texto da etiqueta para o centro.
+            </FieldDescription>
+          </div>
         ) : null}
 
         {showsCtaCovers ? (
