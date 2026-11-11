@@ -1,7 +1,12 @@
 import type { CSSProperties, ReactNode } from "react"
 import type { StudioCoverSource } from "@/lib/db/schema"
 import { DiscowsWordmark } from "@/components/brand/discows-wordmark"
-import { arrangeBlurredCovers, BLURRED_COVERS_BLEED, BLURRED_COVERS_BLUR_RADIUS } from "@/lib/studio/blurred-covers"
+import {
+  arrangeBlurredCovers,
+  BLURRED_COVERS_BLEED,
+  BLURRED_COVERS_BLUR_RADIUS,
+  resolveBlurredCoverAlbumIds,
+} from "@/lib/studio/blurred-covers"
 import { arrangeCoverEcho, resolveCoverEchoAlbumId, textPositionAroundCoverEcho } from "@/lib/studio/cover-echo"
 import {
   resolveFontFamily,
@@ -481,7 +486,8 @@ function BlurredCoversLayer({
     slide.backgroundStyle === "blurred-covers-split"
       ? `linear-gradient(160deg, ${hexToRgba(colors.background, 0.3)} 0%, ${hexToRgba(colors.background, 0.3)} 50%, ${hexToRgba(strongTone, 0.93)} 70%, ${hexToRgba(strongTone, 0.93)} 100%)`
       : `linear-gradient(0deg, ${hexToRgba(colors.background, 0.88)} 0%, ${hexToRgba(colors.background, 0.35)} 45%, ${hexToRgba(colors.background, 0.3)} 100%)`
-  const placements = effectsMode === "css" ? arrangeBlurredCovers(carouselAlbumIds, slide.backgroundSeed) : []
+  const placements = effectsMode === "css" ? arrangeBlurredCovers(resolveBlurredCoverAlbumIds(slide, carouselAlbumIds), slide.backgroundSeed)
+      : []
 
   return (
     <div style={fullSlideLayer({ overflow: "hidden" })}>

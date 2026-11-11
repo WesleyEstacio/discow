@@ -370,6 +370,13 @@ export function resolveCassetteLabelTitleAlignment(
 }
 export const DEFAULT_CASSETTE_SHELL_HEX = "#2a2521"
 
+export const BLURRED_COVERS_SOURCES = ["slide", "carousel"] as const
+export type BlurredCoversSource = (typeof BLURRED_COVERS_SOURCES)[number]
+export const BLURRED_COVERS_SOURCE_LABELS: Record<BlurredCoversSource, string> = {
+  slide: "Só as capas do slide",
+  carousel: "Todas as capas do post",
+}
+
 export const CTA_RECAP_POSITIONS = ["above", "below"] as const
 export type CtaRecapPosition = (typeof CTA_RECAP_POSITIONS)[number]
 export const CTA_RECAP_POSITION_LABELS: Record<CtaRecapPosition, string> = {
@@ -463,6 +470,7 @@ export const studioSlideSchema = z.object({
   showCtaWebsite: z.boolean().default(true),
   backgroundImage: slideBackgroundImageSchema.nullable().default(null),
   backgroundSeed: z.number().int().min(0).max(MAX_BACKGROUND_SEED).default(0),
+  blurredCoversSource: z.enum(BLURRED_COVERS_SOURCES).default("slide"),
   albumCoverRadius: z.number().int().min(0).max(MAX_ALBUM_COVER_RADIUS_PERCENT).default(0),
   composition: z.enum(SLIDE_COMPOSITIONS as [SlideComposition, ...SlideComposition[]]).default("classic"),
   typeStyle: z.enum(TYPE_STYLES).default("bold"),
@@ -572,6 +580,7 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     showCtaWebsite: true,
     backgroundImage: null,
     backgroundSeed: 0,
+    blurredCoversSource: "slide",
     albumCoverRadius: 0,
     composition: SLIDE_COMPOSITIONS_BY_LAYOUT[layout][0],
     typeStyle: "bold",

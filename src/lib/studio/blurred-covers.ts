@@ -74,8 +74,15 @@ export function arrangeBlurredCovers(albumIds: string[], seed: number): BlurredC
   })
 }
 
-// The background mixes every cover in the carousel, so even a cover slide
-// with no albums of its own gets one.
 export function collectCarouselAlbumIds(slides: Pick<StudioSlide, "albumIds">[]): string[] {
   return [...new Set(slides.flatMap((slide) => slide.albumIds))]
+}
+
+// A slide with no albums of its own still gets a background from the rest of the carousel.
+export function resolveBlurredCoverAlbumIds(
+  slide: Pick<StudioSlide, "albumIds" | "blurredCoversSource">,
+  carouselAlbumIds: string[]
+): string[] {
+  const usesOnlySlideCovers = slide.blurredCoversSource === "slide" && slide.albumIds.length > 0
+  return usesOnlySlideCovers ? slide.albumIds : carouselAlbumIds
 }

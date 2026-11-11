@@ -40,6 +40,8 @@ import {
   BRAND_MARK_STYLES,
   CASSETTE_LABEL_TITLE_ALIGNMENT_LABELS,
   CASSETTE_LABEL_TITLE_ALIGNMENTS,
+  BLURRED_COVERS_SOURCE_LABELS,
+  BLURRED_COVERS_SOURCES,
   CASSETTE_LABEL_TITLE_LABELS,
   CASSETTE_LABEL_TITLES,
   CASSETTE_SIZE_LABELS,
@@ -442,6 +444,15 @@ export function SlideInspector({
             ))}
           </ToggleGroup>
           {usesBlurredCoversBackground(slide.backgroundStyle) ? (
+            <OptionToggleField
+              label="Capas no desfoque"
+              options={BLURRED_COVERS_SOURCES}
+              optionLabels={BLURRED_COVERS_SOURCE_LABELS}
+              value={slide.blurredCoversSource}
+              onChange={(blurredCoversSource) => onChange({ blurredCoversSource })}
+            />
+          ) : null}
+          {usesBlurredCoversBackground(slide.backgroundStyle) ? (
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
@@ -456,8 +467,8 @@ export function SlideInspector({
                 {carouselAlbumCount === 0
                   ? "Adicione álbuns ao carrossel para gerar o fundo."
                   : slide.backgroundStyle === "blurred-covers-split"
-                    ? "Mistura as capas do carrossel, desfocadas, sob uma diagonal suave: em cima um tom mais fraco da cor de fundo, embaixo um mais forte. Troque a cor de fundo para mudar os dois tons."
-                    : "Mistura as capas de todos os álbuns do carrossel, espalhadas e bem desfocadas."}
+                    ? "As capas desfocadas ficam sob uma diagonal suave: em cima um tom mais fraco da cor de fundo, embaixo um mais forte. Sem álbuns no slide, usa todas as capas do post."
+                    : "Espalha e desfoca as capas. Sem álbuns no slide, usa todas as capas do post."}
               </FieldDescription>
             </div>
           ) : null}
