@@ -83,6 +83,6 @@ export function resolveBlurredCoverAlbumIds(
   slide: Pick<StudioSlide, "albumIds" | "blurredCoversSource">,
   carouselAlbumIds: string[]
 ): string[] {
-  const usesOnlySlideCovers = slide.blurredCoversSource === "slide" && slide.albumIds.length > 0
-  return usesOnlySlideCovers ? slide.albumIds : carouselAlbumIds
+  const usesEveryCarouselCover = slide.blurredCoversSource === "carousel" || slide.albumIds.length === 0
+  return usesEveryCarouselCover ? carouselAlbumIds : slide.albumIds
 }
