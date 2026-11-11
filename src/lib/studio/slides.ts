@@ -86,13 +86,13 @@ export const MAX_BACKGROUND_SEED = 9999
 // Each layout can be arranged in a few ways. The first option is the
 // original arrangement, so slides saved before compositions existed keep it.
 export const SLIDE_COMPOSITIONS_BY_LAYOUT = {
-  cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type"],
-  album: ["classic", "side", "vinyl", "poster"],
+  cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type", "fan-deck", "cassette"],
+  album: ["classic", "side", "vinyl", "poster", "taped"],
   "ranked-album": ["classic", "giant-number", "side"],
   "album-pair": ["diagonal", "mirrored", "from-to", "from-to-mirrored"],
-  "album-grid": ["classic", "tight"],
-  "album-list": ["classic", "cards"],
-  text: ["classic", "card", "accent-bar"],
+  "album-grid": ["classic", "tight", "swatch-cards"],
+  "album-list": ["classic", "cards", "j-card"],
+  text: ["classic", "card", "accent-bar", "notebook"],
   quote: ["classic", "card"],
   cta: ["classic", "outline", "minimal", "subtle", "checklist", "grid"],
 } as const satisfies Record<SlideLayout, readonly string[]>
@@ -107,11 +107,17 @@ export const SLIDE_COMPOSITION_LABELS: Record<SlideComposition, string> = {
   stack: "Pilha",
   poster: "Pôster",
   type: "Tipográfica",
+  "fan-deck": "Leque de amostras",
+  cassette: "Fita cassete",
+  taped: "Colado com fita",
+  "j-card": "Encarte de fita",
+  notebook: "Caderno",
   classic: "Clássico",
   side: "Lado a lado",
   vinyl: "Vinil",
   "giant-number": "Número gigante",
   tight: "Colado",
+  "swatch-cards": "Amostras de tinta",
   cards: "Cartões",
   card: "Cartão",
   "accent-bar": "Barra lateral",
@@ -321,6 +327,11 @@ export const COVER_GRID_TILT_LABELS: Record<CoverGridTilt, string> = {
   split: "Para os lados",
 }
 
+export const CASSETTE_SIZES = ["small", "medium", "large"] as const
+export type CassetteSize = (typeof CASSETTE_SIZES)[number]
+export const CASSETTE_SIZE_LABELS: Record<CassetteSize, string> = { small: "Pequena", medium: "Média", large: "Grande" }
+export const CASSETTE_SIZE_SCALE: Record<CassetteSize, number> = { small: 0.66, medium: 0.83, large: 1 }
+
 export const CTA_RECAP_POSITIONS = ["above", "below"] as const
 export type CtaRecapPosition = (typeof CTA_RECAP_POSITIONS)[number]
 export const CTA_RECAP_POSITION_LABELS: Record<CtaRecapPosition, string> = {
@@ -403,6 +414,7 @@ export const studioSlideSchema = z.object({
   secondaryBackgroundHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   coverEchoAnchor: z.enum(COVER_ECHO_ANCHORS).default("top"),
   coverGridTilt: z.enum(COVER_GRID_TILTS).default("left"),
+  cassetteSize: z.enum(CASSETTE_SIZES).default("large"),
   ctaRecapPosition: z.enum(CTA_RECAP_POSITIONS).default("above"),
   ctaButtonHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   ctaEmptySlotHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
@@ -507,6 +519,7 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     secondaryBackgroundHex: null,
     coverEchoAnchor: "top",
     coverGridTilt: "left",
+    cassetteSize: "large",
     ctaRecapPosition: "above",
     ctaButtonHex: null,
     ctaEmptySlotHex: null,

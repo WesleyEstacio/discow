@@ -1,4 +1,4 @@
-import { createEmptySlide, MAX_ALBUMS_PER_GRID_SLIDE, MAX_ALBUMS_PER_LIST_SLIDE, type StudioSlide } from "@/lib/studio/slides"
+import { createEmptySlide, MAX_ALBUMS_PER_COVER_SLIDE, type StudioSlide } from "@/lib/studio/slides"
 import {
   buildHashtags,
   createVariantPicker,
@@ -104,14 +104,14 @@ export const albumsForEveryFeelingTemplate: StudioTemplate = {
     "Chamada final",
   ],
   isAvailable: true,
-  defaultIdentityKey: "tropical",
+  defaultIdentityKey: "mixtape",
   albumSlots: [
     {
       key: "albums",
       label: "Álbuns",
-      description: "De 3 a 8 discos que combinam com o sentimento.",
+      description: `De 3 a ${MAX_ALBUMS_PER_COVER_SLIDE} discos que combinam com o sentimento. Todas as capas aparecem na capa do post.`,
       minAlbums: 3,
-      maxAlbums: MAX_ALBUMS_PER_LIST_SLIDE,
+      maxAlbums: MAX_ALBUMS_PER_COVER_SLIDE,
     },
   ],
   settingFields: [
@@ -142,7 +142,7 @@ export const albumsForEveryFeelingTemplate: StudioTemplate = {
         kicker: pick(copy.coverKicker),
         headline: coverHeadline,
         body: pick(copy.coverBody),
-        albumIds: albums.slice(0, MAX_ALBUMS_PER_GRID_SLIDE).map((album) => album.id),
+        albumIds: albums.map((album) => album.id),
       }),
       createEmptySlide("text", {
         kicker: pick(copy.moodKicker),

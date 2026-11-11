@@ -11,9 +11,11 @@ import {
 } from "@/lib/studio/studio-fonts"
 import {
   BACKGROUND_IMAGE_FILTER_CSS,
+  CASSETTE_SIZE_SCALE,
   HEADLINE_SIZE_SCALE,
   hexToRgba,
   LOGO_SIZE_SCALE,
+  MAX_ALBUMS_PER_COVER_SLIDE,
   PROGRESS_SIZE_SCALE,
   readableTextColorFor,
   resolveLogoAlignment,
@@ -888,7 +890,17 @@ function SlideBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, typ
     case "album-pair":
       return <AlbumPairBody slide={slide} slideAlbums={slideAlbums} colors={colors} composition={composition} typography={typography} />
     case "album-grid":
-      return <AlbumGridBody slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} composition={composition} typography={typography} />
+      return (
+        <AlbumGridBody
+          slide={slide}
+          slideAlbums={slideAlbums}
+          carouselAlbums={carouselAlbums}
+          colors={colors}
+          isCentered={isCentered}
+          composition={composition}
+          typography={typography}
+        />
+      )
     case "album-list":
       return <AlbumListBody slide={slide} slideAlbums={slideAlbums} colors={colors} composition={composition} typography={typography} />
     case "text":
@@ -960,6 +972,9 @@ function TextFrame({
         {children}
       </div>
     )
+  }
+  if (composition === "notebook") {
+    return <NotebookPage>{children}</NotebookPage>
   }
   if (composition === "accent-bar") {
     return <div style={{ ...columnStyle, borderLeft: `12px solid ${colors.accent}`, paddingLeft: 52 }}>{children}</div>
@@ -1298,12 +1313,14 @@ function CoverArt({
   size,
   colors,
   cornerRadiusPercent,
+  hasShadow = true,
   style,
 }: {
   album: SlideCanvasAlbum | undefined
   size: number
   colors: SlideColors
   cornerRadiusPercent: number
+  hasShadow?: boolean
   style?: CSSProperties
 }) {
   const borderRadius = Math.round((size * cornerRadiusPercent) / 100)
@@ -1331,6 +1348,8 @@ function CoverArt({
   }
 
   // Covers are shown whole and untouched: no cropping, overlays or filters.
+  // A shadow is left out instead of set to "none": Satori paints
+  // boxShadow "none" on an image as a black square at the slide origin.
   return (
     // eslint-disable-next-line @next/next/no-img-element -- Satori and the live preview both need a plain <img>
     <img
@@ -1338,7 +1357,7 @@ function CoverArt({
       width={size}
       height={size}
       alt={`Capa de ${album.title}`}
-      style={{ width: size, height: size, flexShrink: 0, objectFit: "contain", boxShadow: COVER_SHADOW, borderRadius, ...style }}
+      style={{ width: size, height: size, flexShrink: 0, objectFit: "contain", ...(hasShadow ? { boxShadow: COVER_SHADOW } : {}), borderRadius, ...style }}
     />
   )
 }
@@ -1391,6 +1410,26 @@ function CoverBody({ slide, slideAlbums, colors, isCentered, composition, typogr
   }
 
   switch (composition) {
+    case "cassette":
+      return <CassetteCover slide={slide} slideAlbums={slideAlbums} colors={colors} typography={typography} />
+    case "fan-deck":
+      return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
+          <Headline slide={slide} typography={typography} baseSize={132} lineHeight={0.98}>{slide.headline}</Headline>
+          {slide.customBackgroundHex ? (
+            <div style={{ display: "flex", fontSize: 32, fontWeight: 700, letterSpacing: 6, marginTop: 20, color: colors.mutedText }}>
+              {slide.customBackgroundHex.toUpperCase()}
+            </div>
+          ) : null}
+          <BodyText
+            text={slide.body}
+            typography={typography}
+            alignment={slide.textAlign}
+            style={{ fontSize: 34, lineHeight: 1.3, marginTop: 20, color: colors.mutedText }}
+          />
+          <PaintChipFanDeck albums={slideAlbums} swatchColor={colors.background} cornerRadiusPercent={radius} />
+        </div>
+      )
     case "spotlight":
       return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
@@ -1404,7 +1443,7 @@ function CoverBody({ slide, slideAlbums, colors, isCentered, composition, typogr
         <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
           <div style={{ display: "flex", marginBottom: 64 }}>
             {slideAlbums.map((album, index) => (
-              <CoverArt key={album?.id ?? index} album={album} size={tileSize} colors={colors} cornerRadiusPercent={radius} style={{ boxShadow: "none" }} />
+              <CoverArt key={album?.id ?? index} album={album} size={tileSize} colors={colors} cornerRadiusPercent={radius} hasShadow={false} />
             ))}
           </div>
           {coverText(100)}
@@ -1482,6 +1521,844 @@ function CoverBody({ slide, slideAlbums, colors, isCentered, composition, typogr
   }
 }
 
+const PAINT_CHIP_CARD_COLORS = { background: "#ffffff", text: "#17121b", mutedText: "#6e6573" }
+const PAINT_CHIP_SHADOW = "0 18px 40px rgba(0, 0, 0, 0.24)"
+
+function formatChipNumber(position: number): string {
+  return `Nº ${String(position).padStart(2, "0")}`
+}
+
+function PaintChipLabel({
+  album,
+  position,
+  titleFontSize,
+  width,
+}: {
+  album: SlideCanvasAlbum | undefined
+  position: number
+  titleFontSize: number
+  width: number
+}) {
+  const singleLine: CSSProperties = { display: "flex", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", width }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", width, color: PAINT_CHIP_CARD_COLORS.text, textAlign: "left" }}>
+      <div style={{ ...singleLine, fontSize: titleFontSize, fontWeight: 700, lineHeight: 1.2 }}>{album?.title ?? "Álbum removido"}</div>
+      <div style={{ ...singleLine, fontSize: Math.round(titleFontSize * 0.8), lineHeight: 1.3, marginTop: 4, color: PAINT_CHIP_CARD_COLORS.mutedText }}>
+        {album ? album.artistNames.join(", ") : ""}
+      </div>
+      <div style={{ display: "flex", fontSize: Math.round(titleFontSize * 0.68), fontWeight: 700, letterSpacing: 2, marginTop: 10, color: PAINT_CHIP_CARD_COLORS.mutedText }}>
+        {formatChipNumber(position)}
+      </div>
+    </div>
+  )
+}
+
+const FAN_CHIP_PADDING = 14
+const FAN_CHIP_COVER_SIZE = 240
+const FAN_CHIP_WIDTH = FAN_CHIP_COVER_SIZE + FAN_CHIP_PADDING * 2
+const FAN_CHIP_END_RADIUS = FAN_CHIP_WIDTH / 2
+const FAN_CHIP_LABEL_HEIGHT = 96
+const FAN_RIVET_DEPTH_IN_SWATCH = 44
+const FAN_CHIP_HANDLE_HEIGHT = FAN_CHIP_END_RADIUS + FAN_RIVET_DEPTH_IN_SWATCH
+const FAN_CHIP_HEIGHT = FAN_CHIP_PADDING + FAN_CHIP_COVER_SIZE + FAN_CHIP_LABEL_HEIGHT + FAN_CHIP_HANDLE_HEIGHT
+const FAN_PIVOT_TO_CHIP_CENTER = FAN_CHIP_HEIGHT / 2 - FAN_CHIP_END_RADIUS
+const FAN_PIVOT_TO_COVER_CENTER = FAN_CHIP_HEIGHT - FAN_CHIP_END_RADIUS - FAN_CHIP_PADDING - FAN_CHIP_COVER_SIZE / 2
+const FAN_MAX_SPREAD_DEGREES = 108
+const FAN_MAX_ANGLE_STEP_DEGREES = 27
+const FAN_RIVET_SIZE = 30
+const FAN_CHIP_EDGE_WIDTH = 2
+const FAN_CHIP_EDGE_COLOR = "rgba(23, 18, 27, 0.16)"
+
+function fanChipAngles(chipCount: number): number[] {
+  const angleStep = chipCount > 1 ? Math.min(FAN_MAX_ANGLE_STEP_DEGREES, FAN_MAX_SPREAD_DEGREES / (chipCount - 1)) : 0
+  const middleIndex = (chipCount - 1) / 2
+  return Array.from({ length: chipCount }, (_, index) => (index - middleIndex) * angleStep)
+}
+
+function rotatePoint(x: number, y: number, angleRadians: number) {
+  return {
+    x: x * Math.cos(angleRadians) - y * Math.sin(angleRadians),
+    y: x * Math.sin(angleRadians) + y * Math.cos(angleRadians),
+  }
+}
+
+function highestPointOfRotatedChip(chipCenterY: number, angleRadians: number): number {
+  const cornerHeights = [-1, 1].map(
+    (horizontalSide) => chipCenterY + rotatePoint((horizontalSide * FAN_CHIP_WIDTH) / 2, -FAN_CHIP_HEIGHT / 2, angleRadians).y
+  )
+  return Math.min(...cornerHeights)
+}
+
+// Chips pivot around one rivet, like a paint fan deck. Each chip ends in a
+// half circle centered on the rivet, so all their ends merge into one disc.
+// Positions are computed by hand instead of transform-origin, and each cover
+// gets its own rotation: Satori neither rotates an <img> inside a rotated
+// parent nor draws box-shadows on rotated boxes correctly.
+function PaintChipFanDeck({
+  albums,
+  swatchColor,
+  cornerRadiusPercent,
+}: {
+  albums: (SlideCanvasAlbum | undefined)[]
+  swatchColor: string
+  cornerRadiusPercent: number
+}) {
+  const chipsAroundPivot = fanChipAngles(albums.length).map((angleDegrees, index) => {
+    const angleRadians = (angleDegrees * Math.PI) / 180
+    const chipCenter = rotatePoint(0, -FAN_PIVOT_TO_CHIP_CENTER, angleRadians)
+    return {
+      album: albums[index],
+      position: index + 1,
+      angleDegrees,
+      chipCenter,
+      coverCenter: rotatePoint(0, -FAN_PIVOT_TO_COVER_CENTER, angleRadians),
+      highestPoint: highestPointOfRotatedChip(chipCenter.y, angleRadians),
+    }
+  })
+  const pivotX = CONTENT_WIDTH / 2
+  const pivotY = -Math.min(...chipsAroundPivot.map((chip) => chip.highestPoint))
+  const fanHeight = Math.ceil(pivotY + FAN_CHIP_END_RADIUS)
+  const chipsFromOutsideIn = [...chipsAroundPivot].sort((first, second) => Math.abs(second.angleDegrees) - Math.abs(first.angleDegrees))
+  const frontChipPosition = chipsFromOutsideIn.at(-1)?.position
+  const handleSwatchColor = readableTextColorFor(swatchColor) === "#17121b" ? mixTowardInk(swatchColor) : swatchColor
+  const swatchEndRadius = FAN_CHIP_END_RADIUS - FAN_CHIP_PADDING
+
+  return (
+    <div style={{ display: "flex", position: "relative", width: CONTENT_WIDTH, height: fanHeight, marginTop: 64 }}>
+      {chipsFromOutsideIn.flatMap(({ album, position, angleDegrees, chipCenter, coverCenter }) => [
+        <div
+          key={`chip-${position}`}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            position: "absolute",
+            left: pivotX + chipCenter.x - FAN_CHIP_WIDTH / 2,
+            top: pivotY + chipCenter.y - FAN_CHIP_HEIGHT / 2,
+            width: FAN_CHIP_WIDTH,
+            height: FAN_CHIP_HEIGHT,
+            boxSizing: "border-box",
+            padding: FAN_CHIP_PADDING - FAN_CHIP_EDGE_WIDTH,
+            border: `${FAN_CHIP_EDGE_WIDTH}px solid ${FAN_CHIP_EDGE_COLOR}`,
+            borderBottomLeftRadius: FAN_CHIP_END_RADIUS,
+            borderBottomRightRadius: FAN_CHIP_END_RADIUS,
+            backgroundColor: PAINT_CHIP_CARD_COLORS.background,
+            transform: `rotate(${angleDegrees}deg)`,
+          }}
+        >
+          <div style={{ display: "flex", width: FAN_CHIP_COVER_SIZE, height: FAN_CHIP_COVER_SIZE, flexShrink: 0 }} />
+          <div style={{ display: "flex", height: FAN_CHIP_LABEL_HEIGHT, paddingTop: 14, flexShrink: 0 }}>
+            {position === frontChipPosition ? (
+              <PaintChipLabel album={album} position={position} titleFontSize={24} width={FAN_CHIP_COVER_SIZE} />
+            ) : null}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexGrow: 1,
+              width: FAN_CHIP_COVER_SIZE,
+              backgroundColor: handleSwatchColor,
+              borderBottomLeftRadius: swatchEndRadius,
+              borderBottomRightRadius: swatchEndRadius,
+            }}
+          />
+        </div>,
+        <CoverArt
+          key={`cover-${position}`}
+          album={album}
+          size={FAN_CHIP_COVER_SIZE}
+          colors={PAINT_CHIP_CARD_COLORS_AS_SLIDE}
+          cornerRadiusPercent={cornerRadiusPercent}
+          hasShadow={false}
+          style={{
+            position: "absolute",
+            left: pivotX + coverCenter.x - FAN_CHIP_COVER_SIZE / 2,
+            top: pivotY + coverCenter.y - FAN_CHIP_COVER_SIZE / 2,
+            transform: `rotate(${angleDegrees}deg)`,
+          }}
+        />,
+      ])}
+      <div
+        style={{
+          display: "flex",
+          position: "absolute",
+          left: pivotX - FAN_RIVET_SIZE / 2,
+          top: pivotY - FAN_RIVET_SIZE / 2,
+          width: FAN_RIVET_SIZE,
+          height: FAN_RIVET_SIZE,
+          borderRadius: FAN_RIVET_SIZE / 2,
+          backgroundColor: PAINT_CHIP_CARD_COLORS.text,
+          border: `7px solid ${PAINT_CHIP_CARD_COLORS.background}`,
+        }}
+      />
+    </div>
+  )
+}
+
+const PAINT_CHIP_CARD_COLORS_AS_SLIDE: SlideColors = { ...PAINT_CHIP_CARD_COLORS, accent: PAINT_CHIP_CARD_COLORS.text }
+
+// A light swatch on its own light slide would vanish inside the white chip,
+// so the handle darkens it a little to stay visible.
+function mixTowardInk(hexColor: string): string {
+  const darkenChannel = (channelStart: number) =>
+    Math.round(parseInt(hexColor.slice(channelStart, channelStart + 2), 16) * 0.82)
+      .toString(16)
+      .padStart(2, "0")
+  return `#${darkenChannel(1)}${darkenChannel(3)}${darkenChannel(5)}`
+}
+
+const SWATCH_CARD_PADDING = 16
+
+function SwatchCardGrid({
+  slideAlbums,
+  carouselAlbums,
+  cornerRadiusPercent,
+  isCentered,
+}: {
+  slideAlbums: (SlideCanvasAlbum | undefined)[]
+  carouselAlbums: SlideCanvasAlbum[]
+  cornerRadiusPercent: number
+  isCentered: boolean
+}) {
+  const isDuel = slideAlbums.length === 2
+  const coverSize = isDuel ? 380 : 300
+  const columnGap = isDuel ? 48 : 40
+  const cardWidth = coverSize + SWATCH_CARD_PADDING * 2
+  const positionInCarousel = (album: SlideCanvasAlbum | undefined, fallbackIndex: number) => {
+    const carouselIndex = album ? carouselAlbums.findIndex((carouselAlbum) => carouselAlbum.id === album.id) : -1
+    return (carouselIndex === -1 ? fallbackIndex : carouselIndex) + 1
+  }
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        width: cardWidth * 2 + columnGap,
+        columnGap,
+        rowGap: 36,
+        justifyContent: isCentered ? "center" : "flex-start",
+      }}
+    >
+      {slideAlbums.map((album, index) => (
+        <div
+          key={album?.id ?? index}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: cardWidth,
+            padding: SWATCH_CARD_PADDING,
+            paddingBottom: 20,
+            backgroundColor: PAINT_CHIP_CARD_COLORS.background,
+            boxShadow: PAINT_CHIP_SHADOW,
+          }}
+        >
+          <CoverArt album={album} size={coverSize} colors={PAINT_CHIP_CARD_COLORS_AS_SLIDE} cornerRadiusPercent={cornerRadiusPercent} hasShadow={false} />
+          <div style={{ display: "flex", marginTop: 16 }}>
+            <PaintChipLabel album={album} position={positionInCarousel(album, index)} titleFontSize={isDuel ? 28 : 24} width={coverSize} />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const MIXTAPE_PAPER_COLORS: SlideColors = { background: "#f3ead3", text: "#1f1a14", mutedText: "#6b5f4c", accent: "#d9532b" }
+const MIXTAPE_PAPER_RULE = "rgba(31, 26, 20, 0.13)"
+const MIXTAPE_MASKING_TAPE = "rgba(244, 232, 196, 0.86)"
+
+const MINIMUM_STRIPE_CHANNEL_SPREAD = 40
+
+// Cassette labels need a colorful stripe; a grey or white slide accent
+// falls back to the paper's orange.
+function mixtapeStripeColor(slideAccent: string): string {
+  if (!/^#[0-9a-fA-F]{6}$/.test(slideAccent)) return MIXTAPE_PAPER_COLORS.accent
+  const channels = [1, 3, 5].map((channelStart) => parseInt(slideAccent.slice(channelStart, channelStart + 2), 16))
+  const channelSpread = Math.max(...channels) - Math.min(...channels)
+  return channelSpread < MINIMUM_STRIPE_CHANNEL_SPREAD ? MIXTAPE_PAPER_COLORS.accent : slideAccent
+}
+
+function MaskingTape({ width, angleDegrees, style }: { width: number; angleDegrees: number; style: CSSProperties }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        position: "absolute",
+        width,
+        height: Math.round(width * 0.28),
+        backgroundColor: MIXTAPE_MASKING_TAPE,
+        transform: `rotate(${angleDegrees}deg)`,
+        ...style,
+      }}
+    />
+  )
+}
+
+function SideLabel({ side, colors }: { side: string; colors: SlideColors }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", fontSize: 22, fontWeight: 700, letterSpacing: 4, color: colors.mutedText }}>
+      <div style={{ display: "flex", width: 14, height: 14, borderRadius: 7, backgroundColor: colors.accent, marginRight: 12 }} />
+      {side}
+    </div>
+  )
+}
+
+// Every cassette measure below is for the large size; smaller sizes scale
+// each measure by hand because Satori breaks clipping inside transform: scale.
+const CASSETTE_WIDTH = CONTENT_WIDTH
+const CASSETTE_HEIGHT = 560
+const CASSETTE_CORNER_RADIUS = 34
+const CASSETTE_SHELL_COLORS = { top: "#423b34", middle: "#2a2521", bottom: "#1d1a17", foot: "#35302a", screw: "#5a534b", slot: "#1d1a17" }
+const CASSETTE_LABEL_INSET = 34
+const CASSETTE_LABEL_WIDTH = CASSETTE_WIDTH - CASSETTE_LABEL_INSET * 2
+const CASSETTE_LABEL_HEIGHT = 386
+const CASSETTE_BAND_HEIGHT = 150
+const CASSETTE_LABEL_PADDING = 32
+const CASSETTE_SIDE_BADGE_SIZE = 68
+const CASSETTE_CENTERED_SIDE_BADGE_SIZE = 40
+const CASSETTE_LONG_HEADLINE_LENGTH = 40
+const CASSETTE_WINDOW_WIDTH = 460
+const CASSETTE_WINDOW_HEIGHT = 114
+const CASSETTE_WINDOW_COLOR = "#15110e"
+const CASSETTE_SPOOL_CENTER_OFFSET = 128
+const CASSETTE_FULL_SPOOL_SIZE = 94
+const CASSETTE_EMPTY_SPOOL_SIZE = 64
+const CASSETTE_WOUND_TAPE = { fill: "#4a3323", ring: "#62452f" }
+const CASSETTE_HUB_SIZE = 46
+const CASSETTE_HUB_HOLE_SIZE = 26
+const CASSETTE_HUB_COLOR = "#ece5d4"
+const CASSETTE_HUB_TEETH = 6
+const CASSETTE_FOOT_TOP_WIDTH = 520
+const CASSETTE_FOOT_SLANT = 46
+const CASSETTE_FOOT_HEIGHT = 92
+const CASSETTE_FOOT_CORNER_COVER_WIDTH = 120
+const CASSETTE_FOOT_CORNER_COVER_HEIGHT = 130
+const CASSETTE_SCREW_SIZE = 22
+const CASSETTE_SCREW_INSET = 22
+const CASSETTE_COVER_PEEK = 150
+const CASSETTE_COVER_SIDE_MARGIN = 40
+const CASSETTE_COVER_TILT_RANGE = { first: -9, last: 10, alternatingNudge: 2 }
+
+type ScaleMeasure = (largeSizeMeasure: number) => number
+
+function cassettePeekingCoverSize(albumCount: number): number {
+  if (albumCount >= 6) return 196
+  if (albumCount === 5) return 212
+  return 230
+}
+
+function cassettePeekingCoverTilt(index: number, albumCount: number): number {
+  if (albumCount === 1) return -3
+  const { first, last, alternatingNudge } = CASSETTE_COVER_TILT_RANGE
+  const evenlySpreadTilt = first + ((last - first) * index) / (albumCount - 1)
+  return evenlySpreadTilt + (index % 2 === 0 ? -alternatingNudge : alternatingNudge)
+}
+
+function CassetteScrew({ centerX, centerY, scaled }: { centerX: number; centerY: number; scaled: ScaleMeasure }) {
+  const screwSize = scaled(CASSETTE_SCREW_SIZE)
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "absolute",
+        left: centerX - screwSize / 2,
+        top: centerY - screwSize / 2,
+        width: screwSize,
+        height: screwSize,
+        borderRadius: screwSize / 2,
+        backgroundColor: CASSETTE_SHELL_COLORS.screw,
+      }}
+    >
+      <div style={{ display: "flex", width: scaled(12), height: Math.max(2, scaled(3)), backgroundColor: CASSETTE_SHELL_COLORS.slot, transform: "rotate(45deg)" }} />
+    </div>
+  )
+}
+
+// A wound reel of tape seen through the window. The white hub has a hole
+// with teeth pointing inward, like the ones the tape deck spindle grabs.
+function CassetteSpool({ centerX, centerY, woundSize, scaled }: { centerX: number; centerY: number; woundSize: number; scaled: ScaleMeasure }) {
+  const hubSize = scaled(CASSETTE_HUB_SIZE)
+  const holeSize = scaled(CASSETTE_HUB_HOLE_SIZE)
+  const toothWidth = Math.max(3, scaled(5))
+  const toothHeight = Math.max(5, scaled(8))
+  const toothDistance = holeSize / 2 - scaled(3)
+  const centeredCircle = (size: number, color: string): CSSProperties => ({
+    display: "flex",
+    position: "absolute",
+    left: (woundSize - size) / 2,
+    top: (woundSize - size) / 2,
+    width: size,
+    height: size,
+    borderRadius: size / 2,
+    backgroundColor: color,
+  })
+  return (
+    <div style={{ display: "flex", position: "absolute", left: centerX - woundSize / 2, top: centerY - woundSize / 2, width: woundSize, height: woundSize }}>
+      <div
+        style={{
+          display: "flex",
+          width: woundSize,
+          height: woundSize,
+          borderRadius: woundSize / 2,
+          backgroundColor: CASSETTE_WOUND_TAPE.fill,
+          border: `${Math.max(2, scaled(3))}px solid ${CASSETTE_WOUND_TAPE.ring}`,
+        }}
+      />
+      <div style={centeredCircle(hubSize, CASSETTE_HUB_COLOR)} />
+      <div style={centeredCircle(holeSize, CASSETTE_WINDOW_COLOR)} />
+      {Array.from({ length: CASSETTE_HUB_TEETH }, (_, toothIndex) => {
+        const angleDegrees = (360 / CASSETTE_HUB_TEETH) * toothIndex
+        const angleRadians = (angleDegrees * Math.PI) / 180
+        return (
+          <div
+            key={toothIndex}
+            style={{
+              display: "flex",
+              position: "absolute",
+              left: woundSize / 2 + toothDistance * Math.sin(angleRadians) - toothWidth / 2,
+              top: woundSize / 2 - toothDistance * Math.cos(angleRadians) - toothHeight / 2,
+              width: toothWidth,
+              height: toothHeight,
+              borderRadius: 1,
+              backgroundColor: CASSETTE_HUB_COLOR,
+              transform: `rotate(${angleDegrees}deg)`,
+            }}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
+function CassetteWindow({ scaled }: { scaled: ScaleMeasure }) {
+  const windowWidth = scaled(CASSETTE_WINDOW_WIDTH)
+  const windowHeight = scaled(CASSETTE_WINDOW_HEIGHT)
+  const centerY = windowHeight / 2
+  return (
+    <div
+      style={{
+        display: "flex",
+        position: "relative",
+        width: windowWidth,
+        height: windowHeight,
+        borderRadius: scaled(16),
+        overflow: "hidden",
+        backgroundColor: CASSETTE_WINDOW_COLOR,
+        border: `${Math.max(2, scaled(4))}px solid rgba(0, 0, 0, 0.28)`,
+      }}
+    >
+      <CassetteSpool centerX={windowWidth / 2 - scaled(CASSETTE_SPOOL_CENTER_OFFSET)} centerY={centerY} woundSize={scaled(CASSETTE_FULL_SPOOL_SIZE)} scaled={scaled} />
+      <CassetteSpool centerX={windowWidth / 2 + scaled(CASSETTE_SPOOL_CENTER_OFFSET)} centerY={centerY} woundSize={scaled(CASSETTE_EMPTY_SPOOL_SIZE)} scaled={scaled} />
+      <div
+        style={{
+          display: "flex",
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width: windowWidth,
+          height: windowHeight,
+          backgroundImage:
+            "linear-gradient(110deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 16%, rgba(255, 255, 255, 0.09) 16%, rgba(255, 255, 255, 0.09) 27%, rgba(255, 255, 255, 0) 27%, rgba(255, 255, 255, 0) 31%, rgba(255, 255, 255, 0.05) 31%, rgba(255, 255, 255, 0.05) 34%, rgba(255, 255, 255, 0) 34%)",
+        }}
+      />
+    </div>
+  )
+}
+
+// Satori ignores clip-path and transparent borders, so two tilted blocks in
+// the shell's bottom color cut the foot's corners into a trapezoid.
+function CassetteFoot({ scaled }: { scaled: ScaleMeasure }) {
+  const cassetteWidth = scaled(CASSETTE_WIDTH)
+  const footHeight = scaled(CASSETTE_FOOT_HEIGHT)
+  const footSlant = scaled(CASSETTE_FOOT_SLANT)
+  const footBottomWidth = scaled(CASSETTE_FOOT_TOP_WIDTH) + footSlant * 2
+  const footTop = scaled(CASSETTE_HEIGHT) - footHeight
+  const footSlantRadians = Math.atan(footSlant / footHeight)
+  const cornerCoverWidth = scaled(CASSETTE_FOOT_CORNER_COVER_WIDTH)
+  const cornerCoverHeight = scaled(CASSETTE_FOOT_CORNER_COVER_HEIGHT)
+  const holeCenterY = footTop + footHeight * 0.55
+  const holes = [
+    { offsetFromCenter: -196, size: 26, isRound: true },
+    { offsetFromCenter: -78, size: 18, isRound: false },
+    { offsetFromCenter: 78, size: 18, isRound: false },
+    { offsetFromCenter: 196, size: 26, isRound: true },
+  ]
+  return (
+    <>
+      <div
+        style={{
+          display: "flex",
+          position: "absolute",
+          left: (cassetteWidth - footBottomWidth) / 2,
+          top: footTop,
+          width: footBottomWidth,
+          height: footHeight,
+          backgroundColor: CASSETTE_SHELL_COLORS.foot,
+        }}
+      />
+      {[-1, 1].map((side) => {
+        const slantEdgeCenterX = cassetteWidth / 2 + side * (footBottomWidth / 2 - footSlant / 2)
+        return (
+          <div
+            key={side}
+            style={{
+              display: "flex",
+              position: "absolute",
+              left: slantEdgeCenterX + side * (cornerCoverWidth / 2) * Math.cos(footSlantRadians) - cornerCoverWidth / 2,
+              top: footTop + footHeight / 2 - (cornerCoverWidth / 2) * Math.sin(footSlantRadians) - cornerCoverHeight / 2,
+              width: cornerCoverWidth,
+              height: cornerCoverHeight,
+              backgroundColor: CASSETTE_SHELL_COLORS.bottom,
+              transform: `rotate(${(-side * footSlantRadians * 180) / Math.PI}deg)`,
+            }}
+          />
+        )
+      })}
+      {holes.map((hole) => {
+        const holeSize = scaled(hole.size)
+        return (
+          <div
+            key={hole.offsetFromCenter}
+            style={{
+              display: "flex",
+              position: "absolute",
+              left: cassetteWidth / 2 + scaled(hole.offsetFromCenter) - holeSize / 2,
+              top: holeCenterY - holeSize / 2,
+              width: holeSize,
+              height: holeSize,
+              borderRadius: hole.isRound ? holeSize / 2 : scaled(4),
+              backgroundColor: CASSETTE_WINDOW_COLOR,
+            }}
+          />
+        )
+      })}
+      <CassetteScrew centerX={cassetteWidth / 2} centerY={holeCenterY} scaled={scaled} />
+    </>
+  )
+}
+
+// The headline is written on the cassette label, and the cover albums
+// stick out from behind the tape like records stacked in a shoebox.
+function CassetteCover({
+  slide,
+  slideAlbums,
+  colors,
+  typography,
+}: {
+  slide: StudioSlide
+  slideAlbums: (SlideCanvasAlbum | undefined)[]
+  colors: SlideColors
+  typography: SlideTypography
+}) {
+  const cassetteScale = CASSETTE_SIZE_SCALE[slide.cassetteSize]
+  const scaled: ScaleMeasure = (largeSizeMeasure) => Math.round(largeSizeMeasure * cassetteScale)
+  const isCentered = slide.textAlign === "center"
+  const cassetteWidth = scaled(CASSETTE_WIDTH)
+  const cassetteHeight = scaled(CASSETTE_HEIGHT)
+  const coverPeek = scaled(CASSETTE_COVER_PEEK)
+  const peekingAlbums = slideAlbums.slice(0, MAX_ALBUMS_PER_COVER_SLIDE)
+  const coverSize = scaled(cassettePeekingCoverSize(peekingAlbums.length))
+  const coverSideMargin = scaled(CASSETTE_COVER_SIDE_MARGIN)
+  const coverSpacing = peekingAlbums.length > 1 ? (cassetteWidth - coverSideMargin * 2 - coverSize) / (peekingAlbums.length - 1) : 0
+  const firstCoverLeft = peekingAlbums.length > 1 ? coverSideMargin : (cassetteWidth - coverSize) / 2
+  const labelWidth = scaled(CASSETTE_LABEL_WIDTH)
+  const labelPadding = scaled(CASSETTE_LABEL_PADDING)
+  const labelTextHeight = scaled(CASSETTE_LABEL_HEIGHT - CASSETTE_BAND_HEIGHT)
+  const sideBadgeSize = scaled(isCentered ? CASSETTE_CENTERED_SIDE_BADGE_SIZE : CASSETTE_SIDE_BADGE_SIZE)
+  const sideBadgeGap = scaled(isCentered ? 14 : 26)
+  const headlineWidth = isCentered ? labelWidth - labelPadding * 2 : labelWidth - labelPadding * 2 - sideBadgeSize - sideBadgeGap
+  const headlineSize = scaled(slide.headline.length > CASSETTE_LONG_HEADLINE_LENGTH ? 50 : 58)
+  const screwInset = scaled(CASSETTE_SCREW_INSET)
+  const stripeColor = mixtapeStripeColor(colors.accent)
+  const stripeTextColor = readableTextColorFor(stripeColor) === "#17121b" ? MIXTAPE_PAPER_COLORS.text : MIXTAPE_PAPER_COLORS.background
+  const bandCaption: CSSProperties = { display: "flex", width: scaled(120), fontSize: scaled(24), fontWeight: 700, letterSpacing: scaled(3), color: stripeTextColor }
+
+  const sideBadge = (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        width: sideBadgeSize,
+        height: sideBadgeSize,
+        borderRadius: sideBadgeSize / 2,
+        backgroundColor: MIXTAPE_PAPER_COLORS.text,
+        color: MIXTAPE_PAPER_COLORS.background,
+        fontSize: Math.round(sideBadgeSize * 0.58),
+        fontWeight: 700,
+      }}
+    >
+      A
+    </div>
+  )
+  const mixtapeCaption = (
+    <div style={{ display: "flex", fontSize: scaled(21), fontWeight: 700, letterSpacing: scaled(4), color: MIXTAPE_PAPER_COLORS.mutedText }}>
+      {`MIXTAPE · ${slideAlbums.length} ${slideAlbums.length === 1 ? "DISCO" : "DISCOS"}`}
+    </div>
+  )
+  const labelHeadline = (
+    <Headline
+      slide={slide}
+      typography={typography}
+      baseSize={headlineSize}
+      lineHeight={1.04}
+      style={{ width: headlineWidth, ...(isCentered ? { justifyContent: "center" } : {}) }}
+    >
+      {slide.headline}
+    </Headline>
+  )
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start" }}>
+      <div style={{ display: "flex", position: "relative", width: cassetteWidth, height: coverPeek + cassetteHeight }}>
+        {peekingAlbums.map((album, index) => (
+          <CoverArt
+            key={album?.id ?? index}
+            album={album}
+            size={coverSize}
+            colors={colors}
+            cornerRadiusPercent={slide.albumCoverRadius}
+            style={{
+              position: "absolute",
+              left: firstCoverLeft + coverSpacing * index,
+              top: index % 2 === 0 ? scaled(10) : 0,
+              transform: `rotate(${cassettePeekingCoverTilt(index, peekingAlbums.length)}deg)`,
+            }}
+          />
+        ))}
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            left: 0,
+            top: coverPeek,
+            width: cassetteWidth,
+            height: cassetteHeight,
+            borderRadius: scaled(CASSETTE_CORNER_RADIUS),
+            overflow: "hidden",
+            backgroundColor: CASSETTE_SHELL_COLORS.middle,
+            backgroundImage: `linear-gradient(180deg, ${CASSETTE_SHELL_COLORS.top} 0%, ${CASSETTE_SHELL_COLORS.middle} 40%, ${CASSETTE_SHELL_COLORS.bottom} 76%, ${CASSETTE_SHELL_COLORS.bottom} 100%)`,
+            boxShadow: "0 30px 70px rgba(0, 0, 0, 0.45)",
+          }}
+        >
+          <CassetteFoot scaled={scaled} />
+          <div
+            style={{
+              display: "flex",
+              position: "absolute",
+              left: scaled(8),
+              top: scaled(8),
+              width: cassetteWidth - scaled(16),
+              height: cassetteHeight - scaled(16),
+              borderRadius: scaled(CASSETTE_CORNER_RADIUS - 8),
+              border: "2px solid rgba(255, 255, 255, 0.06)",
+            }}
+          />
+          <CassetteScrew centerX={screwInset} centerY={screwInset} scaled={scaled} />
+          <CassetteScrew centerX={cassetteWidth - screwInset} centerY={screwInset} scaled={scaled} />
+          <CassetteScrew centerX={screwInset} centerY={cassetteHeight - screwInset} scaled={scaled} />
+          <CassetteScrew centerX={cassetteWidth - screwInset} centerY={cassetteHeight - screwInset} scaled={scaled} />
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              position: "absolute",
+              left: scaled(CASSETTE_LABEL_INSET),
+              top: scaled(CASSETTE_LABEL_INSET),
+              width: labelWidth,
+              height: scaled(CASSETTE_LABEL_HEIGHT),
+              borderRadius: scaled(16),
+              overflow: "hidden",
+              backgroundColor: MIXTAPE_PAPER_COLORS.background,
+              color: MIXTAPE_PAPER_COLORS.text,
+            }}
+          >
+            {isCentered ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: labelTextHeight,
+                  padding: `0 ${labelPadding}px`,
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", marginBottom: scaled(12) }}>
+                  {sideBadge}
+                  <div style={{ display: "flex", marginLeft: sideBadgeGap }}>{mixtapeCaption}</div>
+                </div>
+                {labelHeadline}
+              </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", height: labelTextHeight, padding: `0 ${labelPadding}px`, textAlign: "left" }}>
+                <div style={{ display: "flex", marginRight: sideBadgeGap }}>{sideBadge}</div>
+                <div style={{ display: "flex", flexDirection: "column", width: headlineWidth }}>
+                  <div style={{ display: "flex", marginBottom: scaled(8) }}>{mixtapeCaption}</div>
+                  {labelHeadline}
+                </div>
+              </div>
+            )}
+            <div style={{ display: "flex", flexDirection: "column", height: scaled(CASSETTE_BAND_HEIGHT), backgroundColor: stripeColor }}>
+              <div style={{ display: "flex", height: scaled(8), backgroundColor: "rgba(0, 0, 0, 0.16)" }} />
+              <div style={{ display: "flex", flexGrow: 1, alignItems: "center", justifyContent: "space-between", padding: `0 ${scaled(30)}px` }}>
+                <div style={bandCaption}>C-90</div>
+                <CassetteWindow scaled={scaled} />
+                <div style={{ ...bandCaption, justifyContent: "flex-end" }}>STEREO</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <BodyText
+        text={slide.body}
+        typography={typography}
+        alignment={slide.textAlign}
+        style={{ fontSize: 34, lineHeight: 1.3, marginTop: 40, color: colors.mutedText }}
+      />
+    </div>
+  )
+}
+
+function TapedAlbum({ slide, album, colors, typography }: { slide: StudioSlide; album: SlideCanvasAlbum | undefined; colors: SlideColors; typography: SlideTypography }) {
+  const coverSize = slide.body.length > 140 ? 480 : 560
+  const tapeWidth = Math.round(coverSize * 0.34)
+  const title = slide.headline || album?.title || ""
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: CONTENT_WIDTH, textAlign: "center" }}>
+      <div style={{ display: "flex", position: "relative", width: coverSize + 60, height: coverSize + 40 }}>
+        <CoverArt
+          album={album}
+          size={coverSize}
+          colors={colors}
+          cornerRadiusPercent={slide.albumCoverRadius}
+          style={{ position: "absolute", left: 30, top: 20, transform: "rotate(-2deg)" }}
+        />
+        <MaskingTape width={tapeWidth} angleDegrees={-38} style={{ left: -6, top: 30 }} />
+        <MaskingTape width={tapeWidth} angleDegrees={36} style={{ left: coverSize + 66 - tapeWidth, top: 22 }} />
+      </div>
+      <Headline slide={slide} typography={typography} baseSize={60} lineHeight={1.08} style={{ marginTop: 44, justifyContent: "center" }}>{title}</Headline>
+      <AlbumByline album={album} colors={colors} fontSize={32} />
+      <BodyText text={slide.body} typography={typography} alignment="center" style={{ fontSize: 30, lineHeight: 1.36, marginTop: 24 }} />
+      <SourceNote slide={slide} colors={colors} />
+    </div>
+  )
+}
+
+const JCARD_PADDING = 48
+const JCARD_COLUMN_GAP = 40
+const JCARD_ROW_COVER_SIZE = 72
+
+function JCardTrack({ album, trackNumber, width }: { album: SlideCanvasAlbum | undefined; trackNumber: number; width: number }) {
+  const singleLine: CSSProperties = { display: "flex", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }
+  const textWidth = width - 52 - JCARD_ROW_COVER_SIZE - 20
+  return (
+    <div style={{ display: "flex", alignItems: "center", width, paddingTop: 14, paddingBottom: 14, borderBottom: `2px solid ${MIXTAPE_PAPER_RULE}` }}>
+      <div style={{ display: "flex", width: 52, fontSize: 26, fontWeight: 700, color: MIXTAPE_PAPER_COLORS.mutedText }}>{String(trackNumber).padStart(2, "0")}</div>
+      <CoverArt album={album} size={JCARD_ROW_COVER_SIZE} colors={MIXTAPE_PAPER_COLORS} cornerRadiusPercent={0} hasShadow={false} />
+      <div style={{ display: "flex", flexDirection: "column", marginLeft: 20, width: textWidth, textAlign: "left" }}>
+        <div style={{ ...singleLine, width: textWidth, fontSize: 27, fontWeight: 700, lineHeight: 1.2 }}>{album?.title ?? "Álbum removido"}</div>
+        <div style={{ ...singleLine, width: textWidth, fontSize: 22, marginTop: 4, color: MIXTAPE_PAPER_COLORS.mutedText }}>
+          {album ? album.artistNames.join(", ") : ""}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// The list as a cassette insert: side A on the left, side B on the right.
+function JCardTracklist({ slide, slideAlbums, colors, typography }: { slide: StudioSlide; slideAlbums: (SlideCanvasAlbum | undefined)[]; colors: SlideColors; typography: SlideTypography }) {
+  const hasTwoSides = slideAlbums.length > 4
+  const sideAEnd = hasTwoSides ? Math.ceil(slideAlbums.length / 2) : slideAlbums.length
+  const sides = hasTwoSides
+    ? [
+        { label: "LADO A", albums: slideAlbums.slice(0, sideAEnd), firstTrack: 1 },
+        { label: "LADO B", albums: slideAlbums.slice(sideAEnd), firstTrack: sideAEnd + 1 },
+      ]
+    : [{ label: "LADO A", albums: slideAlbums, firstTrack: 1 }]
+  const innerWidth = CONTENT_WIDTH - JCARD_PADDING * 2
+  const columnWidth = hasTwoSides ? (innerWidth - JCARD_COLUMN_GAP) / 2 : innerWidth
+  const stripeColor = mixtapeStripeColor(colors.accent)
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: CONTENT_WIDTH,
+        borderRadius: 14,
+        overflow: "hidden",
+        backgroundColor: MIXTAPE_PAPER_COLORS.background,
+        color: MIXTAPE_PAPER_COLORS.text,
+        boxShadow: "0 24px 60px rgba(0, 0, 0, 0.35)",
+      }}
+    >
+      <div style={{ display: "flex", width: CONTENT_WIDTH, height: 20, backgroundColor: stripeColor }} />
+      <div style={{ display: "flex", flexDirection: "column", padding: `36px ${JCARD_PADDING}px ${JCARD_PADDING}px`, textAlign: "left" }}>
+        {slide.headline ? (
+          <Headline slide={{ ...slide, textAlign: "left" }} typography={typography} baseSize={58} style={{ marginBottom: 28 }}>{slide.headline}</Headline>
+        ) : null}
+        <div style={{ display: "flex", justifyContent: "space-between", width: innerWidth }}>
+          {sides.map((side) => (
+            <div key={side.label} style={{ display: "flex", flexDirection: "column", width: columnWidth }}>
+              <div style={{ display: "flex", paddingBottom: 12, borderBottom: `3px solid ${MIXTAPE_PAPER_COLORS.text}` }}>
+                <SideLabel side={side.label} colors={{ ...MIXTAPE_PAPER_COLORS, accent: stripeColor }} />
+              </div>
+              {side.albums.map((album, index) => (
+                <JCardTrack key={album?.id ?? index} album={album} trackNumber={side.firstTrack + index} width={columnWidth} />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const NOTEBOOK_LINE_SPACING = 58
+const NOTEBOOK_MARGIN_LINE_LEFT = 56
+
+// Liner notes on a page torn from a notebook. Rotating this card is safe
+// because it holds only text (Satori can't rotate images inside it).
+function NotebookPage({ children }: { children: ReactNode }) {
+  return (
+    <div style={{ display: "flex", position: "relative", width: CONTENT_WIDTH, paddingTop: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+          width: CONTENT_WIDTH,
+          padding: `76px 60px 64px ${NOTEBOOK_MARGIN_LINE_LEFT + 40}px`,
+          backgroundColor: MIXTAPE_PAPER_COLORS.background,
+          backgroundImage: `repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) ${NOTEBOOK_LINE_SPACING - 2}px, ${MIXTAPE_PAPER_RULE} ${NOTEBOOK_LINE_SPACING - 2}px, ${MIXTAPE_PAPER_RULE} ${NOTEBOOK_LINE_SPACING}px)`,
+          color: MIXTAPE_PAPER_COLORS.text,
+          transform: "rotate(-1.5deg)",
+          textAlign: "left",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            left: NOTEBOOK_MARGIN_LINE_LEFT,
+            top: 0,
+            bottom: 0,
+            width: 3,
+            backgroundColor: hexToRgba(MIXTAPE_PAPER_COLORS.accent, 0.55),
+          }}
+        />
+        {children}
+      </div>
+      <MaskingTape width={220} angleDegrees={-4} style={{ left: (CONTENT_WIDTH - 220) / 2, top: 0 }} />
+    </div>
+  )
+}
+
 function AlbumByline({ album, colors, fontSize }: { album: SlideCanvasAlbum | undefined; colors: SlideColors; fontSize: number }) {
   if (!album) return null
   return (
@@ -1528,6 +2405,10 @@ function SingleAlbumBody({ slide, album, colors, isCentered, composition, typogr
   const body = (
     <BodyText text={slide.body} typography={typography} alignment={slide.textAlign} style={{ fontSize: 32, lineHeight: 1.36, marginTop: 28 }} />
   )
+
+  if (composition === "taped") {
+    return <TapedAlbum slide={slide} album={album} colors={colors} typography={typography} />
+  }
 
   if (composition === "side") {
     const coverSize = 420
@@ -1896,6 +2777,7 @@ function AlbumPairFromToBody({
 function AlbumGridBody({
   slide,
   slideAlbums,
+  carouselAlbums,
   colors,
   isCentered,
   composition,
@@ -1903,11 +2785,28 @@ function AlbumGridBody({
 }: {
   slide: StudioSlide
   slideAlbums: (SlideCanvasAlbum | undefined)[]
+  carouselAlbums: SlideCanvasAlbum[]
   colors: SlideColors
   isCentered: boolean
   composition: SlideComposition
   typography: SlideTypography
 }) {
+  if (composition === "swatch-cards") {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start", width: "100%" }}>
+        {slide.headline ? (
+          <Headline slide={slide} typography={typography} baseSize={64} style={{ marginBottom: 40 }}>{slide.headline}</Headline>
+        ) : null}
+        <SwatchCardGrid
+          slideAlbums={slideAlbums}
+          carouselAlbums={carouselAlbums}
+          cornerRadiusPercent={slide.albumCoverRadius}
+          isCentered={isCentered}
+        />
+      </div>
+    )
+  }
+
   const isDuel = slideAlbums.length === 2
   const isTight = composition === "tight"
   const columnGap = isTight ? 0 : isDuel ? 64 : 40
@@ -1936,7 +2835,7 @@ function AlbumGridBody({
               size={coverSize}
               colors={colors}
               cornerRadiusPercent={slide.albumCoverRadius}
-              style={{ boxShadow: "none" }}
+              hasShadow={false}
             />
           ) : (
             <div key={album?.id ?? index} style={{ display: "flex", flexDirection: "column", width: coverSize }}>
@@ -1987,6 +2886,10 @@ function AlbumListBody({
   composition: SlideComposition
   typography: SlideTypography
 }) {
+  if (composition === "j-card") {
+    return <JCardTracklist slide={slide} slideAlbums={slideAlbums} colors={colors} typography={typography} />
+  }
+
   const isCards = composition === "cards"
   const cardPadding = isCards ? 14 : 0
   const baseCoverSize = slideAlbums.length > 6 ? 88 : slideAlbums.length > 4 ? 112 : 140
@@ -2030,7 +2933,8 @@ function AlbumListBody({
             size={coverSize}
             colors={colors}
             cornerRadiusPercent={slide.albumCoverRadius}
-            style={{ boxShadow: isCards ? "none" : "0 12px 28px rgba(0, 0, 0, 0.32)" }}
+            hasShadow={!isCards}
+            style={isCards ? undefined : { boxShadow: "0 12px 28px rgba(0, 0, 0, 0.32)" }}
           />
           <div style={{ display: "flex", flexDirection: "column", marginLeft: 32, width: rowWidth - coverSize - (showsNumbers ? 96 : 0) - 32 }}>
             <div
