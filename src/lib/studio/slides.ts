@@ -77,6 +77,7 @@ export const BACKGROUND_STYLES = [
   "two-tone",
   "frame",
   "blurred-covers",
+  "blurred-covers-split",
   "cover-echo",
 ] as const
 export type BackgroundStyle = (typeof BACKGROUND_STYLES)[number]
@@ -91,7 +92,12 @@ export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   "two-tone": "Duas cores",
   frame: "Moldura",
   "blurred-covers": "Capas desfocadas",
+  "blurred-covers-split": "Capas desfocadas na diagonal",
   "cover-echo": "Eco da capa",
+}
+
+export function usesBlurredCoversBackground(backgroundStyle: BackgroundStyle): boolean {
+  return backgroundStyle === "blurred-covers" || backgroundStyle === "blurred-covers-split"
 }
 
 export const MAX_BACKGROUND_SEED = 9999
@@ -624,12 +630,16 @@ export function mixHexColors(baseHex: string, overlayHex: string, overlayWeight:
   return `#${mixChannel(1)}${mixChannel(3)}${mixChannel(5)}`
 }
 
-const AUTOMATIC_SECONDARY_BACKGROUND_ACCENT_WEIGHT = 0.24
+const DIAGONAL_ACCENT_WEIGHT = 0.24
 
-// Without a chosen color, the second half repeats the "Diagonal" texture
-// tone: the accent laid over the background at the same strength.
+// The stronger half of the "Diagonal" textures: the accent laid over the
+// background at the same strength the plain "Diagonal" uses.
+export function diagonalStrongTone(colors: SlideColors): string {
+  return mixHexColors(colors.background, colors.accent, DIAGONAL_ACCENT_WEIGHT)
+}
+
 export function resolveSecondaryBackgroundColor(slide: StudioSlide, colors: SlideColors): string {
-  return slide.secondaryBackgroundHex ?? mixHexColors(colors.background, colors.accent, AUTOMATIC_SECONDARY_BACKGROUND_ACCENT_WEIGHT)
+  return slide.secondaryBackgroundHex ?? diagonalStrongTone(colors)
 }
 
 export function resolveSlideColors(

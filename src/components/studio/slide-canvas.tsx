@@ -14,6 +14,7 @@ import {
   CASSETTE_LABEL_TITLE_TEXT,
   CASSETTE_SIZE_SCALE,
   DEFAULT_CASSETTE_SHELL_HEX,
+  diagonalStrongTone,
   HEADLINE_SIZE_SCALE,
   hexToRgba,
   LOGO_SIZE_SCALE,
@@ -30,6 +31,7 @@ import {
   resolveSlideComposition,
   SLIDE_HEIGHT,
   SLIDE_WIDTH,
+  usesBlurredCoversBackground,
   type ContentPosition,
   type CoverGridTilt,
   type CtaRecapPosition,
@@ -197,14 +199,14 @@ export function SlideCanvas({
         ...(fontTarget === "preview" ? { fontSynthesis: "none" } : {}),
       }}
     >
-      {slide.backgroundStyle === "blurred-covers" ? (
+      {usesBlurredCoversBackground(slide.backgroundStyle) ? (
         <BlurredCoversLayer
           slide={slide}
           albumsById={albumsById}
           carouselAlbumIds={carouselAlbumIds}
           prerenderedSrc={blurredCoversSrc}
           effectsMode={backgroundEffectsMode}
-          backgroundColor={colors.background}
+          colors={colors}
         />
       ) : slide.backgroundStyle === "cover-echo" ? (
         <CoverEchoLayer
@@ -438,6 +440,7 @@ function BackgroundDecoration({ slide, colors }: { slide: StudioSlide; colors: S
       )
     }
     case "blurred-covers":
+    case "blurred-covers-split":
     case "cover-echo":
       return null
     case "frame":
@@ -463,16 +466,21 @@ function BlurredCoversLayer({
   carouselAlbumIds,
   prerenderedSrc,
   effectsMode,
-  backgroundColor,
+  colors,
 }: {
   slide: StudioSlide
   albumsById: Record<string, SlideCanvasAlbum>
   carouselAlbumIds: string[]
   prerenderedSrc: string | null
   effectsMode: BackgroundEffectsMode
-  backgroundColor: string
+  colors: SlideColors
 }) {
   const halfBleed = BLURRED_COVERS_BLEED / 2
+  const strongTone = diagonalStrongTone(colors)
+  const coversTint =
+    slide.backgroundStyle === "blurred-covers-split"
+      ? `linear-gradient(160deg, ${hexToRgba(colors.background, 0.3)} 0%, ${hexToRgba(colors.background, 0.3)} 50%, ${hexToRgba(strongTone, 0.93)} 70%, ${hexToRgba(strongTone, 0.93)} 100%)`
+      : `linear-gradient(0deg, ${hexToRgba(colors.background, 0.88)} 0%, ${hexToRgba(colors.background, 0.35)} 45%, ${hexToRgba(colors.background, 0.3)} 100%)`
   const placements = effectsMode === "css" ? arrangeBlurredCovers(carouselAlbumIds, slide.backgroundSeed) : []
 
   return (
@@ -517,11 +525,7 @@ function BlurredCoversLayer({
           })}
         </div>
       ) : null}
-      <div
-        style={fullSlideLayer({
-          backgroundImage: `linear-gradient(0deg, ${hexToRgba(backgroundColor, 0.88)} 0%, ${hexToRgba(backgroundColor, 0.35)} 45%, ${hexToRgba(backgroundColor, 0.3)} 100%)`,
-        })}
-      />
+      <div style={fullSlideLayer({ backgroundImage: coversTint })} />
     </div>
   )
 }

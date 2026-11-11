@@ -216,7 +216,7 @@ async function renderCoverEcho(
   return `data:image/jpeg;base64,${slideSizedBytes.toString("base64")}`
 }
 
-const PRERENDERED_BACKGROUND_STYLES = new Set<StudioSlide["backgroundStyle"]>(["blurred-covers", "cover-echo"])
+const PRERENDERED_BACKGROUND_STYLES = new Set<StudioSlide["backgroundStyle"]>(["blurred-covers", "blurred-covers-split", "cover-echo"])
 
 // Both blurred backgrounds ride on the same prerendered image slot.
 export async function buildRenderableBlurredCovers(

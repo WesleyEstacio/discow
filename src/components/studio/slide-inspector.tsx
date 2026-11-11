@@ -76,6 +76,7 @@ import {
   PROGRESS_SIZES,
   readableTextColorFor,
   resolveSecondaryBackgroundColor,
+  usesBlurredCoversBackground,
   resolveSlideColors,
   resolveSlideComposition,
   SLIDE_BACKGROUND_KEYS,
@@ -440,7 +441,7 @@ export function SlideInspector({
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
-          {slide.backgroundStyle === "blurred-covers" ? (
+          {usesBlurredCoversBackground(slide.backgroundStyle) ? (
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
@@ -454,7 +455,9 @@ export function SlideInspector({
               <FieldDescription>
                 {carouselAlbumCount === 0
                   ? "Adicione álbuns ao carrossel para gerar o fundo."
-                  : "Mistura as capas de todos os álbuns do carrossel, espalhadas e bem desfocadas."}
+                  : slide.backgroundStyle === "blurred-covers-split"
+                    ? "Mistura as capas do carrossel, desfocadas, sob uma diagonal suave: em cima um tom mais fraco da cor de fundo, embaixo um mais forte. Troque a cor de fundo para mudar os dois tons."
+                    : "Mistura as capas de todos os álbuns do carrossel, espalhadas e bem desfocadas."}
               </FieldDescription>
             </div>
           ) : null}
