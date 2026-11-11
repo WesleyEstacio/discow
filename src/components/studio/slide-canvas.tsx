@@ -945,7 +945,7 @@ function SlideBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, typ
             alignment={slide.textAlign}
             style={{ fontSize: 40, lineHeight: 1.38, marginTop: 44, whiteSpace: "pre-wrap" }}
           />
-          <SourceNote slide={slide} colors={colors} />
+          <SourceNote slide={slide} colors={textFrameColorsFor(composition, colors)} />
         </TextFrame>
       )
     case "quote":
@@ -974,6 +974,13 @@ function SlideBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, typ
         />
       )
   }
+}
+
+// Paper frames bring their own colors, so text drawn on them must follow.
+function textFrameColorsFor(composition: SlideComposition, slideColors: SlideColors): SlideColors {
+  if (composition === "notebook") return MIXTAPE_PAPER_COLORS
+  if (composition === "certificate") return CERTIFICATE_PAPER_COLORS
+  return slideColors
 }
 
 function TextFrame({
@@ -1007,6 +1014,9 @@ function TextFrame({
   }
   if (composition === "notebook") {
     return <NotebookPage>{children}</NotebookPage>
+  }
+  if (composition === "certificate") {
+    return <AwardCertificate>{children}</AwardCertificate>
   }
   if (composition === "accent-bar") {
     return <div style={{ ...columnStyle, borderLeft: `12px solid ${colors.accent}`, paddingLeft: 52 }}>{children}</div>
@@ -1444,6 +1454,8 @@ function CoverBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, com
   switch (composition) {
     case "cassette":
       return <CassetteCover slide={slide} slideAlbums={slideAlbums} carouselAlbums={carouselAlbums} colors={colors} typography={typography} />
+    case "podium":
+      return <PodiumCover slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} typography={typography} />
     case "fan-deck":
       return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
@@ -2555,6 +2567,10 @@ function RankedAlbumBody({ slide, album, colors, isCentered, composition, typogr
     </div>
   )
 
+  if (composition === "rosette") {
+    return <RosetteRankedAlbum slide={slide} album={album} colors={colors} isCentered={isCentered} typography={typography} />
+  }
+
   if (composition === "giant-number") {
     const coverSize = slide.body.length > 120 ? 500 : 560
     return (
@@ -2961,6 +2977,9 @@ function AlbumListBody({
   if (composition === "j-card") {
     return <JCardTracklist slide={slide} slideAlbums={slideAlbums} colors={colors} typography={typography} />
   }
+  if (composition === "leaderboard") {
+    return <LeaderboardList slide={slide} slideAlbums={slideAlbums} colors={colors} typography={typography} />
+  }
 
   const isCards = composition === "cards"
   const cardPadding = isCards ? 14 : 0
@@ -3038,6 +3057,322 @@ function AlbumListBody({
           </div>
         </div>
       ))}
+    </div>
+  )
+}
+
+type MedalColors = { metal: string; shine: string; ink: string; ribbon: string }
+
+const PODIUM_MEDAL_COLORS: readonly MedalColors[] = [
+  { metal: "#e2b23a", shine: "#fbe7a1", ink: "#3b2a00", ribbon: "#b3202c" },
+  { metal: "#b9c1cc", shine: "#f1f4f8", ink: "#20252c", ribbon: "#1f4596" },
+  { metal: "#c27a43", shine: "#efc09b", ink: "#2c1506", ribbon: "#1e6145" },
+]
+
+function podiumMedalForRank(rank: number | null): MedalColors | undefined {
+  return rank === null ? undefined : PODIUM_MEDAL_COLORS[rank - 1]
+}
+
+function medalColorsForRank(rank: number | null, colors: SlideColors): MedalColors {
+  return (
+    podiumMedalForRank(rank) ?? {
+      metal: colors.accent,
+      shine: mixHexColors(colors.accent, "#ffffff", 0.55),
+      ink: readableTextColorFor(colors.accent),
+      ribbon: mixHexColors(colors.accent, "#000000", 0.45),
+    }
+  )
+}
+
+const ROSETTE_HEIGHT_RATIO = 1.42
+const ROSETTE_PLEAT_COUNT = 18
+const ROSETTE_PLEAT_CENTERS = Array.from({ length: ROSETTE_PLEAT_COUNT }, (_, pleatIndex) => {
+  const angle = (pleatIndex * 2 * Math.PI) / ROSETTE_PLEAT_COUNT
+  return { x: 50 + 40 * Math.cos(angle), y: 50 + 40 * Math.sin(angle) }
+})
+
+// A prize ribbon: pleated ring, metal medal in the middle and two tails.
+function AwardRosette({ size, rank, label, colors }: { size: number; rank: number | null; label: string; colors: SlideColors }) {
+  const medal = medalColorsForRank(rank, colors)
+  const height = Math.round(size * ROSETTE_HEIGHT_RATIO)
+  return (
+    <div style={{ display: "flex", position: "relative", width: size, height }}>
+      <svg width={size} height={height} viewBox="0 0 100 142">
+        <polygon points="34,58 50,62 38,140 30,128 18,138" fill={medal.ribbon} />
+        <polygon points="50,62 66,58 82,138 70,128 62,140" fill={medal.ribbon} />
+        {ROSETTE_PLEAT_CENTERS.map((pleatCenter, pleatIndex) => (
+          <circle key={pleatIndex} cx={pleatCenter.x} cy={pleatCenter.y} r={10} fill={medal.ribbon} />
+        ))}
+        <circle cx={50} cy={50} r={40} fill={medal.ribbon} />
+        <circle cx={50} cy={50} r={35} fill={medal.metal} />
+        <circle cx={50} cy={50} r={30} fill={medal.shine} />
+        <circle cx={50} cy={50} r={28} fill={medal.metal} />
+      </svg>
+      <div
+        style={{
+          display: "flex",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: size,
+          height: size,
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: Math.round(size * (label.length > 1 ? 0.28 : 0.34)),
+          fontWeight: 700,
+          letterSpacing: -1,
+          color: medal.ink,
+        }}
+      >
+        {label}
+      </div>
+    </div>
+  )
+}
+
+function PodiumCrown({ width, medal }: { width: number; medal: MedalColors }) {
+  return (
+    <svg width={width} height={Math.round(width * 0.6)} viewBox="0 0 100 60">
+      <polygon points="8,56 4,16 30,34 50,6 70,34 96,16 92,56" fill={medal.metal} />
+      <rect x={8} y={46} width={84} height={10} fill={medal.shine} />
+      <circle cx={4} cy={14} r={5} fill={medal.shine} />
+      <circle cx={50} cy={6} r={6} fill={medal.shine} />
+      <circle cx={96} cy={14} r={5} fill={medal.shine} />
+    </svg>
+  )
+}
+
+const PODIUM_COLUMN_GAP = 14
+const PODIUM_COLUMN_WIDTH = (CONTENT_WIDTH - PODIUM_COLUMN_GAP * 2) / 3
+const PODIUM_STEP_HEIGHTS = [200, 144, 104]
+const PODIUM_COVER_SIZES = [264, 216, 216]
+const PODIUM_CROWN_WIDTH = 104
+const PODIUM_SPOTLIGHT_SIZE = 680
+// Second place stands on the left of the winner and third on the right.
+const PODIUM_VISUAL_ORDER = [1, 0, 2]
+
+function PodiumCover({ slide, slideAlbums, colors, isCentered, typography }: Omit<CoverBodyProps, "carouselAlbums" | "composition">) {
+  const podiumPlaces = PODIUM_VISUAL_ORDER.flatMap((rankIndex) =>
+    rankIndex < Math.min(slideAlbums.length, PODIUM_STEP_HEIGHTS.length) ? [{ rankIndex, album: slideAlbums[rankIndex] }] : []
+  )
+  const stepColor = mixHexColors(colors.background, "#ffffff", 0.12)
+  const podiumWidth = podiumPlaces.length * PODIUM_COLUMN_WIDTH + (podiumPlaces.length - 1) * PODIUM_COLUMN_GAP
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start", width: CONTENT_WIDTH }}>
+      <Headline slide={slide} typography={typography} baseSize={96} lineHeight={1.02}>{slide.headline}</Headline>
+      <BodyText
+        text={slide.body}
+        typography={typography}
+        alignment={slide.textAlign}
+        style={{ fontSize: 34, lineHeight: 1.3, marginTop: 24, color: colors.mutedText }}
+      />
+      <div style={{ display: "flex", position: "relative", alignItems: "flex-end", width: podiumWidth, marginTop: 56 }}>
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            left: (podiumWidth - PODIUM_SPOTLIGHT_SIZE) / 2,
+            top: -180,
+            width: PODIUM_SPOTLIGHT_SIZE,
+            height: PODIUM_SPOTLIGHT_SIZE,
+            backgroundImage: "radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 64%)",
+          }}
+        />
+        {podiumPlaces.map(({ rankIndex, album }, columnIndex) => {
+          const medal = PODIUM_MEDAL_COLORS[rankIndex]!
+          return (
+            <div
+              key={album?.id ?? rankIndex}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                width: PODIUM_COLUMN_WIDTH,
+                marginLeft: columnIndex === 0 ? 0 : PODIUM_COLUMN_GAP,
+              }}
+            >
+              {rankIndex === 0 ? (
+                <div style={{ display: "flex", marginBottom: 12 }}>
+                  <PodiumCrown width={PODIUM_CROWN_WIDTH} medal={medal} />
+                </div>
+              ) : null}
+              <CoverArt album={album} size={PODIUM_COVER_SIZES[rankIndex]!} colors={colors} cornerRadiusPercent={slide.albumCoverRadius} />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  width: PODIUM_COLUMN_WIDTH,
+                  height: PODIUM_STEP_HEIGHTS[rankIndex]!,
+                  marginTop: 20,
+                  paddingTop: 10,
+                  backgroundColor: stepColor,
+                  borderTop: `10px solid ${medal.metal}`,
+                  fontSize: rankIndex === 0 ? 132 : 96,
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  letterSpacing: -4,
+                  color: medal.metal,
+                }}
+              >
+                {String(rankIndex + 1)}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+const ROSETTE_SIZE = 220
+const ROSETTE_OVERHANG = Math.round(ROSETTE_SIZE * 0.36)
+
+function RosetteRankedAlbum({ slide, album, colors, isCentered, typography }: Omit<SingleAlbumBodyProps, "composition">) {
+  const coverSize = slide.body.length > 120 ? 470 : 530
+  const title = slide.headline || album?.title || ""
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start", width: CONTENT_WIDTH }}>
+      <div style={{ display: "flex", position: "relative", width: coverSize + ROSETTE_OVERHANG * 2, height: coverSize + ROSETTE_OVERHANG }}>
+        <CoverArt
+          album={album}
+          size={coverSize}
+          colors={colors}
+          cornerRadiusPercent={slide.albumCoverRadius}
+          style={{ position: "absolute", left: ROSETTE_OVERHANG, top: ROSETTE_OVERHANG }}
+        />
+        {slide.rankNumber !== null ? (
+          <div style={{ display: "flex", position: "absolute", left: 0, top: 0 }}>
+            <AwardRosette size={ROSETTE_SIZE} rank={slide.rankNumber} label={String(slide.rankNumber)} colors={colors} />
+          </div>
+        ) : null}
+      </div>
+      <Headline slide={slide} typography={typography} baseSize={58} lineHeight={1.08} style={{ marginTop: 40 }}>{title}</Headline>
+      <AlbumByline album={album} colors={colors} fontSize={30} />
+      <BodyText text={slide.body} typography={typography} alignment={slide.textAlign} style={{ fontSize: 31, lineHeight: 1.36, marginTop: 22 }} />
+      <SourceNote slide={slide} colors={colors} />
+    </div>
+  )
+}
+
+function LeaderboardMedal({ rank, size, colors }: { rank: number; size: number; colors: SlideColors }) {
+  const podiumMedal = podiumMedalForRank(rank)
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: podiumMedal?.metal ?? hexToRgba(colors.text, 0),
+        border: podiumMedal ? `4px solid ${podiumMedal.shine}` : `3px solid ${colors.mutedText}`,
+        fontSize: Math.round(size * (rank > 9 ? 0.4 : 0.48)),
+        fontWeight: 700,
+        letterSpacing: -1,
+        color: podiumMedal?.ink ?? colors.text,
+      }}
+    >
+      {String(rank)}
+    </div>
+  )
+}
+
+// The final ranking as a scoreboard: medals for the podium, plain rings after it.
+function LeaderboardList({ slide, slideAlbums, colors, typography }: { slide: StudioSlide; slideAlbums: (SlideCanvasAlbum | undefined)[]; colors: SlideColors; typography: SlideTypography }) {
+  const isCrowded = slideAlbums.length > 6
+  const coverSize = isCrowded ? 72 : slideAlbums.length > 4 ? 92 : 116
+  const medalSize = Math.round(coverSize * 0.78)
+  const rowPadding = isCrowded ? 10 : 14
+  const rowGap = isCrowded ? 10 : 14
+  const firstRank = slide.rankNumber
+  const textWidth = CONTENT_WIDTH - rowPadding * 2 - 4 - (firstRank === null ? 0 : medalSize + 24) - coverSize - 28
+  const singleLine: CSSProperties = { display: "flex", width: textWidth, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", width: CONTENT_WIDTH, textAlign: "left" }}>
+      {slide.headline ? (
+        <Headline slide={{ ...slide, textAlign: "left" }} typography={typography} baseSize={60} style={{ marginBottom: 36 }}>{slide.headline}</Headline>
+      ) : null}
+      {slideAlbums.map((album, index) => {
+        const rank = firstRank === null ? null : firstRank + index
+        const podiumMedal = podiumMedalForRank(rank)
+        return (
+          <div
+            key={album?.id ?? index}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginTop: index === 0 ? 0 : rowGap,
+              padding: rowPadding,
+              borderRadius: 20,
+              backgroundColor: hexToRgba(colors.text, podiumMedal ? 0.1 : 0.05),
+              border: `2px solid ${podiumMedal ? hexToRgba(podiumMedal.metal, 0.75) : hexToRgba(colors.text, 0)}`,
+            }}
+          >
+            {rank !== null ? (
+              <div style={{ display: "flex", marginRight: 24 }}>
+                <LeaderboardMedal rank={rank} size={medalSize} colors={colors} />
+              </div>
+            ) : null}
+            <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={slide.albumCoverRadius} hasShadow={false} />
+            <div style={{ display: "flex", flexDirection: "column", marginLeft: 28, width: textWidth }}>
+              <div style={{ ...singleLine, fontSize: isCrowded ? 30 : 34, fontWeight: 700, lineHeight: 1.14 }}>{album?.title ?? "Álbum removido"}</div>
+              <div style={{ ...singleLine, fontSize: isCrowded ? 23 : 26, marginTop: 4, color: colors.mutedText }}>
+                {album ? `${album.artistNames.join(", ")}${album.releaseYear ? ` · ${album.releaseYear}` : ""}` : ""}
+              </div>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+const CERTIFICATE_PAPER_COLORS: SlideColors = { background: "#f8f0dc", text: "#2a1d0c", mutedText: "#7a6648", accent: "#b8892a" }
+const CERTIFICATE_SEAL_SIZE = 150
+const CERTIFICATE_SEAL_OVERLAP = 72
+
+function certificateBorder(inset: number, width: number): CSSProperties {
+  return {
+    display: "flex",
+    position: "absolute",
+    top: inset,
+    left: inset,
+    right: inset,
+    bottom: inset,
+    border: `${width}px solid ${CERTIFICATE_PAPER_COLORS.accent}`,
+  }
+}
+
+// The verdict as an award certificate, sealed with a first-place rosette.
+function AwardCertificate({ children }: { children: ReactNode }) {
+  const sealHeight = Math.round(CERTIFICATE_SEAL_SIZE * ROSETTE_HEIGHT_RATIO)
+  return (
+    <div style={{ display: "flex", position: "relative", width: CONTENT_WIDTH, paddingTop: CERTIFICATE_SEAL_OVERLAP }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          position: "relative",
+          width: CONTENT_WIDTH,
+          padding: `${sealHeight - CERTIFICATE_SEAL_OVERLAP + 40}px 84px 88px`,
+          backgroundColor: CERTIFICATE_PAPER_COLORS.background,
+          color: CERTIFICATE_PAPER_COLORS.text,
+          textAlign: "center",
+          boxShadow: "0 24px 60px rgba(0, 0, 0, 0.35)",
+        }}
+      >
+        <div style={certificateBorder(22, 4)} />
+        <div style={certificateBorder(34, 1)} />
+        {children}
+      </div>
+      <div style={{ display: "flex", position: "absolute", top: 0, left: (CONTENT_WIDTH - CERTIFICATE_SEAL_SIZE) / 2 }}>
+        <AwardRosette size={CERTIFICATE_SEAL_SIZE} rank={1} label="1" colors={CERTIFICATE_PAPER_COLORS} />
+      </div>
     </div>
   )
 }

@@ -105,13 +105,13 @@ export const MAX_BACKGROUND_SEED = 9999
 // Each layout can be arranged in a few ways. The first option is the
 // original arrangement, so slides saved before compositions existed keep it.
 export const SLIDE_COMPOSITIONS_BY_LAYOUT = {
-  cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type", "fan-deck", "cassette"],
+  cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type", "fan-deck", "cassette", "podium"],
   album: ["classic", "side", "vinyl", "poster", "taped"],
-  "ranked-album": ["classic", "giant-number", "side"],
+  "ranked-album": ["classic", "giant-number", "side", "rosette"],
   "album-pair": ["diagonal", "mirrored", "from-to", "from-to-mirrored"],
   "album-grid": ["classic", "tight", "swatch-cards"],
-  "album-list": ["classic", "cards", "j-card"],
-  text: ["classic", "card", "accent-bar", "notebook"],
+  "album-list": ["classic", "cards", "j-card", "leaderboard"],
+  text: ["classic", "card", "accent-bar", "notebook", "certificate"],
   quote: ["classic", "card"],
   cta: ["classic", "outline", "minimal", "subtle", "checklist", "grid"],
 } as const satisfies Record<SlideLayout, readonly string[]>
@@ -131,6 +131,10 @@ export const SLIDE_COMPOSITION_LABELS: Record<SlideComposition, string> = {
   taped: "Colado com fita",
   "j-card": "Encarte de fita",
   notebook: "Caderno",
+  podium: "Pódio",
+  rosette: "Medalha",
+  leaderboard: "Placar",
+  certificate: "Certificado",
   classic: "Clássico",
   side: "Lado a lado",
   vinyl: "Vinil",
