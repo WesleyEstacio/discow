@@ -882,7 +882,17 @@ function SlideBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, typ
 
   switch (slide.layout) {
     case "cover":
-      return <CoverBody slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} composition={composition} typography={typography} />
+      return (
+        <CoverBody
+          slide={slide}
+          slideAlbums={slideAlbums}
+          carouselAlbums={carouselAlbums}
+          colors={colors}
+          isCentered={isCentered}
+          composition={composition}
+          typography={typography}
+        />
+      )
     case "album":
       return <SingleAlbumBody slide={slide} album={slideAlbums[0]} colors={colors} isCentered={isCentered} composition={composition} typography={typography} />
     case "ranked-album":
@@ -1374,9 +1384,9 @@ function collageCoverSizeFor(albumCount: number) {
   return Math.min(COLLAGE_MAX_COVER_SIZE, Math.floor(COLLAGE_AVAILABLE_WIDTH / visibleCoverWidths))
 }
 
-type CoverBodyProps = Omit<SlideBodyProps, "carouselAlbums"> & { composition: SlideComposition }
+type CoverBodyProps = SlideBodyProps & { composition: SlideComposition }
 
-function CoverBody({ slide, slideAlbums, colors, isCentered, composition, typography }: CoverBodyProps) {
+function CoverBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, composition, typography }: CoverBodyProps) {
   const columnAlignment = isCentered ? "center" : "flex-start"
   const radius = slide.albumCoverRadius
   const coverText = (headlineBaseSize: number) => (
@@ -1411,7 +1421,7 @@ function CoverBody({ slide, slideAlbums, colors, isCentered, composition, typogr
 
   switch (composition) {
     case "cassette":
-      return <CassetteCover slide={slide} slideAlbums={slideAlbums} colors={colors} typography={typography} />
+      return <CassetteCover slide={slide} slideAlbums={slideAlbums} carouselAlbums={carouselAlbums} colors={colors} typography={typography} />
     case "fan-deck":
       return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
@@ -2038,16 +2048,27 @@ function CassetteFoot({ scaled }: { scaled: ScaleMeasure }) {
   )
 }
 
-// The headline is written on the cassette label, and the cover albums
-// stick out from behind the tape like records stacked in a shoebox.
+function collectCassetteAlbums(
+  slideAlbums: (SlideCanvasAlbum | undefined)[],
+  carouselAlbums: SlideCanvasAlbum[]
+): (SlideCanvasAlbum | undefined)[] {
+  const coverAlbumIds = new Set(slideAlbums.map((album) => album?.id))
+  const remainingCarouselAlbums = carouselAlbums.filter((album) => !coverAlbumIds.has(album.id))
+  return [...slideAlbums, ...remainingCarouselAlbums].slice(0, MAX_ALBUMS_PER_COVER_SLIDE)
+}
+
+// The headline is written on the cassette label, and every album of the
+// post sticks out from behind the tape like records stacked in a shoebox.
 function CassetteCover({
   slide,
   slideAlbums,
+  carouselAlbums,
   colors,
   typography,
 }: {
   slide: StudioSlide
   slideAlbums: (SlideCanvasAlbum | undefined)[]
+  carouselAlbums: SlideCanvasAlbum[]
   colors: SlideColors
   typography: SlideTypography
 }) {
@@ -2057,7 +2078,7 @@ function CassetteCover({
   const cassetteWidth = scaled(CASSETTE_WIDTH)
   const cassetteHeight = scaled(CASSETTE_HEIGHT)
   const coverPeek = scaled(CASSETTE_COVER_PEEK)
-  const peekingAlbums = slideAlbums.slice(0, MAX_ALBUMS_PER_COVER_SLIDE)
+  const peekingAlbums = collectCassetteAlbums(slideAlbums, carouselAlbums)
   const coverSize = scaled(cassettePeekingCoverSize(peekingAlbums.length))
   const coverSideMargin = scaled(CASSETTE_COVER_SIDE_MARGIN)
   const coverSpacing = peekingAlbums.length > 1 ? (cassetteWidth - coverSideMargin * 2 - coverSize) / (peekingAlbums.length - 1) : 0
@@ -2095,7 +2116,7 @@ function CassetteCover({
   )
   const mixtapeCaption = (
     <div style={{ display: "flex", fontSize: scaled(21), fontWeight: 700, letterSpacing: scaled(4), color: MIXTAPE_PAPER_COLORS.mutedText }}>
-      {`MIXTAPE · ${slideAlbums.length} ${slideAlbums.length === 1 ? "DISCO" : "DISCOS"}`}
+      {`MIXTAPE · ${peekingAlbums.length} ${peekingAlbums.length === 1 ? "DISCO" : "DISCOS"}`}
     </div>
   )
   const labelHeadline = (
