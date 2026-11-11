@@ -335,6 +335,20 @@ export const CASSETTE_LABEL_TITLES = ["mixtape", "discows-mixtape"] as const
 export type CassetteLabelTitle = (typeof CASSETTE_LABEL_TITLES)[number]
 export const CASSETTE_LABEL_TITLE_LABELS: Record<CassetteLabelTitle, string> = { mixtape: "Mixtape", "discows-mixtape": "Discows Mixtape" }
 export const CASSETTE_LABEL_TITLE_TEXT: Record<CassetteLabelTitle, string> = { mixtape: "MIXTAPE", "discows-mixtape": "DISCOWS MIXTAPE" }
+export const CASSETTE_LABEL_TITLE_ALIGNMENTS = ["auto", "left", "center"] as const
+export type CassetteLabelTitleAlignment = (typeof CASSETTE_LABEL_TITLE_ALIGNMENTS)[number]
+export const CASSETTE_LABEL_TITLE_ALIGNMENT_LABELS: Record<CassetteLabelTitleAlignment, string> = {
+  auto: "Automático",
+  left: "Esquerda",
+  center: "Centro",
+}
+
+export function resolveCassetteLabelTitleAlignment(
+  slide: Pick<StudioSlide, "cassetteLabelTitleAlignment" | "textAlign">
+): Exclude<CassetteLabelTitleAlignment, "auto"> {
+  if (slide.cassetteLabelTitleAlignment !== "auto") return slide.cassetteLabelTitleAlignment
+  return slide.textAlign === "center" ? "center" : "left"
+}
 export const DEFAULT_CASSETTE_SHELL_HEX = "#2a2521"
 
 export const CTA_RECAP_POSITIONS = ["above", "below"] as const
@@ -423,6 +437,7 @@ export const studioSlideSchema = z.object({
   cassetteShellHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   cassetteStripeHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   cassetteLabelTitle: z.enum(CASSETTE_LABEL_TITLES).default("mixtape"),
+  cassetteLabelTitleAlignment: z.enum(CASSETTE_LABEL_TITLE_ALIGNMENTS).default("auto"),
   ctaRecapPosition: z.enum(CTA_RECAP_POSITIONS).default("above"),
   ctaButtonHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   ctaEmptySlotHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
@@ -531,6 +546,7 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     cassetteShellHex: null,
     cassetteStripeHex: null,
     cassetteLabelTitle: "mixtape",
+    cassetteLabelTitleAlignment: "auto",
     ctaRecapPosition: "above",
     ctaButtonHex: null,
     ctaEmptySlotHex: null,

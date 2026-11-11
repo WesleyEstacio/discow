@@ -21,6 +21,7 @@ import {
   mixHexColors,
   PROGRESS_SIZE_SCALE,
   readableTextColorFor,
+  resolveCassetteLabelTitleAlignment,
   resolveLogoAlignment,
   resolveLogoColors,
   resolveLogoZone,
@@ -2120,6 +2121,7 @@ function CassetteCover({
   const headlineSize = scaled(slide.headline.length > CASSETTE_LONG_HEADLINE_LENGTH ? 50 : 58)
   const screwInset = scaled(CASSETTE_SCREW_INSET)
   const shellColors = cassetteShellColorsFor(slide.cassetteShellHex)
+  const labelTitleAlignment = resolveCassetteLabelTitleAlignment(slide)
   const stripeColor = slide.cassetteStripeHex ?? mixtapeStripeColor(colors.accent)
   const stripeTextColor = readableTextColorFor(stripeColor) === "#17121b" ? MIXTAPE_PAPER_COLORS.text : MIXTAPE_PAPER_COLORS.background
   const bandCaption: CSSProperties = { display: "flex", width: scaled(120), fontSize: scaled(24), fontWeight: 700, letterSpacing: scaled(3), color: stripeTextColor }
@@ -2238,7 +2240,7 @@ function CassetteCover({
                   textAlign: "center",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", marginBottom: scaled(12) }}>
+                <div style={{ display: "flex", alignItems: "center", alignSelf: labelTitleAlignment === "left" ? "flex-start" : "center", marginBottom: scaled(12) }}>
                   {sideBadge}
                   <div style={{ display: "flex", marginLeft: sideBadgeGap }}>{mixtapeCaption}</div>
                 </div>
@@ -2248,7 +2250,9 @@ function CassetteCover({
               <div style={{ display: "flex", alignItems: "center", height: labelTextHeight, padding: `0 ${labelPadding}px`, textAlign: "left" }}>
                 <div style={{ display: "flex", marginRight: sideBadgeGap }}>{sideBadge}</div>
                 <div style={{ display: "flex", flexDirection: "column", width: headlineWidth }}>
-                  <div style={{ display: "flex", marginBottom: scaled(8) }}>{mixtapeCaption}</div>
+                  <div style={{ display: "flex", justifyContent: labelTitleAlignment === "center" ? "center" : "flex-start", marginBottom: scaled(8) }}>
+                    {mixtapeCaption}
+                  </div>
                   {labelHeadline}
                 </div>
               </div>

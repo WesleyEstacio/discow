@@ -38,6 +38,8 @@ import {
   BACKGROUND_STYLES,
   BRAND_MARK_STYLE_LABELS,
   BRAND_MARK_STYLES,
+  CASSETTE_LABEL_TITLE_ALIGNMENT_LABELS,
+  CASSETTE_LABEL_TITLE_ALIGNMENTS,
   CASSETTE_LABEL_TITLE_LABELS,
   CASSETTE_LABEL_TITLES,
   CASSETTE_SIZE_LABELS,
@@ -223,6 +225,13 @@ export function SlideInspector({
               optionLabels={CASSETTE_LABEL_TITLE_LABELS}
               value={slide.cassetteLabelTitle}
               onChange={(cassetteLabelTitle) => onChange({ cassetteLabelTitle })}
+            />
+            <OptionToggleField
+              label="Alinhamento do título na etiqueta"
+              options={CASSETTE_LABEL_TITLE_ALIGNMENTS}
+              optionLabels={CASSETTE_LABEL_TITLE_ALIGNMENT_LABELS}
+              value={slide.cassetteLabelTitleAlignment}
+              onChange={(cassetteLabelTitleAlignment) => onChange({ cassetteLabelTitleAlignment })}
             />
             <OverridableColorField
               id="slide-cassette-shell-color"
