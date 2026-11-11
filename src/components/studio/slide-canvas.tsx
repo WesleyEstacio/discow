@@ -11,11 +11,14 @@ import {
 } from "@/lib/studio/studio-fonts"
 import {
   BACKGROUND_IMAGE_FILTER_CSS,
+  CASSETTE_LABEL_TITLE_TEXT,
   CASSETTE_SIZE_SCALE,
+  DEFAULT_CASSETTE_SHELL_HEX,
   HEADLINE_SIZE_SCALE,
   hexToRgba,
   LOGO_SIZE_SCALE,
   MAX_ALBUMS_PER_COVER_SLIDE,
+  mixHexColors,
   PROGRESS_SIZE_SCALE,
   readableTextColorFor,
   resolveLogoAlignment,
@@ -1780,7 +1783,7 @@ const MINIMUM_STRIPE_CHANNEL_SPREAD = 40
 
 // Cassette labels need a colorful stripe; a grey or white slide accent
 // falls back to the paper's orange.
-function mixtapeStripeColor(slideAccent: string): string {
+export function mixtapeStripeColor(slideAccent: string): string {
   if (!/^#[0-9a-fA-F]{6}$/.test(slideAccent)) return MIXTAPE_PAPER_COLORS.accent
   const channels = [1, 3, 5].map((channelStart) => parseInt(slideAccent.slice(channelStart, channelStart + 2), 16))
   const channelSpread = Math.max(...channels) - Math.min(...channels)
@@ -1817,7 +1820,7 @@ function SideLabel({ side, colors }: { side: string; colors: SlideColors }) {
 const CASSETTE_WIDTH = CONTENT_WIDTH
 const CASSETTE_HEIGHT = 560
 const CASSETTE_CORNER_RADIUS = 34
-const CASSETTE_SHELL_COLORS = { top: "#423b34", middle: "#2a2521", bottom: "#1d1a17", foot: "#35302a", screw: "#5a534b", slot: "#1d1a17" }
+const DEFAULT_CASSETTE_SHELL_COLORS = { top: "#423b34", middle: DEFAULT_CASSETTE_SHELL_HEX, bottom: "#1d1a17", foot: "#35302a", screw: "#5a534b", slot: "#1d1a17" }
 const CASSETTE_LABEL_INSET = 34
 const CASSETTE_LABEL_WIDTH = CASSETTE_WIDTH - CASSETTE_LABEL_INSET * 2
 const CASSETTE_LABEL_HEIGHT = 386
@@ -1849,6 +1852,21 @@ const CASSETTE_COVER_SIDE_MARGIN = 40
 const CASSETTE_COVER_TILT_RANGE = { first: -9, last: 10, alternatingNudge: 2 }
 
 type ScaleMeasure = (largeSizeMeasure: number) => number
+type CassetteShellColors = typeof DEFAULT_CASSETTE_SHELL_COLORS
+
+function cassetteShellColorsFor(customShellHex: string | null): CassetteShellColors {
+  if (!customShellHex) return DEFAULT_CASSETTE_SHELL_COLORS
+  const isLightShell = readableTextColorFor(customShellHex) === "#17121b"
+  const shade = mixHexColors(customShellHex, "#000000", 0.3)
+  return {
+    top: mixHexColors(customShellHex, "#ffffff", 0.14),
+    middle: customShellHex,
+    bottom: shade,
+    foot: mixHexColors(customShellHex, "#ffffff", 0.07),
+    screw: isLightShell ? mixHexColors(customShellHex, "#000000", 0.22) : mixHexColors(customShellHex, "#ffffff", 0.22),
+    slot: mixHexColors(customShellHex, "#000000", 0.5),
+  }
+}
 
 function cassettePeekingCoverSize(albumCount: number): number {
   if (albumCount >= 6) return 196
@@ -1863,7 +1881,17 @@ function cassettePeekingCoverTilt(index: number, albumCount: number): number {
   return evenlySpreadTilt + (index % 2 === 0 ? -alternatingNudge : alternatingNudge)
 }
 
-function CassetteScrew({ centerX, centerY, scaled }: { centerX: number; centerY: number; scaled: ScaleMeasure }) {
+function CassetteScrew({
+  centerX,
+  centerY,
+  scaled,
+  shellColors,
+}: {
+  centerX: number
+  centerY: number
+  scaled: ScaleMeasure
+  shellColors: CassetteShellColors
+}) {
   const screwSize = scaled(CASSETTE_SCREW_SIZE)
   return (
     <div
@@ -1877,10 +1905,10 @@ function CassetteScrew({ centerX, centerY, scaled }: { centerX: number; centerY:
         width: screwSize,
         height: screwSize,
         borderRadius: screwSize / 2,
-        backgroundColor: CASSETTE_SHELL_COLORS.screw,
+        backgroundColor: shellColors.screw,
       }}
     >
-      <div style={{ display: "flex", width: scaled(12), height: Math.max(2, scaled(3)), backgroundColor: CASSETTE_SHELL_COLORS.slot, transform: "rotate(45deg)" }} />
+      <div style={{ display: "flex", width: scaled(12), height: Math.max(2, scaled(3)), backgroundColor: shellColors.slot, transform: "rotate(45deg)" }} />
     </div>
   )
 }
@@ -1978,7 +2006,7 @@ function CassetteWindow({ scaled }: { scaled: ScaleMeasure }) {
 
 // Satori ignores clip-path and transparent borders, so two tilted blocks in
 // the shell's bottom color cut the foot's corners into a trapezoid.
-function CassetteFoot({ scaled }: { scaled: ScaleMeasure }) {
+function CassetteFoot({ scaled, shellColors }: { scaled: ScaleMeasure; shellColors: CassetteShellColors }) {
   const cassetteWidth = scaled(CASSETTE_WIDTH)
   const footHeight = scaled(CASSETTE_FOOT_HEIGHT)
   const footSlant = scaled(CASSETTE_FOOT_SLANT)
@@ -2004,7 +2032,7 @@ function CassetteFoot({ scaled }: { scaled: ScaleMeasure }) {
           top: footTop,
           width: footBottomWidth,
           height: footHeight,
-          backgroundColor: CASSETTE_SHELL_COLORS.foot,
+          backgroundColor: shellColors.foot,
         }}
       />
       {[-1, 1].map((side) => {
@@ -2019,7 +2047,7 @@ function CassetteFoot({ scaled }: { scaled: ScaleMeasure }) {
               top: footTop + footHeight / 2 - (cornerCoverWidth / 2) * Math.sin(footSlantRadians) - cornerCoverHeight / 2,
               width: cornerCoverWidth,
               height: cornerCoverHeight,
-              backgroundColor: CASSETTE_SHELL_COLORS.bottom,
+              backgroundColor: shellColors.bottom,
               transform: `rotate(${(-side * footSlantRadians * 180) / Math.PI}deg)`,
             }}
           />
@@ -2043,7 +2071,7 @@ function CassetteFoot({ scaled }: { scaled: ScaleMeasure }) {
           />
         )
       })}
-      <CassetteScrew centerX={cassetteWidth / 2} centerY={holeCenterY} scaled={scaled} />
+      <CassetteScrew centerX={cassetteWidth / 2} centerY={holeCenterY} scaled={scaled} shellColors={shellColors} />
     </>
   )
 }
@@ -2091,7 +2119,8 @@ function CassetteCover({
   const headlineWidth = isCentered ? labelWidth - labelPadding * 2 : labelWidth - labelPadding * 2 - sideBadgeSize - sideBadgeGap
   const headlineSize = scaled(slide.headline.length > CASSETTE_LONG_HEADLINE_LENGTH ? 50 : 58)
   const screwInset = scaled(CASSETTE_SCREW_INSET)
-  const stripeColor = mixtapeStripeColor(colors.accent)
+  const shellColors = cassetteShellColorsFor(slide.cassetteShellHex)
+  const stripeColor = slide.cassetteStripeHex ?? mixtapeStripeColor(colors.accent)
   const stripeTextColor = readableTextColorFor(stripeColor) === "#17121b" ? MIXTAPE_PAPER_COLORS.text : MIXTAPE_PAPER_COLORS.background
   const bandCaption: CSSProperties = { display: "flex", width: scaled(120), fontSize: scaled(24), fontWeight: 700, letterSpacing: scaled(3), color: stripeTextColor }
 
@@ -2116,7 +2145,7 @@ function CassetteCover({
   )
   const mixtapeCaption = (
     <div style={{ display: "flex", fontSize: scaled(21), fontWeight: 700, letterSpacing: scaled(4), color: MIXTAPE_PAPER_COLORS.mutedText }}>
-      {`MIXTAPE · ${peekingAlbums.length} ${peekingAlbums.length === 1 ? "DISCO" : "DISCOS"}`}
+      {`${CASSETTE_LABEL_TITLE_TEXT[slide.cassetteLabelTitle]} · ${peekingAlbums.length} ${peekingAlbums.length === 1 ? "DISCO" : "DISCOS"}`}
     </div>
   )
   const labelHeadline = (
@@ -2159,12 +2188,12 @@ function CassetteCover({
             height: cassetteHeight,
             borderRadius: scaled(CASSETTE_CORNER_RADIUS),
             overflow: "hidden",
-            backgroundColor: CASSETTE_SHELL_COLORS.middle,
-            backgroundImage: `linear-gradient(180deg, ${CASSETTE_SHELL_COLORS.top} 0%, ${CASSETTE_SHELL_COLORS.middle} 40%, ${CASSETTE_SHELL_COLORS.bottom} 76%, ${CASSETTE_SHELL_COLORS.bottom} 100%)`,
+            backgroundColor: shellColors.middle,
+            backgroundImage: `linear-gradient(180deg, ${shellColors.top} 0%, ${shellColors.middle} 40%, ${shellColors.bottom} 76%, ${shellColors.bottom} 100%)`,
             boxShadow: "0 30px 70px rgba(0, 0, 0, 0.45)",
           }}
         >
-          <CassetteFoot scaled={scaled} />
+          <CassetteFoot scaled={scaled} shellColors={shellColors} />
           <div
             style={{
               display: "flex",
@@ -2177,10 +2206,10 @@ function CassetteCover({
               border: "2px solid rgba(255, 255, 255, 0.06)",
             }}
           />
-          <CassetteScrew centerX={screwInset} centerY={screwInset} scaled={scaled} />
-          <CassetteScrew centerX={cassetteWidth - screwInset} centerY={screwInset} scaled={scaled} />
-          <CassetteScrew centerX={screwInset} centerY={cassetteHeight - screwInset} scaled={scaled} />
-          <CassetteScrew centerX={cassetteWidth - screwInset} centerY={cassetteHeight - screwInset} scaled={scaled} />
+          <CassetteScrew centerX={screwInset} centerY={screwInset} scaled={scaled} shellColors={shellColors} />
+          <CassetteScrew centerX={cassetteWidth - screwInset} centerY={screwInset} scaled={scaled} shellColors={shellColors} />
+          <CassetteScrew centerX={screwInset} centerY={cassetteHeight - screwInset} scaled={scaled} shellColors={shellColors} />
+          <CassetteScrew centerX={cassetteWidth - screwInset} centerY={cassetteHeight - screwInset} scaled={scaled} shellColors={shellColors} />
 
           <div
             style={{
