@@ -331,6 +331,11 @@ export const CASSETTE_SIZES = ["small", "medium", "large"] as const
 export type CassetteSize = (typeof CASSETTE_SIZES)[number]
 export const CASSETTE_SIZE_LABELS: Record<CassetteSize, string> = { small: "Pequena", medium: "Média", large: "Grande" }
 export const CASSETTE_SIZE_SCALE: Record<CassetteSize, number> = { small: 0.66, medium: 0.83, large: 1 }
+export const CASSETTE_LABEL_TITLES = ["mixtape", "discows-mixtape"] as const
+export type CassetteLabelTitle = (typeof CASSETTE_LABEL_TITLES)[number]
+export const CASSETTE_LABEL_TITLE_LABELS: Record<CassetteLabelTitle, string> = { mixtape: "Mixtape", "discows-mixtape": "Discows Mixtape" }
+export const CASSETTE_LABEL_TITLE_TEXT: Record<CassetteLabelTitle, string> = { mixtape: "MIXTAPE", "discows-mixtape": "DISCOWS MIXTAPE" }
+export const DEFAULT_CASSETTE_SHELL_HEX = "#2a2521"
 
 export const CTA_RECAP_POSITIONS = ["above", "below"] as const
 export type CtaRecapPosition = (typeof CTA_RECAP_POSITIONS)[number]
@@ -415,6 +420,9 @@ export const studioSlideSchema = z.object({
   coverEchoAnchor: z.enum(COVER_ECHO_ANCHORS).default("top"),
   coverGridTilt: z.enum(COVER_GRID_TILTS).default("left"),
   cassetteSize: z.enum(CASSETTE_SIZES).default("large"),
+  cassetteShellHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
+  cassetteStripeHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
+  cassetteLabelTitle: z.enum(CASSETTE_LABEL_TITLES).default("mixtape"),
   ctaRecapPosition: z.enum(CTA_RECAP_POSITIONS).default("above"),
   ctaButtonHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   ctaEmptySlotHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
@@ -520,6 +528,9 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     coverEchoAnchor: "top",
     coverGridTilt: "left",
     cassetteSize: "large",
+    cassetteShellHex: null,
+    cassetteStripeHex: null,
+    cassetteLabelTitle: "mixtape",
     ctaRecapPosition: "above",
     ctaButtonHex: null,
     ctaEmptySlotHex: null,
@@ -574,7 +585,7 @@ export function hexToRgba(hexColor: string, alpha: number): string {
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`
 }
 
-function mixHexColors(baseHex: string, overlayHex: string, overlayWeight: number): string {
+export function mixHexColors(baseHex: string, overlayHex: string, overlayWeight: number): string {
   const mixChannel = (channelStart: number) => {
     const baseChannel = parseInt(baseHex.slice(channelStart, channelStart + 2), 16)
     const overlayChannel = parseInt(overlayHex.slice(channelStart, channelStart + 2), 16)

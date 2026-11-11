@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { HighlightableTextarea } from "@/components/studio/highlightable-textarea"
 import { SlideBackgroundImageField } from "@/components/studio/slide-background-image-field"
+import { mixtapeStripeColor } from "@/components/studio/slide-canvas"
 import { StudioCoverImage } from "@/components/studio/studio-cover-image"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -37,8 +38,11 @@ import {
   BACKGROUND_STYLES,
   BRAND_MARK_STYLE_LABELS,
   BRAND_MARK_STYLES,
+  CASSETTE_LABEL_TITLE_LABELS,
+  CASSETTE_LABEL_TITLES,
   CASSETTE_SIZE_LABELS,
   CASSETTE_SIZES,
+  DEFAULT_CASSETTE_SHELL_HEX,
   CONTENT_POSITION_LABELS,
   COVER_ECHO_ANCHOR_LABELS,
   COVER_ECHO_ANCHORS,
@@ -211,8 +215,35 @@ export function SlideInspector({
               onChange={(cassetteSize) => onChange({ cassetteSize })}
             />
             <FieldDescription>
-              As capas de todos os álbuns do slide aparecem atrás da fita (até 6). Em “Alinhamento”, centralizar move a fita e o texto da etiqueta para o centro.
+              As capas de todos os álbuns do post aparecem atrás da fita (até 6). Em “Alinhamento”, centralizar move a fita e o texto da etiqueta para o centro.
             </FieldDescription>
+            <OptionToggleField
+              label="Título na etiqueta"
+              options={CASSETTE_LABEL_TITLES}
+              optionLabels={CASSETTE_LABEL_TITLE_LABELS}
+              value={slide.cassetteLabelTitle}
+              onChange={(cassetteLabelTitle) => onChange({ cassetteLabelTitle })}
+            />
+            <OverridableColorField
+              id="slide-cassette-shell-color"
+              label="Cor da fita"
+              color={slide.cassetteShellHex ?? DEFAULT_CASSETTE_SHELL_HEX}
+              fallbackColor={DEFAULT_CASSETTE_SHELL_HEX}
+              isOverridden={slide.cassetteShellHex !== null}
+              automaticHint="Preta, separada das cores do slide"
+              resetLabel="Voltar para a fita preta"
+              onChange={(cassetteShellHex) => onChange({ cassetteShellHex })}
+            />
+            <OverridableColorField
+              id="slide-cassette-stripe-color"
+              label="Cor da faixa da etiqueta"
+              color={slide.cassetteStripeHex ?? mixtapeStripeColor(currentAccentColor)}
+              fallbackColor="#d9532b"
+              isOverridden={slide.cassetteStripeHex !== null}
+              automaticHint="Segue a cor de destaque"
+              resetLabel="Seguir a cor de destaque"
+              onChange={(cassetteStripeHex) => onChange({ cassetteStripeHex })}
+            />
           </div>
         ) : null}
 
