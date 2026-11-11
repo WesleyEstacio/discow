@@ -10,6 +10,7 @@ import {
   BLURRED_COVERS_BLEED,
   BLURRED_COVERS_BLUR_RADIUS,
   collectCarouselAlbumIds,
+  resolveBlurredCoverAlbumIds,
 } from "@/lib/studio/blurred-covers"
 import { arrangeCoverEcho, resolveCoverEchoAlbumId, type CoverEchoCopy } from "@/lib/studio/cover-echo"
 import { resolveSlideColors, SLIDE_HEIGHT, SLIDE_WIDTH, type StudioSlide } from "@/lib/studio/slides"
@@ -107,7 +108,7 @@ async function renderBlurredCovers(
   const canvasHeight = Math.round((SLIDE_HEIGHT + BLURRED_COVERS_BLEED) * BLURRED_COVERS_RENDER_SCALE)
 
   const coverLayers = await Promise.all(
-    arrangeBlurredCovers(carouselAlbumIds, slide.backgroundSeed).map(async (placement) => {
+    arrangeBlurredCovers(resolveBlurredCoverAlbumIds(slide, carouselAlbumIds), slide.backgroundSeed).map(async (placement) => {
       const coverBytes = decodeDataUrl(albumsById[placement.albumId]?.coverImageUrl)
       if (!coverBytes) return null
       const scaledSize = Math.round(placement.size * BLURRED_COVERS_RENDER_SCALE)
@@ -216,7 +217,7 @@ async function renderCoverEcho(
   return `data:image/jpeg;base64,${slideSizedBytes.toString("base64")}`
 }
 
-const PRERENDERED_BACKGROUND_STYLES = new Set<StudioSlide["backgroundStyle"]>(["blurred-covers", "cover-echo"])
+const PRERENDERED_BACKGROUND_STYLES = new Set<StudioSlide["backgroundStyle"]>(["blurred-covers", "blurred-covers-split", "cover-echo"])
 
 // Both blurred backgrounds ride on the same prerendered image slot.
 export async function buildRenderableBlurredCovers(

@@ -66,7 +66,20 @@ export const SLIDE_BACKGROUNDS = {
 export type SlideBackgroundKey = keyof typeof SLIDE_BACKGROUNDS
 export const SLIDE_BACKGROUND_KEYS = Object.keys(SLIDE_BACKGROUNDS) as SlideBackgroundKey[]
 
-export const BACKGROUND_STYLES = ["solid", "glow", "gradient", "stripes", "rings", "split", "two-tone", "frame", "blurred-covers", "cover-echo"] as const
+export const BACKGROUND_STYLES = [
+  "solid",
+  "glow",
+  "gradient",
+  "stripes",
+  "rings",
+  "split",
+  "soft-split",
+  "two-tone",
+  "frame",
+  "blurred-covers",
+  "blurred-covers-split",
+  "cover-echo",
+] as const
 export type BackgroundStyle = (typeof BACKGROUND_STYLES)[number]
 export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   solid: "Liso",
@@ -75,10 +88,16 @@ export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   stripes: "Listras",
   rings: "Ondas",
   split: "Diagonal",
+  "soft-split": "Diagonal desfocada",
   "two-tone": "Duas cores",
   frame: "Moldura",
   "blurred-covers": "Capas desfocadas",
+  "blurred-covers-split": "Capas desfocadas na diagonal",
   "cover-echo": "Eco da capa",
+}
+
+export function usesBlurredCoversBackground(backgroundStyle: BackgroundStyle): boolean {
+  return backgroundStyle === "blurred-covers" || backgroundStyle === "blurred-covers-split"
 }
 
 export const MAX_BACKGROUND_SEED = 9999
@@ -335,7 +354,28 @@ export const CASSETTE_LABEL_TITLES = ["mixtape", "discows-mixtape"] as const
 export type CassetteLabelTitle = (typeof CASSETTE_LABEL_TITLES)[number]
 export const CASSETTE_LABEL_TITLE_LABELS: Record<CassetteLabelTitle, string> = { mixtape: "Mixtape", "discows-mixtape": "Discows Mixtape" }
 export const CASSETTE_LABEL_TITLE_TEXT: Record<CassetteLabelTitle, string> = { mixtape: "MIXTAPE", "discows-mixtape": "DISCOWS MIXTAPE" }
+export const CASSETTE_LABEL_TITLE_ALIGNMENTS = ["auto", "left", "center"] as const
+export type CassetteLabelTitleAlignment = (typeof CASSETTE_LABEL_TITLE_ALIGNMENTS)[number]
+export const CASSETTE_LABEL_TITLE_ALIGNMENT_LABELS: Record<CassetteLabelTitleAlignment, string> = {
+  auto: "Automático",
+  left: "Esquerda",
+  center: "Centro",
+}
+
+export function resolveCassetteLabelTitleAlignment(
+  slide: Pick<StudioSlide, "cassetteLabelTitleAlignment" | "textAlign">
+): Exclude<CassetteLabelTitleAlignment, "auto"> {
+  if (slide.cassetteLabelTitleAlignment !== "auto") return slide.cassetteLabelTitleAlignment
+  return slide.textAlign === "center" ? "center" : "left"
+}
 export const DEFAULT_CASSETTE_SHELL_HEX = "#2a2521"
+
+export const BLURRED_COVERS_SOURCES = ["slide", "carousel"] as const
+export type BlurredCoversSource = (typeof BLURRED_COVERS_SOURCES)[number]
+export const BLURRED_COVERS_SOURCE_LABELS: Record<BlurredCoversSource, string> = {
+  slide: "Só as capas do slide",
+  carousel: "Todas as capas do post",
+}
 
 export const CTA_RECAP_POSITIONS = ["above", "below"] as const
 export type CtaRecapPosition = (typeof CTA_RECAP_POSITIONS)[number]
@@ -423,12 +463,14 @@ export const studioSlideSchema = z.object({
   cassetteShellHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   cassetteStripeHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   cassetteLabelTitle: z.enum(CASSETTE_LABEL_TITLES).default("mixtape"),
+  cassetteLabelTitleAlignment: z.enum(CASSETTE_LABEL_TITLE_ALIGNMENTS).default("auto"),
   ctaRecapPosition: z.enum(CTA_RECAP_POSITIONS).default("above"),
   ctaButtonHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   ctaEmptySlotHex: z.string().regex(HEX_COLOR_PATTERN).nullable().default(null),
   showCtaWebsite: z.boolean().default(true),
   backgroundImage: slideBackgroundImageSchema.nullable().default(null),
   backgroundSeed: z.number().int().min(0).max(MAX_BACKGROUND_SEED).default(0),
+  blurredCoversSource: z.enum(BLURRED_COVERS_SOURCES).default("slide"),
   albumCoverRadius: z.number().int().min(0).max(MAX_ALBUM_COVER_RADIUS_PERCENT).default(0),
   composition: z.enum(SLIDE_COMPOSITIONS as [SlideComposition, ...SlideComposition[]]).default("classic"),
   typeStyle: z.enum(TYPE_STYLES).default("bold"),
@@ -531,12 +573,14 @@ export function createEmptySlide(layout: SlideLayout, overrides: Partial<StudioS
     cassetteShellHex: null,
     cassetteStripeHex: null,
     cassetteLabelTitle: "mixtape",
+    cassetteLabelTitleAlignment: "auto",
     ctaRecapPosition: "above",
     ctaButtonHex: null,
     ctaEmptySlotHex: null,
     showCtaWebsite: true,
     backgroundImage: null,
     backgroundSeed: 0,
+    blurredCoversSource: "slide",
     albumCoverRadius: 0,
     composition: SLIDE_COMPOSITIONS_BY_LAYOUT[layout][0],
     typeStyle: "bold",
@@ -595,12 +639,16 @@ export function mixHexColors(baseHex: string, overlayHex: string, overlayWeight:
   return `#${mixChannel(1)}${mixChannel(3)}${mixChannel(5)}`
 }
 
-const AUTOMATIC_SECONDARY_BACKGROUND_ACCENT_WEIGHT = 0.24
+const DIAGONAL_ACCENT_WEIGHT = 0.24
 
-// Without a chosen color, the second half repeats the "Diagonal" texture
-// tone: the accent laid over the background at the same strength.
+// The stronger half of the "Diagonal" textures: the accent laid over the
+// background at the same strength the plain "Diagonal" uses.
+export function diagonalStrongTone(colors: SlideColors): string {
+  return mixHexColors(colors.background, colors.accent, DIAGONAL_ACCENT_WEIGHT)
+}
+
 export function resolveSecondaryBackgroundColor(slide: StudioSlide, colors: SlideColors): string {
-  return slide.secondaryBackgroundHex ?? mixHexColors(colors.background, colors.accent, AUTOMATIC_SECONDARY_BACKGROUND_ACCENT_WEIGHT)
+  return slide.secondaryBackgroundHex ?? diagonalStrongTone(colors)
 }
 
 export function resolveSlideColors(

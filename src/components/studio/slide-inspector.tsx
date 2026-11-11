@@ -38,6 +38,10 @@ import {
   BACKGROUND_STYLES,
   BRAND_MARK_STYLE_LABELS,
   BRAND_MARK_STYLES,
+  CASSETTE_LABEL_TITLE_ALIGNMENT_LABELS,
+  CASSETTE_LABEL_TITLE_ALIGNMENTS,
+  BLURRED_COVERS_SOURCE_LABELS,
+  BLURRED_COVERS_SOURCES,
   CASSETTE_LABEL_TITLE_LABELS,
   CASSETTE_LABEL_TITLES,
   CASSETTE_SIZE_LABELS,
@@ -74,6 +78,7 @@ import {
   PROGRESS_SIZES,
   readableTextColorFor,
   resolveSecondaryBackgroundColor,
+  usesBlurredCoversBackground,
   resolveSlideColors,
   resolveSlideComposition,
   SLIDE_BACKGROUND_KEYS,
@@ -223,6 +228,13 @@ export function SlideInspector({
               optionLabels={CASSETTE_LABEL_TITLE_LABELS}
               value={slide.cassetteLabelTitle}
               onChange={(cassetteLabelTitle) => onChange({ cassetteLabelTitle })}
+            />
+            <OptionToggleField
+              label="Alinhamento do título na etiqueta"
+              options={CASSETTE_LABEL_TITLE_ALIGNMENTS}
+              optionLabels={CASSETTE_LABEL_TITLE_ALIGNMENT_LABELS}
+              value={slide.cassetteLabelTitleAlignment}
+              onChange={(cassetteLabelTitleAlignment) => onChange({ cassetteLabelTitleAlignment })}
             />
             <OverridableColorField
               id="slide-cassette-shell-color"
@@ -431,7 +443,16 @@ export function SlideInspector({
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
-          {slide.backgroundStyle === "blurred-covers" ? (
+          {usesBlurredCoversBackground(slide.backgroundStyle) ? (
+            <OptionToggleField
+              label="Capas no desfoque"
+              options={BLURRED_COVERS_SOURCES}
+              optionLabels={BLURRED_COVERS_SOURCE_LABELS}
+              value={slide.blurredCoversSource}
+              onChange={(blurredCoversSource) => onChange({ blurredCoversSource })}
+            />
+          ) : null}
+          {usesBlurredCoversBackground(slide.backgroundStyle) ? (
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
@@ -445,7 +466,9 @@ export function SlideInspector({
               <FieldDescription>
                 {carouselAlbumCount === 0
                   ? "Adicione álbuns ao carrossel para gerar o fundo."
-                  : "Mistura as capas de todos os álbuns do carrossel, espalhadas e bem desfocadas."}
+                  : slide.backgroundStyle === "blurred-covers-split"
+                    ? "As capas desfocadas ficam sob uma diagonal suave: em cima um tom mais fraco da cor de fundo, embaixo um mais forte. Sem álbuns no slide, usa todas as capas do post."
+                    : "Espalha e desfoca as capas. Sem álbuns no slide, usa todas as capas do post."}
               </FieldDescription>
             </div>
           ) : null}

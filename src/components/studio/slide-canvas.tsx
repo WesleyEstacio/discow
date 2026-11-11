@@ -1,7 +1,12 @@
 import type { CSSProperties, ReactNode } from "react"
 import type { StudioCoverSource } from "@/lib/db/schema"
 import { DiscowsWordmark } from "@/components/brand/discows-wordmark"
-import { arrangeBlurredCovers, BLURRED_COVERS_BLEED, BLURRED_COVERS_BLUR_RADIUS } from "@/lib/studio/blurred-covers"
+import {
+  arrangeBlurredCovers,
+  BLURRED_COVERS_BLEED,
+  BLURRED_COVERS_BLUR_RADIUS,
+  resolveBlurredCoverAlbumIds,
+} from "@/lib/studio/blurred-covers"
 import { arrangeCoverEcho, resolveCoverEchoAlbumId, textPositionAroundCoverEcho } from "@/lib/studio/cover-echo"
 import {
   resolveFontFamily,
@@ -14,6 +19,7 @@ import {
   CASSETTE_LABEL_TITLE_TEXT,
   CASSETTE_SIZE_SCALE,
   DEFAULT_CASSETTE_SHELL_HEX,
+  diagonalStrongTone,
   HEADLINE_SIZE_SCALE,
   hexToRgba,
   LOGO_SIZE_SCALE,
@@ -21,6 +27,7 @@ import {
   mixHexColors,
   PROGRESS_SIZE_SCALE,
   readableTextColorFor,
+  resolveCassetteLabelTitleAlignment,
   resolveLogoAlignment,
   resolveLogoColors,
   resolveLogoZone,
@@ -29,6 +36,7 @@ import {
   resolveSlideComposition,
   SLIDE_HEIGHT,
   SLIDE_WIDTH,
+  usesBlurredCoversBackground,
   type ContentPosition,
   type CoverGridTilt,
   type CtaRecapPosition,
@@ -196,14 +204,14 @@ export function SlideCanvas({
         ...(fontTarget === "preview" ? { fontSynthesis: "none" } : {}),
       }}
     >
-      {slide.backgroundStyle === "blurred-covers" ? (
+      {usesBlurredCoversBackground(slide.backgroundStyle) ? (
         <BlurredCoversLayer
           slide={slide}
           albumsById={albumsById}
           carouselAlbumIds={carouselAlbumIds}
           prerenderedSrc={blurredCoversSrc}
           effectsMode={backgroundEffectsMode}
-          backgroundColor={colors.background}
+          colors={colors}
         />
       ) : slide.backgroundStyle === "cover-echo" ? (
         <CoverEchoLayer
@@ -418,6 +426,14 @@ function BackgroundDecoration({ slide, colors }: { slide: StudioSlide; colors: S
           })}
         />
       )
+    case "soft-split":
+      return (
+        <div
+          style={fullSlideLayer({
+            backgroundImage: `linear-gradient(160deg, ${hexToRgba(colors.accent, 0)} 0%, ${hexToRgba(colors.accent, 0)} 46%, ${hexToRgba(colors.accent, 0.12)} 60%, ${hexToRgba(colors.accent, 0.24)} 74%, ${hexToRgba(colors.accent, 0.24)} 100%)`,
+          })}
+        />
+      )
     case "two-tone": {
       const secondaryColor = resolveSecondaryBackgroundColor(slide, colors)
       return (
@@ -429,6 +445,7 @@ function BackgroundDecoration({ slide, colors }: { slide: StudioSlide; colors: S
       )
     }
     case "blurred-covers":
+    case "blurred-covers-split":
     case "cover-echo":
       return null
     case "frame":
@@ -454,17 +471,23 @@ function BlurredCoversLayer({
   carouselAlbumIds,
   prerenderedSrc,
   effectsMode,
-  backgroundColor,
+  colors,
 }: {
   slide: StudioSlide
   albumsById: Record<string, SlideCanvasAlbum>
   carouselAlbumIds: string[]
   prerenderedSrc: string | null
   effectsMode: BackgroundEffectsMode
-  backgroundColor: string
+  colors: SlideColors
 }) {
   const halfBleed = BLURRED_COVERS_BLEED / 2
-  const placements = effectsMode === "css" ? arrangeBlurredCovers(carouselAlbumIds, slide.backgroundSeed) : []
+  const strongTone = diagonalStrongTone(colors)
+  const coversTint =
+    slide.backgroundStyle === "blurred-covers-split"
+      ? `linear-gradient(160deg, ${hexToRgba(colors.background, 0.3)} 0%, ${hexToRgba(colors.background, 0.3)} 50%, ${hexToRgba(strongTone, 0.93)} 70%, ${hexToRgba(strongTone, 0.93)} 100%)`
+      : `linear-gradient(0deg, ${hexToRgba(colors.background, 0.88)} 0%, ${hexToRgba(colors.background, 0.35)} 45%, ${hexToRgba(colors.background, 0.3)} 100%)`
+  const placements = effectsMode === "css" ? arrangeBlurredCovers(resolveBlurredCoverAlbumIds(slide, carouselAlbumIds), slide.backgroundSeed)
+      : []
 
   return (
     <div style={fullSlideLayer({ overflow: "hidden" })}>
@@ -508,11 +531,7 @@ function BlurredCoversLayer({
           })}
         </div>
       ) : null}
-      <div
-        style={fullSlideLayer({
-          backgroundImage: `linear-gradient(0deg, ${hexToRgba(backgroundColor, 0.88)} 0%, ${hexToRgba(backgroundColor, 0.35)} 45%, ${hexToRgba(backgroundColor, 0.3)} 100%)`,
-        })}
-      />
+      <div style={fullSlideLayer({ backgroundImage: coversTint })} />
     </div>
   )
 }
@@ -2120,6 +2139,7 @@ function CassetteCover({
   const headlineSize = scaled(slide.headline.length > CASSETTE_LONG_HEADLINE_LENGTH ? 50 : 58)
   const screwInset = scaled(CASSETTE_SCREW_INSET)
   const shellColors = cassetteShellColorsFor(slide.cassetteShellHex)
+  const labelTitleAlignment = resolveCassetteLabelTitleAlignment(slide)
   const stripeColor = slide.cassetteStripeHex ?? mixtapeStripeColor(colors.accent)
   const stripeTextColor = readableTextColorFor(stripeColor) === "#17121b" ? MIXTAPE_PAPER_COLORS.text : MIXTAPE_PAPER_COLORS.background
   const bandCaption: CSSProperties = { display: "flex", width: scaled(120), fontSize: scaled(24), fontWeight: 700, letterSpacing: scaled(3), color: stripeTextColor }
@@ -2238,7 +2258,7 @@ function CassetteCover({
                   textAlign: "center",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", marginBottom: scaled(12) }}>
+                <div style={{ display: "flex", alignItems: "center", alignSelf: labelTitleAlignment === "left" ? "flex-start" : "center", marginBottom: scaled(12) }}>
                   {sideBadge}
                   <div style={{ display: "flex", marginLeft: sideBadgeGap }}>{mixtapeCaption}</div>
                 </div>
@@ -2248,7 +2268,9 @@ function CassetteCover({
               <div style={{ display: "flex", alignItems: "center", height: labelTextHeight, padding: `0 ${labelPadding}px`, textAlign: "left" }}>
                 <div style={{ display: "flex", marginRight: sideBadgeGap }}>{sideBadge}</div>
                 <div style={{ display: "flex", flexDirection: "column", width: headlineWidth }}>
-                  <div style={{ display: "flex", marginBottom: scaled(8) }}>{mixtapeCaption}</div>
+                  <div style={{ display: "flex", justifyContent: labelTitleAlignment === "center" ? "center" : "flex-start", marginBottom: scaled(8) }}>
+                    {mixtapeCaption}
+                  </div>
                   {labelHeadline}
                 </div>
               </div>

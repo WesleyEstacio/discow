@@ -11,6 +11,7 @@ import {
   buildSlideFileName,
   renderSlideImage,
 } from "@/lib/studio/render-slides"
+import { usesBlurredCoversBackground } from "@/lib/studio/slides"
 
 type RouteContext = {
   params: Promise<{ postId: string; slideNumber: string }>
@@ -33,7 +34,7 @@ export async function GET(request: Request, context: RouteContext) {
 
   const slide = post.slides[slideIndex]!
   const carouselAlbumIds = collectCarouselAlbumIds(post.slides)
-  const needsCarouselAlbums = slide.backgroundStyle === "blurred-covers" || slide.layout === "cta"
+  const needsCarouselAlbums = usesBlurredCoversBackground(slide.backgroundStyle) || slide.layout === "cta"
   const albumIdsToLoad = needsCarouselAlbums ? carouselAlbumIds : slide.albumIds
   const [albumsById, backgroundImagesBySlideId] = await Promise.all([
     getStudioAlbumsByIds(albumIdsToLoad).then(buildRenderableAlbums),
