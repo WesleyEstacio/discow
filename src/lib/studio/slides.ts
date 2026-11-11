@@ -66,7 +66,19 @@ export const SLIDE_BACKGROUNDS = {
 export type SlideBackgroundKey = keyof typeof SLIDE_BACKGROUNDS
 export const SLIDE_BACKGROUND_KEYS = Object.keys(SLIDE_BACKGROUNDS) as SlideBackgroundKey[]
 
-export const BACKGROUND_STYLES = ["solid", "glow", "gradient", "stripes", "rings", "split", "two-tone", "frame", "blurred-covers", "cover-echo"] as const
+export const BACKGROUND_STYLES = [
+  "solid",
+  "glow",
+  "gradient",
+  "stripes",
+  "rings",
+  "split",
+  "soft-split",
+  "two-tone",
+  "frame",
+  "blurred-covers",
+  "cover-echo",
+] as const
 export type BackgroundStyle = (typeof BACKGROUND_STYLES)[number]
 export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   solid: "Liso",
@@ -75,6 +87,7 @@ export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   stripes: "Listras",
   rings: "Ondas",
   split: "Diagonal",
+  "soft-split": "Diagonal desfocada",
   "two-tone": "Duas cores",
   frame: "Moldura",
   "blurred-covers": "Capas desfocadas",

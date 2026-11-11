@@ -419,6 +419,14 @@ function BackgroundDecoration({ slide, colors }: { slide: StudioSlide; colors: S
           })}
         />
       )
+    case "soft-split":
+      return (
+        <div
+          style={fullSlideLayer({
+            backgroundImage: `linear-gradient(160deg, ${hexToRgba(colors.accent, 0)} 0%, ${hexToRgba(colors.accent, 0)} 46%, ${hexToRgba(colors.accent, 0.12)} 60%, ${hexToRgba(colors.accent, 0.24)} 74%, ${hexToRgba(colors.accent, 0.24)} 100%)`,
+          })}
+        />
+      )
     case "two-tone": {
       const secondaryColor = resolveSecondaryBackgroundColor(slide, colors)
       return (
