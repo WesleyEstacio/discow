@@ -1,5 +1,6 @@
 import type { AdapterAccountType } from "next-auth/adapters"
 import type { PostLanguage, PostStatus } from "@/lib/studio/post-status"
+import type { TemplateTag } from "@/lib/studio/template-tags"
 import type { StoredStudioSlide, StoredStudioSlideStyle } from "@/lib/studio/slides"
 import type { UserRole } from "@/lib/user-role"
 import {
@@ -323,7 +324,6 @@ export const studioPosts = pgTable(
     albumIds: text("album_ids").array().notNull().default([]),
     caption: text("caption").notNull().default(""),
     notes: text("notes").notNull().default(""),
-    listPosition: integer("list_position").notNull().default(0),
     scheduledFor: timestamp("scheduled_for", { mode: "date" }),
     publishedAt: timestamp("published_at", { mode: "date" }),
     createdByUserId: text("created_by_user_id").references(() => users.id, {
@@ -336,7 +336,6 @@ export const studioPosts = pgTable(
     index("studio_post_status_idx").on(studioPost.status),
     index("studio_post_scheduled_for_idx").on(studioPost.scheduledFor),
     index("studio_post_updated_at_idx").on(studioPost.updatedAt),
-    index("studio_post_list_position_idx").on(studioPost.listPosition),
   ]
 )
 
@@ -408,5 +407,14 @@ export const studioImages = pgTable(
 export const studioSettings = pgTable("studio_setting", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
+})
+
+// How the admin organizes the formats on "Criar publicação": manual order and
+// a workflow tag. Formats themselves live in code (src/lib/studio/templates).
+export const studioTemplatePreferences = pgTable("studio_template_preference", {
+  templateKey: text("template_key").primaryKey(),
+  listPosition: integer("list_position").notNull().default(0),
+  tag: text("tag").$type<TemplateTag>(),
   updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
 })
