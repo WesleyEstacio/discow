@@ -1,6 +1,6 @@
 "use server"
 
-import { eq, inArray, sql } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { db } from "@/lib/db"
@@ -29,12 +29,7 @@ export type SavePostResult =
   | { success: true; savedAt: string }
   | { success: false; error: string }
 
-export type PostListActionResult = { success: true } | { success: false; error: string }
-
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
-const MAX_REORDERED_POSTS = 200
-
-const positionAboveEveryPost = sql<number>`(select coalesce(min(${studioPosts.listPosition}), 1) - 1 from ${studioPosts})`
 
 async function applyChosenDefaultBackground(slides: StudioSlide[], formValue: FormDataEntryValue | null): Promise<StudioSlide[]> {
   const imageId = typeof formValue === "string" ? formValue : ""
@@ -134,7 +129,6 @@ export async function createPostFromTemplateAction(
       albumIds: [...new Set(slides.flatMap((slide) => slide.albumIds))],
       caption: carousel.caption,
       createdByUserId: admin.userId,
-      listPosition: positionAboveEveryPost,
     })
     .returning({ id: studioPosts.id })
 
@@ -185,18 +179,18 @@ export async function savePostAction(postId: string, draft: unknown): Promise<Sa
   return { success: true, savedAt: savedAt.toISOString() }
 }
 
-export async function updatePostStatusAction(postId: string, status: string): Promise<PostListActionResult> {
+export async function updatePostStatusAction(postId: string, status: string): Promise<void> {
   await requireStudioAdmin()
-  if (!isPostStatus(status)) return { success: false, error: "Status inválido." }
+  if (!isPostStatus(status)) throw new Error("Status inválido")
 
   const [currentPost] = await db
     .select({ publishedAt: studioPosts.publishedAt, scheduledFor: studioPosts.scheduledFor })
     .from(studioPosts)
     .where(eq(studioPosts.id, postId))
     .limit(1)
-  if (!currentPost) return { success: false, error: "Esta publicação não existe mais." }
+  if (!currentPost) return
   if (status === "scheduled" && !currentPost.scheduledFor) {
-    return { success: false, error: "Defina a data de publicação no editor antes de marcar como agendada." }
+    throw new Error("Defina a data de publicação no editor antes de marcar como agendada.")
   }
 
   await db
@@ -205,46 +199,6 @@ export async function updatePostStatusAction(postId: string, status: string): Pr
     .where(eq(studioPosts.id, postId))
 
   revalidateStudioPosts(postId)
-  return { success: true }
-}
-
-export async function reorderPostsAction(orderedPostIds: string[]): Promise<PostListActionResult> {
-  await requireStudioAdmin()
-
-  if (!Array.isArray(orderedPostIds)) return { success: false, error: "Ordem inválida." }
-  const uniquePostIds = [...new Set(orderedPostIds)]
-  const isValidOrder =
-    uniquePostIds.length === orderedPostIds.length &&
-    uniquePostIds.length > 0 &&
-    uniquePostIds.length <= MAX_REORDERED_POSTS &&
-    uniquePostIds.every((postId) => UUID_PATTERN.test(postId))
-  if (!isValidOrder) return { success: false, error: "Ordem inválida." }
-
-  const currentPositions = await db
-    .select({ listPosition: studioPosts.listPosition })
-    .from(studioPosts)
-    .where(inArray(studioPosts.id, uniquePostIds))
-  if (currentPositions.length !== uniquePostIds.length) {
-    return { success: false, error: "A lista mudou. Recarregue a página e tente de novo." }
-  }
-
-  const sortedPositions = currentPositions.map((post) => post.listPosition).sort((first, second) => first - second)
-  const hasRepeatedPositions = sortedPositions.some((position, index) => index > 0 && position === sortedPositions[index - 1])
-  const positionsToAssign = hasRepeatedPositions
-    ? sortedPositions.map((_, index) => sortedPositions[0]! + index)
-    : sortedPositions
-
-  const newPositionByPostId = sql.join(
-    uniquePostIds.map((postId, index) => sql`when ${postId} then ${positionsToAssign[index]}::int`),
-    sql` `
-  )
-  await db
-    .update(studioPosts)
-    .set({ listPosition: sql`case ${studioPosts.id} ${newPositionByPostId} end` })
-    .where(inArray(studioPosts.id, uniquePostIds))
-
-  revalidateStudioPosts()
-  return { success: true }
 }
 
 export async function deletePostAction(postId: string): Promise<void> {
@@ -272,7 +226,6 @@ export async function duplicatePostAction(postId: string): Promise<void> {
       caption: originalPost.caption,
       notes: originalPost.notes,
       createdByUserId: admin.userId,
-      listPosition: positionAboveEveryPost,
     })
     .returning({ id: studioPosts.id })
 
