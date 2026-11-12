@@ -9,6 +9,7 @@ const STATUS_STYLES: Record<PostStatus, string> = {
   approved: "border-emerald-400/40 text-emerald-300",
   scheduled: "border-sky-400/40 text-sky-300",
   published: "border-primary/50 text-primary",
+  postponed: "border-orange-400/40 text-orange-300",
 }
 
 export function PostStatusBadge({ status }: { status: PostStatus }) {

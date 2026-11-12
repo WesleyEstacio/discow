@@ -1,5 +1,5 @@
 import "server-only"
-import { and, asc, desc, eq, gte, inArray, isNotNull, lt, sql, type SQL } from "drizzle-orm"
+import { and, asc, desc, eq, gte, inArray, isNotNull, lt, notInArray, sql, type SQL } from "drizzle-orm"
 import { db } from "@/lib/db"
 import { studioAlbums, studioPosts } from "@/lib/db/schema"
 import type { PostLanguage, PostStatus } from "@/lib/studio/post-status"
@@ -44,7 +44,7 @@ export async function listStudioPosts(filters: StudioPostFilters = {}): Promise<
     .select(postSummaryColumns)
     .from(studioPosts)
     .where(conditions.length ? and(...conditions) : undefined)
-    .orderBy(desc(studioPosts.updatedAt))
+    .orderBy(asc(studioPosts.listPosition), desc(studioPosts.updatedAt))
     .limit(200)
 }
 
@@ -66,6 +66,7 @@ export async function countStudioPostsByStatus(): Promise<Record<PostStatus, num
     approved: 0,
     scheduled: 0,
     published: 0,
+    postponed: 0,
   }
   for (const row of rows) counts[row.status] = row.count
   return counts
@@ -75,7 +76,7 @@ export async function listUpcomingScheduledPosts(limit = 5): Promise<StudioPostS
   return db
     .select(postSummaryColumns)
     .from(studioPosts)
-    .where(and(isNotNull(studioPosts.scheduledFor), gte(studioPosts.scheduledFor, startOfToday()), sql`${studioPosts.status} <> 'published'`))
+    .where(and(isNotNull(studioPosts.scheduledFor), gte(studioPosts.scheduledFor, startOfToday()), notInArray(studioPosts.status, ["published", "postponed"])))
     .orderBy(asc(studioPosts.scheduledFor))
     .limit(limit)
 }

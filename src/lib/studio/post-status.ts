@@ -5,17 +5,19 @@ export const POST_STATUSES = [
   "approved",
   "scheduled",
   "published",
+  "postponed",
 ] as const
 
 export type PostStatus = (typeof POST_STATUSES)[number]
 
 export const POST_STATUS_LABELS: Record<PostStatus, string> = {
   idea: "Ideia",
-  draft: "Rascunho",
+  draft: "Em desenvolvimento",
   in_review: "Em revisão",
-  approved: "Aprovada",
+  approved: "Pronta",
   scheduled: "Agendada",
   published: "Publicada",
+  postponed: "Adiada",
 }
 
 export const POST_LANGUAGES = ["pt", "en"] as const

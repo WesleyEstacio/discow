@@ -1,0 +1,3 @@
+ALTER TABLE "studio_post" ADD COLUMN "list_position" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
+UPDATE "studio_post" SET "list_position" = "ranked"."position" FROM (SELECT "id", row_number() OVER (ORDER BY "updated_at" DESC)::int AS "position" FROM "studio_post") AS "ranked" WHERE "studio_post"."id" = "ranked"."id";--> statement-breakpoint
+CREATE INDEX "studio_post_list_position_idx" ON "studio_post" USING btree ("list_position");
