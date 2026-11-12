@@ -40,7 +40,7 @@ export default async function StudioOverviewPage() {
   const productionMetrics = [
     { label: "Publicações criadas", value: totalPostCount, href: "/studio/posts" },
     { label: "Aguardando revisão", value: postCountsByStatus.draft + postCountsByStatus.in_review, href: "/studio/posts?status=in_review" },
-    { label: "Aprovadas", value: postCountsByStatus.approved, href: "/studio/posts?status=approved" },
+    { label: "Prontas", value: postCountsByStatus.approved, href: "/studio/posts?status=approved" },
     { label: "Publicadas", value: postCountsByStatus.published, href: "/studio/posts?status=published" },
   ]
 

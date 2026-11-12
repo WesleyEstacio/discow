@@ -323,6 +323,7 @@ export const studioPosts = pgTable(
     albumIds: text("album_ids").array().notNull().default([]),
     caption: text("caption").notNull().default(""),
     notes: text("notes").notNull().default(""),
+    listPosition: integer("list_position").notNull().default(0),
     scheduledFor: timestamp("scheduled_for", { mode: "date" }),
     publishedAt: timestamp("published_at", { mode: "date" }),
     createdByUserId: text("created_by_user_id").references(() => users.id, {
@@ -335,6 +336,7 @@ export const studioPosts = pgTable(
     index("studio_post_status_idx").on(studioPost.status),
     index("studio_post_scheduled_for_idx").on(studioPost.scheduledFor),
     index("studio_post_updated_at_idx").on(studioPost.updatedAt),
+    index("studio_post_list_position_idx").on(studioPost.listPosition),
   ]
 )
 

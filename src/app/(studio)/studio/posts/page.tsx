@@ -1,8 +1,7 @@
 import Link from "next/link"
 import { PlusIcon, RowsIcon } from "lucide-react"
 import { ALL_FILTER_OPTION, FilterSelect } from "@/components/studio/filter-select"
-import { PostRowActions } from "@/components/studio/post-row-actions"
-import { PostStatusBadge } from "@/components/studio/post-status-badge"
+import { ReorderablePostsTable } from "@/components/studio/reorderable-posts-table"
 import { StudioPageHeader } from "@/components/studio/studio-page-header"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,7 +14,6 @@ import {
 } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { requireStudioAdmin } from "@/lib/studio/admin"
 import { formatStudioDate, formatStudioDateTime } from "@/lib/studio/labels"
 import {
@@ -135,43 +133,22 @@ export default async function ContentLibraryPage({ searchParams }: ContentLibrar
             )}
           </Empty>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Publicação</TableHead>
-                  <TableHead>Formato</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Idioma</TableHead>
-                  <TableHead>Data prevista</TableHead>
-                  <TableHead>Atualizada</TableHead>
-                  <TableHead className="w-10"><span className="sr-only">Ações</span></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {posts.map((post) => (
-                  <TableRow key={post.id}>
-                    <TableCell className="max-w-80">
-                      <Link
-                        href={`/studio/posts/${post.id}`}
-                        className="block truncate rounded-sm font-medium underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
-                      >
-                        {post.title}
-                      </Link>
-                      <span className="text-xs text-muted-foreground">{post.slideCount} slides</span>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{findTemplateName(post.templateKey)}</TableCell>
-                    <TableCell><PostStatusBadge status={post.status} /></TableCell>
-                    <TableCell className="text-muted-foreground">{POST_LANGUAGE_LABELS[post.language]}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {post.scheduledFor ? formatStudioDate(post.scheduledFor) : "—"}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{formatStudioDateTime(post.updatedAt)}</TableCell>
-                    <TableCell><PostRowActions postId={post.id} postTitle={post.title} /></TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-muted-foreground">
+              Arraste as linhas ou use as setas para organizar a ordem. Clique no status para trocá-lo.
+            </p>
+            <ReorderablePostsTable
+              rows={posts.map((post) => ({
+                id: post.id,
+                title: post.title,
+                slideCount: post.slideCount,
+                templateName: findTemplateName(post.templateKey),
+                status: post.status,
+                languageLabel: POST_LANGUAGE_LABELS[post.language],
+                scheduledLabel: post.scheduledFor ? formatStudioDate(post.scheduledFor) : "—",
+                updatedLabel: formatStudioDateTime(post.updatedAt),
+              }))}
+            />
           </div>
         )}
       </div>
