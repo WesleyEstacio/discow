@@ -128,7 +128,7 @@ export const artistStarterPackTemplate: StudioTemplate = {
     "Convite para comentar",
   ],
   isAvailable: true,
-  defaultIdentityKey: "pop",
+  defaultIdentityKey: "full-bleed",
   albumSlots: [
     {
       key: "starter",

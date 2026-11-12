@@ -79,6 +79,7 @@ export const BACKGROUND_STYLES = [
   "blurred-covers",
   "blurred-covers-split",
   "cover-echo",
+  "full-cover",
 ] as const
 export type BackgroundStyle = (typeof BACKGROUND_STYLES)[number]
 export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
@@ -94,6 +95,7 @@ export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   "blurred-covers": "Capas desfocadas",
   "blurred-covers-split": "Capas desfocadas na diagonal",
   "cover-echo": "Eco da capa",
+  "full-cover": "Capa em tela cheia",
 }
 
 export function usesBlurredCoversBackground(backgroundStyle: BackgroundStyle): boolean {
@@ -106,11 +108,11 @@ export const MAX_BACKGROUND_SEED = 9999
 // original arrangement, so slides saved before compositions existed keep it.
 export const SLIDE_COMPOSITIONS_BY_LAYOUT = {
   cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type", "fan-deck", "cassette", "podium"],
-  album: ["classic", "side", "vinyl", "poster", "taped"],
+  album: ["classic", "side", "vinyl", "poster", "taped", "now-playing"],
   "ranked-album": ["classic", "giant-number", "side", "rosette"],
   "album-pair": ["diagonal", "mirrored", "from-to", "from-to-mirrored"],
   "album-grid": ["classic", "tight", "swatch-cards"],
-  "album-list": ["classic", "cards", "j-card", "leaderboard"],
+  "album-list": ["classic", "cards", "j-card", "leaderboard", "cover-tiles"],
   text: ["classic", "card", "accent-bar", "notebook", "certificate"],
   quote: ["classic", "card"],
   cta: ["classic", "outline", "minimal", "subtle", "checklist", "grid"],
@@ -135,6 +137,8 @@ export const SLIDE_COMPOSITION_LABELS: Record<SlideComposition, string> = {
   rosette: "Medalha",
   leaderboard: "Placar",
   certificate: "Certificado",
+  "now-playing": "Tocando agora",
+  "cover-tiles": "Capas em grade",
   classic: "Clássico",
   side: "Lado a lado",
   vinyl: "Vinil",

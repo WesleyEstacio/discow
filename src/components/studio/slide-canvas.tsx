@@ -213,6 +213,8 @@ export function SlideCanvas({
           effectsMode={backgroundEffectsMode}
           colors={colors}
         />
+      ) : slide.backgroundStyle === "full-cover" ? (
+        <FullCoverLayer album={slideAlbums[0]} colors={colors} />
       ) : slide.backgroundStyle === "cover-echo" ? (
         <CoverEchoLayer
           slide={slide}
@@ -291,6 +293,7 @@ export function SlideCanvas({
             colors={colors}
             isCentered={isCentered}
             typography={typography}
+            albumPlayback={albumPlaybackFor(slide, carouselAlbumIds)}
           />
         </div>
 
@@ -447,6 +450,7 @@ function BackgroundDecoration({ slide, colors }: { slide: StudioSlide; colors: S
     case "blurred-covers":
     case "blurred-covers-split":
     case "cover-echo":
+    case "full-cover":
       return null
     case "frame":
       return (
@@ -532,9 +536,15 @@ function BlurredCoversLayer({
         </div>
       ) : null}
       <div style={fullSlideLayer({ backgroundImage: coversTint })} />
+      {COMPOSITIONS_NEEDING_DEEP_COVERS_TINT.includes(resolveSlideComposition(slide)) ? (
+        <div style={fullSlideLayer({ backgroundColor: hexToRgba(colors.background, 0.5) })} />
+      ) : null}
     </div>
   )
 }
+
+// A player screen puts small muted text over the blur, which a light cover would wash out.
+const COMPOSITIONS_NEEDING_DEEP_COVERS_TINT: readonly SlideComposition[] = ["now-playing"]
 
 const TEXT_SCRIM_DIRECTION: Record<Exclude<ContentPosition, "auto">, string | null> = {
   top: "180deg",
@@ -899,7 +909,15 @@ function SourceNote({ slide, colors }: { slide: StudioSlide; colors: SlideColors
   )
 }
 
-function SlideBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, typography }: SlideBodyProps) {
+function SlideBody({
+  slide,
+  slideAlbums,
+  carouselAlbums,
+  colors,
+  isCentered,
+  typography,
+  albumPlayback,
+}: SlideBodyProps & { albumPlayback: AlbumPlayback | null }) {
   const composition = resolveSlideComposition(slide)
 
   switch (slide.layout) {
@@ -916,6 +934,9 @@ function SlideBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, typ
         />
       )
     case "album":
+      if (composition === "now-playing") {
+        return <NowPlayingAlbum slide={slide} album={slideAlbums[0]} colors={colors} isCentered={isCentered} typography={typography} playback={albumPlayback} />
+      }
       return <SingleAlbumBody slide={slide} album={slideAlbums[0]} colors={colors} isCentered={isCentered} composition={composition} typography={typography} />
     case "ranked-album":
       return <RankedAlbumBody slide={slide} album={slideAlbums[0]} colors={colors} isCentered={isCentered} composition={composition} typography={typography} />
@@ -1440,6 +1461,10 @@ function CoverBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, com
         {coverText(88)}
       </div>
     )
+  }
+
+  if (slide.backgroundStyle === "full-cover") {
+    return coverText(96)
   }
 
   if (slideAlbums.length === 0 || composition === "type") {
@@ -2980,6 +3005,9 @@ function AlbumListBody({
   if (composition === "leaderboard") {
     return <LeaderboardList slide={slide} slideAlbums={slideAlbums} colors={colors} typography={typography} />
   }
+  if (composition === "cover-tiles") {
+    return <CoverTilesList slide={slide} slideAlbums={slideAlbums} colors={colors} typography={typography} />
+  }
 
   const isCards = composition === "cards"
   const cardPadding = isCards ? 14 : 0
@@ -3372,6 +3400,138 @@ function AwardCertificate({ children }: { children: ReactNode }) {
       </div>
       <div style={{ display: "flex", position: "absolute", top: 0, left: (CONTENT_WIDTH - CERTIFICATE_SEAL_SIZE) / 2 }}>
         <AwardRosette size={CERTIFICATE_SEAL_SIZE} rank={1} label="1" colors={CERTIFICATE_PAPER_COLORS} />
+      </div>
+    </div>
+  )
+}
+
+type AlbumPlayback = { position: number; total: number }
+
+// An album's place in the carousel, read like the position of a track in a player.
+function albumPlaybackFor(slide: StudioSlide, carouselAlbumIds: string[]): AlbumPlayback | null {
+  const albumId = slide.albumIds[0]
+  const position = albumId ? carouselAlbumIds.indexOf(albumId) + 1 : 0
+  return position > 0 ? { position, total: carouselAlbumIds.length } : null
+}
+
+// The cover fills the whole width, untouched, and fades into the slide color under the text.
+function FullCoverLayer({ album, colors }: { album: SlideCanvasAlbum | undefined; colors: SlideColors }) {
+  if (!album?.coverImageUrl) return null
+  return (
+    <div style={fullSlideLayer({ overflow: "hidden" })}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- Satori and the live preview both need a plain <img> */}
+      <img src={album.coverImageUrl} width={SLIDE_WIDTH} height={SLIDE_WIDTH} alt="" style={{ width: SLIDE_WIDTH, height: SLIDE_WIDTH, objectFit: "contain" }} />
+      <div
+        style={fullSlideLayer({
+          backgroundImage: `linear-gradient(180deg, ${hexToRgba(colors.background, 0.8)} 0%, ${hexToRgba(colors.background, 0.45)} 12%, ${hexToRgba(colors.background, 0)} 26%, ${hexToRgba(colors.background, 0)} 40%, ${hexToRgba(colors.background, 0.9)} 66%, ${colors.background} 80%, ${colors.background} 100%)`,
+        })}
+      />
+    </div>
+  )
+}
+
+const PLAYBACK_BAR_HEIGHT = 8
+const PLAYBACK_KNOB_SIZE = 24
+
+function PlaybackBar({ playback, width, colors }: { playback: AlbumPlayback; width: number; colors: SlideColors }) {
+  const playedWidth = Math.round((width * playback.position) / playback.total)
+  const knobLeft = Math.min(width - PLAYBACK_KNOB_SIZE, Math.max(0, playedWidth - PLAYBACK_KNOB_SIZE / 2))
+  return (
+    <div style={{ display: "flex", flexDirection: "column", width, marginTop: 36 }}>
+      <div style={{ display: "flex", position: "relative", width, height: PLAYBACK_KNOB_SIZE, alignItems: "center" }}>
+        <div style={{ display: "flex", width, height: PLAYBACK_BAR_HEIGHT, borderRadius: PLAYBACK_BAR_HEIGHT / 2, backgroundColor: hexToRgba(colors.text, 0.22) }} />
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            left: 0,
+            top: (PLAYBACK_KNOB_SIZE - PLAYBACK_BAR_HEIGHT) / 2,
+            width: playedWidth,
+            height: PLAYBACK_BAR_HEIGHT,
+            borderRadius: PLAYBACK_BAR_HEIGHT / 2,
+            backgroundColor: colors.text,
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            left: knobLeft,
+            top: 0,
+            width: PLAYBACK_KNOB_SIZE,
+            height: PLAYBACK_KNOB_SIZE,
+            borderRadius: PLAYBACK_KNOB_SIZE / 2,
+            backgroundColor: colors.text,
+          }}
+        />
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, fontSize: 24, letterSpacing: 1, color: colors.mutedText }}>
+        <div style={{ display: "flex" }}>{formatSlideNumber(playback.position)}</div>
+        <div style={{ display: "flex" }}>{formatSlideNumber(playback.total)}</div>
+      </div>
+    </div>
+  )
+}
+
+// A streaming player's "now playing" screen: big cover, title and a playback bar.
+function NowPlayingAlbum({
+  slide,
+  album,
+  colors,
+  isCentered,
+  typography,
+  playback,
+}: Omit<SingleAlbumBodyProps, "composition"> & { playback: AlbumPlayback | null }) {
+  const coverSize = slide.body.length > 120 ? 540 : 620
+  const title = slide.headline || album?.title || ""
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start", width: CONTENT_WIDTH }}>
+      <CoverArt album={album} size={coverSize} colors={colors} cornerRadiusPercent={slide.albumCoverRadius} />
+      <div style={{ display: "flex", flexDirection: "column", width: coverSize, marginTop: 40, textAlign: "left" }}>
+        <Headline slide={{ ...slide, textAlign: "left" }} typography={typography} baseSize={54} lineHeight={1.08}>{title}</Headline>
+        <AlbumByline album={album} colors={colors} fontSize={30} />
+        {playback ? <PlaybackBar playback={playback} width={coverSize} colors={colors} /> : null}
+      </div>
+      <BodyText text={slide.body} typography={typography} alignment={slide.textAlign} style={{ fontSize: 30, lineHeight: 1.36, marginTop: 28, width: coverSize }} />
+      <SourceNote slide={slide} colors={colors} />
+    </div>
+  )
+}
+
+const COVER_TILE_GAP = 32
+const COVER_TILE_MAX_SIZE = 340
+
+function coverTileColumnCountFor(albumCount: number): number {
+  if (albumCount <= 4) return 2
+  return albumCount <= 6 ? 3 : 4
+}
+
+// The whole selection as a playlist grid: every cover big enough to recognize.
+function CoverTilesList({ slide, slideAlbums, colors, typography }: { slide: StudioSlide; slideAlbums: (SlideCanvasAlbum | undefined)[]; colors: SlideColors; typography: SlideTypography }) {
+  const columnCount = coverTileColumnCountFor(slideAlbums.length)
+  const tileSize = Math.min(COVER_TILE_MAX_SIZE, Math.floor((CONTENT_WIDTH - COVER_TILE_GAP * (columnCount - 1)) / columnCount))
+  const gridWidth = tileSize * columnCount + COVER_TILE_GAP * (columnCount - 1)
+  const isCompact = columnCount > 2
+  const singleLine: CSSProperties = { display: "flex", width: tileSize, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }
+  const isCentered = slide.textAlign === "center"
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: isCentered ? "center" : "flex-start", width: CONTENT_WIDTH }}>
+      {slide.headline ? (
+        <Headline slide={slide} typography={typography} baseSize={60} style={{ marginBottom: 40 }}>{slide.headline}</Headline>
+      ) : null}
+      <div style={{ display: "flex", flexWrap: "wrap", width: gridWidth, columnGap: COVER_TILE_GAP, rowGap: isCompact ? 24 : 32, textAlign: "left" }}>
+        {slideAlbums.map((album, index) => (
+          <div key={album?.id ?? index} style={{ display: "flex", flexDirection: "column", width: tileSize }}>
+            <CoverArt album={album} size={tileSize} colors={colors} cornerRadiusPercent={slide.albumCoverRadius} />
+            <div style={{ ...singleLine, marginTop: 14, fontSize: isCompact ? 22 : 27, fontWeight: 700, lineHeight: 1.15 }}>
+              {`${slide.rankNumber === null ? "" : `${slide.rankNumber + index} · `}${album?.title ?? "Álbum removido"}`}
+            </div>
+            <div style={{ ...singleLine, marginTop: 4, fontSize: isCompact ? 19 : 22, color: colors.mutedText }}>
+              {album ? `${album.artistNames.join(", ")}${album.releaseYear ? ` · ${album.releaseYear}` : ""}` : ""}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
