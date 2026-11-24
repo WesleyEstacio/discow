@@ -24,6 +24,26 @@ const COVER_ECHO_RENDER_SCALE = 0.5
 
 type SlideFont = { name: string; data: Buffer; weight: 400 | 700; style: "normal" | "italic" }
 
+const KERNING_TABLE_TAGS = new Set(["GPOS", "kern"])
+
+// Satori lays words out with plain glyph advances but draws them kerned, so
+// each word ends short of its box and the gaps between words grow. Renaming
+// the kerning tables makes Satori skip them; the preview turns kerning off too.
+function hideKerningTables(fontData: Buffer): Buffer {
+  const patchedFontData = Buffer.from(fontData)
+  const isWoff = patchedFontData.toString("latin1", 0, 4) === "wOFF"
+  const tableCount = patchedFontData.readUInt16BE(isWoff ? 12 : 4)
+  const firstTableRecordOffset = isWoff ? 44 : 12
+  const tableRecordSize = isWoff ? 20 : 16
+  for (let tableIndex = 0; tableIndex < tableCount; tableIndex++) {
+    const tagOffset = firstTableRecordOffset + tableIndex * tableRecordSize
+    if (KERNING_TABLE_TAGS.has(patchedFontData.toString("latin1", tagOffset, tagOffset + 4))) {
+      patchedFontData.write("xxxx", tagOffset, "latin1")
+    }
+  }
+  return patchedFontData
+}
+
 let slideFontsPromise: Promise<SlideFont[]> | null = null
 
 function loadSlideFonts(): Promise<SlideFont[]> {
@@ -34,6 +54,7 @@ function loadSlideFonts(): Promise<SlideFont[]> {
     readFile(join(process.cwd(), "src/assets/fonts/Geist-Bold.ttf")),
     readFile(join(process.cwd(), "src/assets/fonts/studio/chewy-latin-400-normal.woff")),
   ])
+    .then((fontFiles) => fontFiles.map(hideKerningTables))
     .then(([geistRegularFontData, geistBoldFontData, chewyFontData]): SlideFont[] => [
       { name: geistFamily, data: geistRegularFontData, weight: 400, style: "normal" },
       { name: geistFamily, data: geistBoldFontData, weight: 700, style: "normal" },

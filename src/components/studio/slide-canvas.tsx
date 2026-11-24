@@ -200,8 +200,9 @@ export function SlideCanvas({
         backgroundColor: colors.background,
         color: colors.text,
         fontFamily: typography.body,
-        // Satori never fakes bold or italic, so the preview must not either.
-        ...(fontTarget === "preview" ? { fontSynthesis: "none" } : {}),
+        // Satori never fakes bold or italic, and the export fonts carry no
+        // kerning (see render-slides.tsx), so the preview must not either.
+        ...(fontTarget === "preview" ? { fontSynthesis: "none", fontKerning: "none" } : {}),
       }}
     >
       {usesBlurredCoversBackground(slide.backgroundStyle) ? (
