@@ -4,6 +4,8 @@ type BrandShape = {
   d: string
 }
 
+export const DISCOWS_BRAND_PINK = "#E0349A"
+
 const WORDMARK_VIEWBOX = { x: -4, y: 32, width: 688, height: 188 }
 
 const WORDMARK_SHAPES: BrandShape[] = [

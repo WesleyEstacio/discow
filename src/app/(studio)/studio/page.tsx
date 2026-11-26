@@ -1,11 +1,14 @@
 import Link from "next/link"
 import { CalendarDaysIcon, Disc3Icon, PlusIcon, SearchIcon } from "lucide-react"
+import { PostCard } from "@/components/studio/post-card"
+import { PostCoverThumbnail } from "@/components/studio/post-cover-thumbnail"
 import { PostStatusBadge } from "@/components/studio/post-status-badge"
 import { StudioCoverImage } from "@/components/studio/studio-cover-image"
 import { StudioPageHeader } from "@/components/studio/studio-page-header"
 import { Button } from "@/components/ui/button"
 import { requireStudioAdmin } from "@/lib/studio/admin"
 import { formatArtistNames, formatStudioDate, formatStudioDateTime } from "@/lib/studio/labels"
+import { loadPostCovers } from "@/lib/studio/post-covers"
 import { POST_STATUSES } from "@/lib/studio/post-status"
 import {
   countStudioPostsByStatus,
@@ -17,6 +20,8 @@ import {
 import { findTemplateName } from "@/lib/studio/templates"
 
 export const metadata = { title: "Visão geral" }
+
+const RECENT_POSTS_ON_OVERVIEW = 4
 
 type ActivityItem = {
   key: string
@@ -35,6 +40,8 @@ export default async function StudioOverviewPage() {
     listRecentlyUsedAlbums(),
     listRecentlyAddedAlbums(),
   ])
+
+  const coversByPostId = await loadPostCovers([...recentPosts, ...upcomingPosts])
 
   const totalPostCount = POST_STATUSES.reduce((total, status) => total + postCountsByStatus[status], 0)
   const productionMetrics = [
@@ -68,27 +75,21 @@ export default async function StudioOverviewPage() {
         title="Visão geral"
         description="O que está em produção, o que vem a seguir e os discos que você mais tem usado."
         actions={
-          <>
-            <Button render={<Link href="/studio/create" />} nativeButton={false}>
-              <PlusIcon data-icon="inline-start" />
-              Nova publicação
-            </Button>
-            <Button variant="outline" render={<Link href="/studio/music/search" />} nativeButton={false}>
-              <SearchIcon data-icon="inline-start" />
-              Buscar e salvar álbum
-            </Button>
-          </>
+          <Button variant="outline" render={<Link href="/studio/music/search" />} nativeButton={false}>
+            <SearchIcon data-icon="inline-start" />
+            Buscar e salvar álbum
+          </Button>
         }
       />
 
       <div className="flex flex-col gap-10 px-6 py-8 md:px-10">
         <section aria-label="Produção de conteúdo">
-          <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border lg:grid-cols-4">
+          <ul className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {productionMetrics.map((metric) => (
-              <li key={metric.label} className="bg-background">
+              <li key={metric.label}>
                 <Link
                   href={metric.href}
-                  className="flex h-full flex-col gap-2 p-5 outline-none transition-colors hover:bg-muted/40 focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring/50"
+                  className="flex h-full flex-col gap-2 rounded-xl border border-border bg-card p-5 outline-none transition-colors hover:border-foreground/25 focus-visible:ring-3 focus-visible:ring-ring/50"
                 >
                   <span className="font-heading text-4xl font-semibold tracking-tight tabular-nums">{metric.value}</span>
                   <span className="text-sm text-muted-foreground">{metric.label}</span>
@@ -101,6 +102,22 @@ export default async function StudioOverviewPage() {
           </p>
         </section>
 
+        {recentPosts.length > 0 ? (
+          <section aria-labelledby="recent-posts" className="flex flex-col gap-4">
+            <div className="flex items-baseline justify-between gap-4">
+              <h2 id="recent-posts" className="font-heading text-lg font-medium">Em produção</h2>
+              <Link href="/studio/posts" className="rounded-sm text-sm text-muted-foreground underline-offset-4 outline-none hover:text-foreground hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">
+                Ver todas
+              </Link>
+            </div>
+            <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,15rem),1fr))] gap-6">
+              {recentPosts.slice(0, RECENT_POSTS_ON_OVERVIEW).map((post) => (
+                <PostCard key={post.id} post={post} cover={coversByPostId.get(post.id)} />
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
         <div className="grid gap-10 lg:grid-cols-2">
           <section aria-labelledby="upcoming-posts" className="flex flex-col gap-4">
             <h2 id="upcoming-posts" className="font-heading text-lg font-medium">Próximas publicações</h2>
@@ -109,14 +126,15 @@ export default async function StudioOverviewPage() {
                 Nenhuma publicação com data prevista. Defina a data na aba &ldquo;Detalhes&rdquo; do editor.
               </EmptyPanel>
             ) : (
-              <ul className="flex flex-col divide-y divide-border rounded-xl border border-border">
+              <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
                 {upcomingPosts.map((post) => (
                   <li key={post.id}>
                     <Link
                       href={`/studio/posts/${post.id}`}
-                      className="flex items-center gap-4 p-4 outline-none hover:bg-muted/40 focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring/50"
+                      className="flex items-center gap-4 p-3 outline-none hover:bg-muted/40 focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring/50"
                     >
-                      <span className="w-24 shrink-0 text-sm tabular-nums text-muted-foreground">
+                      <PostCoverThumbnail cover={coversByPostId.get(post.id)} width={48} className="rounded-sm shadow-none" />
+                      <span className="w-24 shrink-0 text-sm font-medium tabular-nums">
                         {post.scheduledFor ? formatStudioDate(post.scheduledFor) : ""}
                       </span>
                       <span className="min-w-0 flex-1">
@@ -138,16 +156,17 @@ export default async function StudioOverviewPage() {
                 Nada por aqui ainda. Comece salvando álbuns e criando a primeira publicação.
               </EmptyPanel>
             ) : (
-              <ul className="flex flex-col gap-3">
+              <ol className="flex flex-col border-l border-border">
                 {recentActivity.map((activityItem) => (
-                  <li key={activityItem.key} className="flex gap-4 text-sm">
-                    <span className="w-36 shrink-0 text-muted-foreground tabular-nums">{formatStudioDateTime(activityItem.date)}</span>
-                    <Link href={activityItem.href} className="min-w-0 truncate underline-offset-4 hover:underline">
+                  <li key={activityItem.key} className="relative flex flex-col gap-0.5 py-2 pl-5 text-sm">
+                    <span aria-hidden="true" className="absolute top-3.5 -left-[5px] size-2.5 rounded-full border-2 border-background bg-primary" />
+                    <Link href={activityItem.href} className="min-w-0 truncate rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">
                       {activityItem.description}
                     </Link>
+                    <span className="text-xs text-muted-foreground tabular-nums">{formatStudioDateTime(activityItem.date)}</span>
                   </li>
                 ))}
-              </ul>
+              </ol>
             )}
           </section>
         </div>
@@ -163,7 +182,7 @@ export default async function StudioOverviewPage() {
               {recentlyUsedAlbums.map((album) => (
                 <li key={album.id}>
                   <Link href={`/studio/music/${album.id}`} className="flex flex-col gap-2 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
-                    <StudioCoverImage coverImageUrl={album.coverImageUrl} albumTitle={album.title} className="w-full" />
+                    <StudioCoverImage coverImageUrl={album.coverImageUrl} albumTitle={album.title} className="w-full shadow-lg shadow-black/30 ring-1 ring-white/10" />
                     <span className="truncate text-xs">{album.title}</span>
                   </Link>
                 </li>
@@ -178,7 +197,7 @@ export default async function StudioOverviewPage() {
 
 function EmptyPanel({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-dashed border-border p-5 text-sm text-muted-foreground">
+    <div className="flex items-start gap-3 rounded-xl border border-dashed border-border bg-card/50 p-5 text-sm text-muted-foreground">
       {icon}
       <p>{children}</p>
     </div>

@@ -1,8 +1,7 @@
 import Link from "next/link"
 import { PlusIcon, RowsIcon } from "lucide-react"
 import { ALL_FILTER_OPTION, FilterSelect } from "@/components/studio/filter-select"
-import { PostRowActions } from "@/components/studio/post-row-actions"
-import { PostStatusBadge } from "@/components/studio/post-status-badge"
+import { PostCard } from "@/components/studio/post-card"
 import { StudioPageHeader } from "@/components/studio/studio-page-header"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,9 +14,8 @@ import {
 } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { requireStudioAdmin } from "@/lib/studio/admin"
-import { formatStudioDate, formatStudioDateTime } from "@/lib/studio/labels"
+import { loadPostCovers } from "@/lib/studio/post-covers"
 import {
   isPostLanguage,
   isPostStatus,
@@ -27,7 +25,7 @@ import {
   POST_STATUSES,
 } from "@/lib/studio/post-status"
 import { listStudioPosts, type StudioPostFilters } from "@/lib/studio/posts"
-import { findTemplateName, STUDIO_TEMPLATES } from "@/lib/studio/templates"
+import { STUDIO_TEMPLATES } from "@/lib/studio/templates"
 
 export const metadata = { title: "Biblioteca de conteúdo" }
 
@@ -65,6 +63,7 @@ export default async function ContentLibraryPage({ searchParams }: ContentLibrar
   }
   const hasFilters = Boolean(filters.status || filters.language || filters.templateKey || monthParam)
   const posts = await listStudioPosts(filters)
+  const coversByPostId = await loadPostCovers(posts)
 
   return (
     <>
@@ -72,16 +71,10 @@ export default async function ContentLibraryPage({ searchParams }: ContentLibrar
         eyebrow="Biblioteca de conteúdo"
         title="Publicações"
         description="Ideias, rascunhos, aprovadas e publicadas. Abra qualquer uma para continuar editando."
-        actions={
-          <Button render={<Link href="/studio/create" />} nativeButton={false}>
-            <PlusIcon data-icon="inline-start" />
-            Criar publicação
-          </Button>
-        }
       />
 
       <div className="flex flex-col gap-6 px-6 py-8 md:px-10">
-        <form className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto] lg:items-end">
+        <form className="grid gap-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto] lg:items-end">
           <FilterSelect
             name="status"
             label="Status"
@@ -135,44 +128,11 @@ export default async function ContentLibraryPage({ searchParams }: ContentLibrar
             )}
           </Empty>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Publicação</TableHead>
-                  <TableHead>Formato</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Idioma</TableHead>
-                  <TableHead>Data prevista</TableHead>
-                  <TableHead>Atualizada</TableHead>
-                  <TableHead className="w-10"><span className="sr-only">Ações</span></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {posts.map((post) => (
-                  <TableRow key={post.id}>
-                    <TableCell className="max-w-80">
-                      <Link
-                        href={`/studio/posts/${post.id}`}
-                        className="block truncate rounded-sm font-medium underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
-                      >
-                        {post.title}
-                      </Link>
-                      <span className="text-xs text-muted-foreground">{post.slideCount} slides</span>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{findTemplateName(post.templateKey)}</TableCell>
-                    <TableCell><PostStatusBadge status={post.status} /></TableCell>
-                    <TableCell className="text-muted-foreground">{POST_LANGUAGE_LABELS[post.language]}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {post.scheduledFor ? formatStudioDate(post.scheduledFor) : "—"}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{formatStudioDateTime(post.updatedAt)}</TableCell>
-                    <TableCell><PostRowActions postId={post.id} postTitle={post.title} /></TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,15rem),1fr))] gap-6">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} cover={coversByPostId.get(post.id)} />
+            ))}
+          </ul>
         )}
       </div>
     </>

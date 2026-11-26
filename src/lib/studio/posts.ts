@@ -10,7 +10,7 @@ export type StudioPost = Omit<typeof studioPosts.$inferSelect, "slides"> & { sli
 export type StudioPostSummary = Pick<
   StudioPost,
   "id" | "title" | "templateKey" | "status" | "language" | "scheduledFor" | "updatedAt" | "createdAt"
-> & { slideCount: number }
+> & { slideCount: number; storedCoverSlide: unknown }
 
 export type StudioPostFilters = {
   status?: PostStatus
@@ -30,6 +30,7 @@ const postSummaryColumns = {
   updatedAt: studioPosts.updatedAt,
   createdAt: studioPosts.createdAt,
   slideCount: sql<number>`jsonb_array_length(${studioPosts.slides})::int`,
+  storedCoverSlide: sql<unknown>`${studioPosts.slides} -> 0`,
 }
 
 export async function listStudioPosts(filters: StudioPostFilters = {}): Promise<StudioPostSummary[]> {

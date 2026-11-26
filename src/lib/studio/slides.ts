@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { DEFAULT_SLIDE_FONTS, slideFontsSchema } from "@/lib/studio/studio-fonts"
+import { DISCOWS_BRAND_PINK } from "@/components/brand/discows-wordmark"
 
 export const SLIDE_WIDTH = 1080
 export const SLIDE_HEIGHT = 1350
@@ -261,13 +262,12 @@ const logoColorSchema = z.preprocess(
 // Always one of the official brand versions (brand/logo/final/GUIA.md) with
 // the cow spots in brand pink, so slide colors never recolor the logo.
 // "auto" picks black or white by the slide background.
-const BRAND_LOGO_PINK = "#E0349A"
 const BRAND_LOGO_INK: Record<Exclude<LogoColor, "auto">, string> = { black: "#1A1020", white: "#FFFFFF" }
 
 export function resolveLogoColors(logoColor: LogoColor, slideBackground: string): { ink: string; accent: string } {
   const backgroundIsLight = readableTextColorFor(slideBackground) === "#17121b"
   const resolvedLogoColor = logoColor === "auto" ? (backgroundIsLight ? "black" : "white") : logoColor
-  return { ink: BRAND_LOGO_INK[resolvedLogoColor], accent: BRAND_LOGO_PINK }
+  return { ink: BRAND_LOGO_INK[resolvedLogoColor], accent: DISCOWS_BRAND_PINK }
 }
 
 export const SLIDE_ELEMENT_TOGGLES = ["showKicker", "showProgress", "showCoverCredit", "showSwipeHint", "showBrandMark"] as const
