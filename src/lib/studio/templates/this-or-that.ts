@@ -77,7 +77,7 @@ export const thisOrThatTemplate: StudioTemplate = {
   objective: "Colocar álbuns parecidos frente a frente e pedir que o público escolha um.",
   slideStructure: ["Capa com a regra do jogo", "Um duelo por slide, lado a lado", "Chamada para responder"],
   isAvailable: true,
-  defaultIdentityKey: "pop",
+  defaultIdentityKey: "split-screen",
   albumSlots: [
     {
       key: "albums",
@@ -109,6 +109,7 @@ export const thisOrThatTemplate: StudioTemplate = {
         headline: coverHeadline,
         body: pick(copy.coverBody),
         albumIds: duels[0]!.map((album) => album.id),
+        blurredCoversSource: "carousel",
       }),
       ...duels.map((duelAlbums, duelIndex) =>
         createEmptySlide("album-grid", {
