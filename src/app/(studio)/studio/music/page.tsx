@@ -2,7 +2,6 @@ import Link from "next/link"
 import { Disc3Icon, PlusIcon, SearchIcon } from "lucide-react"
 import { StudioCoverImage } from "@/components/studio/studio-cover-image"
 import { StudioPageHeader } from "@/components/studio/studio-page-header"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Empty,
@@ -61,7 +60,7 @@ export default async function MusicLibraryPage({ searchParams }: MusicLibraryPag
       />
 
       <div className="flex flex-col gap-8 px-6 py-8 md:px-10">
-        <form className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_auto] lg:items-end" role="search">
+        <form className="grid gap-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_auto] lg:items-end" role="search">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="library-text">Álbum ou artista</Label>
             <Input id="library-text" name="q" defaultValue={filters.text} placeholder="Ex.: Blonde, Frank Ocean" />
@@ -111,7 +110,7 @@ export default async function MusicLibraryPage({ searchParams }: MusicLibraryPag
             )}
           </Empty>
         ) : (
-          <ul className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,11rem),1fr))] gap-x-6 gap-y-10">
             {albums.map((album) => (
               <li key={album.id}>
                 <Link
@@ -121,20 +120,14 @@ export default async function MusicLibraryPage({ searchParams }: MusicLibraryPag
                   <StudioCoverImage
                     coverImageUrl={album.coverImageUrl}
                     albumTitle={album.title}
-                    className="w-full transition-opacity group-hover:opacity-85"
+                    className="w-full shadow-lg shadow-black/30 ring-1 ring-white/10 transition-transform duration-300 ease-out group-hover:-translate-y-1 motion-reduce:transition-none"
                   />
-                  <div className="flex flex-col gap-1">
-                    <p className="line-clamp-2 font-medium leading-snug">{album.title}</p>
-                    <p className="truncate text-sm text-muted-foreground">
-                      {formatArtistNames(album.artistNames)}
-                      {album.releaseYear ? ` · ${album.releaseYear}` : ""}
+                  <div className="flex flex-col gap-0.5">
+                    <p className="line-clamp-2 font-medium leading-snug group-hover:underline group-hover:underline-offset-4">{album.title}</p>
+                    <p className="truncate text-sm text-muted-foreground">{formatArtistNames(album.artistNames)}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {[album.releaseYear, ALBUM_SOURCE_LABELS[album.externalSource], album.tags[0]].filter(Boolean).join(" · ")}
                     </p>
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      <Badge variant="outline">{ALBUM_SOURCE_LABELS[album.externalSource]}</Badge>
-                      {album.tags.slice(0, 2).map((tag) => (
-                        <Badge key={tag} variant="secondary">{tag}</Badge>
-                      ))}
-                    </div>
                   </div>
                 </Link>
               </li>

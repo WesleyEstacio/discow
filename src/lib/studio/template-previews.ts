@@ -1,7 +1,7 @@
 import type { SlideCanvasAlbum } from "@/components/studio/slide-canvas"
 import type { StudioSlide } from "@/lib/studio/slides"
 import type { StudioTemplate, TemplateAlbum, TemplateSettingField } from "@/lib/studio/templates/types"
-import { applyVisualIdentity, findVisualIdentity } from "@/lib/studio/visual-identities"
+import { applyVisualIdentity, findVisualIdentity, type VisualIdentity } from "@/lib/studio/visual-identities"
 
 export type TemplatePreview = {
   slides: StudioSlide[]
@@ -34,9 +34,10 @@ function fillSlotsWithSampleAlbums(template: StudioTemplate, sampleAlbums: Templ
 export function buildTemplatePreview(
   template: StudioTemplate,
   sampleAlbums: TemplateAlbum[],
-  visibleSlideCount: number
+  visibleSlideCount: number,
+  identityOverride?: VisualIdentity
 ): TemplatePreview | null {
-  const identity = findVisualIdentity(template.defaultIdentityKey)
+  const identity = identityOverride ?? findVisualIdentity(template.defaultIdentityKey)
   const albumsBySlot = fillSlotsWithSampleAlbums(template, sampleAlbums)
   const hasEnoughAlbums = template.albumSlots.every((slot) => (albumsBySlot[slot.key]?.length ?? 0) >= slot.minAlbums)
   if (!identity || !hasEnoughAlbums) return null

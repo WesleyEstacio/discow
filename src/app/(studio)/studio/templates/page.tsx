@@ -1,88 +1,109 @@
 import Link from "next/link"
+import { ArrowRightIcon } from "lucide-react"
+import { SlidePreview } from "@/components/studio/slide-preview"
+import { SlideStructureDetails } from "@/components/studio/slide-structure-details"
 import { StudioPageHeader } from "@/components/studio/studio-page-header"
-import { Badge } from "@/components/ui/badge"
+import { TemplateDeckPreview } from "@/components/studio/template-deck-preview"
 import { Button } from "@/components/ui/button"
 import { requireStudioAdmin } from "@/lib/studio/admin"
-import { SLIDE_BACKGROUND_KEYS, SLIDE_BACKGROUNDS, SLIDE_LAYOUT_LABELS, SLIDE_LAYOUTS } from "@/lib/studio/slides"
-import { PLANNED_STUDIO_TEMPLATES, STUDIO_TEMPLATES } from "@/lib/studio/templates"
+import { listStudioAlbums } from "@/lib/studio/albums"
+import { buildTemplatePreview } from "@/lib/studio/template-previews"
+import { STUDIO_TEMPLATES } from "@/lib/studio/templates"
+import { VISUAL_IDENTITIES } from "@/lib/studio/visual-identities"
 
 export const metadata = { title: "Modelos" }
 
+const PREVIEW_SLIDES_PER_FORMAT = 3
+const SAMPLE_ALBUMS_FOR_PREVIEWS = 40
+const IDENTITY_PREVIEW_WIDTH = 168
+
 export default async function TemplatesPage() {
   await requireStudioAdmin()
+  const libraryAlbums = await listStudioAlbums({}, SAMPLE_ALBUMS_FOR_PREVIEWS)
+  const albumsWithCovers = libraryAlbums.filter((album) => album.coverImageUrl)
+  const identityShowcaseTemplate = STUDIO_TEMPLATES[0]
 
   return (
     <>
       <StudioPageHeader
         eyebrow="Modelos"
-        title="Formatos de conteúdo"
-        description="Cada formato define quais álbuns escolher, a estrutura dos slides e a legenda inicial. Todos usam o mesmo sistema visual de 1080 × 1350 px."
+        title="Formatos e identidades"
+        description="Os formatos definem quais álbuns escolher, a estrutura dos slides e a legenda inicial. As identidades dão o visual, e qualquer formato pode usar qualquer identidade."
       />
-      <div className="flex flex-col gap-12 px-6 py-8 md:px-10">
-        <ul className="flex flex-col gap-6">
-          {[...STUDIO_TEMPLATES, ...PLANNED_STUDIO_TEMPLATES].map((template) => (
-            <li key={template.key} className="grid gap-6 rounded-xl border border-border p-6 lg:grid-cols-[1fr_1fr_auto]">
-              <div className="flex flex-col gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-heading text-lg font-semibold">{template.name}</h2>
-                  {template.isAvailable ? (
-                    <Badge variant="secondary">Disponível</Badge>
-                  ) : (
-                    <Badge variant="outline">Fase 2</Badge>
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground">{template.objective}</p>
-              </div>
-              <ol className="flex flex-col gap-1 text-sm">
-                {template.slideStructure.map((step, index) => (
-                  <li key={step} className="flex gap-3">
-                    <span className="w-5 shrink-0 text-muted-foreground tabular-nums">{index + 1}</span>
-                    {step}
-                  </li>
-                ))}
-              </ol>
-              {template.isAvailable ? (
-                <Button variant="outline" render={<Link href={`/studio/create/${template.key}`} />} nativeButton={false}>
-                  Usar formato
-                </Button>
-              ) : null}
-            </li>
-          ))}
-        </ul>
+      <div className="flex flex-col gap-14 px-6 py-8 md:px-10">
+        <section aria-labelledby="formats" className="flex flex-col gap-5">
+          <h2 id="formats" className="font-heading text-lg font-medium">Formatos de conteúdo</h2>
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-6">
+            {STUDIO_TEMPLATES.map((template, templateIndex) => {
+              const sampleAlbums = [...albumsWithCovers.slice(templateIndex * 3), ...albumsWithCovers.slice(0, templateIndex * 3)]
+              return (
+                <li key={template.key} className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card">
+                  <div className="p-3 pb-0">
+                    <TemplateDeckPreview preview={buildTemplatePreview(template, sampleAlbums, PREVIEW_SLIDES_PER_FORMAT)} />
+                  </div>
+                  <div className="flex flex-1 flex-col gap-4 p-5">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <h3 className="font-heading text-xl font-semibold tracking-tight">{template.name}</h3>
+                        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{template.slideStructure.length} slides</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{template.objective}</p>
+                    </div>
+                    <div className="mt-auto">
+                      <SlideStructureDetails slideStructure={template.slideStructure} />
+                    </div>
+                  </div>
+                  <div className="flex justify-end border-t border-border px-3 py-2">
+                    <Button variant="ghost" size="sm" render={<Link href={`/studio/create/${template.key}`} />} nativeButton={false}>
+                      Usar formato
+                      <ArrowRightIcon data-icon="inline-end" />
+                    </Button>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
 
-        <section aria-labelledby="visual-system" className="grid gap-8 lg:grid-cols-2">
-          <div className="flex flex-col gap-4">
-            <h2 id="visual-system" className="font-heading text-lg font-medium">Fundos aprovados</h2>
-            <ul className="flex flex-wrap gap-4">
-              {SLIDE_BACKGROUND_KEYS.map((backgroundKey) => (
-                <li key={backgroundKey} className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
-                  <span
-                    className="flex size-16 items-center justify-center rounded-lg border border-border font-semibold"
-                    style={{ backgroundColor: SLIDE_BACKGROUNDS[backgroundKey].background, color: SLIDE_BACKGROUNDS[backgroundKey].text }}
-                  >
-                    Aa
-                  </span>
-                  {SLIDE_BACKGROUNDS[backgroundKey].label}
-                </li>
-              ))}
-            </ul>
+        <section aria-labelledby="identities" className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1">
+            <h2 id="identities" className="font-heading text-lg font-medium">Identidades visuais</h2>
             <p className="text-sm text-muted-foreground">
-              Cores personalizadas ajustam o texto automaticamente para manter o contraste.
+              A capa de exemplo usa os mesmos discos em todas, para comparar só o visual. As capas dos álbuns aparecem sempre inteiras, sem cortes nem filtros.
             </p>
           </div>
-          <div className="flex flex-col gap-4">
-            <h2 className="font-heading text-lg font-medium">Layouts de slide</h2>
-            <ul className="flex flex-wrap gap-2">
-              {SLIDE_LAYOUTS.map((layout) => (
-                <li key={layout}>
-                  <Badge variant="outline">{SLIDE_LAYOUT_LABELS[layout]}</Badge>
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,13rem),1fr))] gap-6">
+            {VISUAL_IDENTITIES.map((identity) => {
+              const preview = identityShowcaseTemplate
+                ? buildTemplatePreview(identityShowcaseTemplate, albumsWithCovers, 1, identity)
+                : null
+              const coverSlide = preview?.slides[0]
+              return (
+                <li key={identity.key} className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
+                  <div className="p-3 pb-0">
+                    <div aria-hidden="true" className="flex h-60 items-center justify-center rounded-lg bg-muted/40">
+                      {preview && coverSlide ? (
+                        <div className="overflow-hidden rounded-md shadow-lg shadow-black/30 ring-1 ring-white/10">
+                          <SlidePreview
+                            slide={coverSlide}
+                            albumsById={preview.albumsById}
+                            carouselAlbumIds={preview.carouselAlbumIds}
+                            slideNumber={1}
+                            slideCount={preview.slideCount}
+                            displayWidth={IDENTITY_PREVIEW_WIDTH}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1 p-5">
+                    <h3 className="font-heading text-base font-semibold tracking-tight">{identity.label}</h3>
+                    <p className="text-sm text-muted-foreground">{identity.description}</p>
+                  </div>
                 </li>
-              ))}
-            </ul>
-            <p className="text-sm text-muted-foreground">
-              As capas aparecem inteiras, sem cortes, sobreposições ou filtros, com o crédito da fonte no rodapé do slide.
-            </p>
-          </div>
+              )
+            })}
+          </ul>
         </section>
       </div>
     </>
