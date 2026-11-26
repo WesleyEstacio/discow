@@ -1,48 +1,44 @@
-import {
-  ReorderableTemplateGrid,
-  type TemplateCard,
-  type TemplateCardSwatch,
-} from "@/components/studio/reorderable-template-grid"
+import { ReorderableTemplateGrid, type TemplateCard } from "@/components/studio/reorderable-template-grid"
 import { StudioPageHeader } from "@/components/studio/studio-page-header"
+import { TemplateDeckPreview } from "@/components/studio/template-deck-preview"
 import { Badge } from "@/components/ui/badge"
 import { requireStudioAdmin } from "@/lib/studio/admin"
-import { SLIDE_BACKGROUNDS } from "@/lib/studio/slides"
+import { listStudioAlbums } from "@/lib/studio/albums"
 import { listOrganizedStudioTemplates } from "@/lib/studio/template-preferences"
+import { buildTemplatePreview } from "@/lib/studio/template-previews"
 import { PLANNED_STUDIO_TEMPLATES } from "@/lib/studio/templates"
-import { findVisualIdentity, identitySwatchColors } from "@/lib/studio/visual-identities"
 
 export const metadata = { title: "Criar publicação" }
 
-const MAX_SLIDES_IN_STRIP = 8
-
-function slideSwatchesFor(identityKey: string, slideCount: number): TemplateCardSwatch[] {
-  const identity = findVisualIdentity(identityKey)
-  const swatchKeys = identity ? identitySwatchColors(identity) : []
-  if (swatchKeys.length === 0) return []
-  return Array.from({ length: slideCount }, (_, slideIndex) => {
-    const swatch = SLIDE_BACKGROUNDS[swatchKeys[slideIndex % swatchKeys.length]!]
-    return { background: swatch.background, mutedText: swatch.mutedText }
-  })
-}
+const PREVIEW_SLIDES_PER_FORMAT = 3
+const SAMPLE_ALBUMS_FOR_PREVIEWS = 40
 
 export default async function CreatePostPage() {
   await requireStudioAdmin()
-  const organizedTemplates = await listOrganizedStudioTemplates()
-  const templateCards: TemplateCard[] = organizedTemplates.map(({ template, tag }) => ({
-    key: template.key,
-    name: template.name,
-    tagline: template.tagline,
-    slideStructure: template.slideStructure,
-    swatches: slideSwatchesFor(template.defaultIdentityKey, Math.min(template.slideStructure.length, MAX_SLIDES_IN_STRIP)),
-    tag,
-  }))
+  const [organizedTemplates, libraryAlbums] = await Promise.all([
+    listOrganizedStudioTemplates(),
+    listStudioAlbums({}, SAMPLE_ALBUMS_FOR_PREVIEWS),
+  ])
+  const albumsWithCovers = libraryAlbums.filter((album) => album.coverImageUrl)
+
+  const templateCards: TemplateCard[] = organizedTemplates.map(({ template, tag }, templateIndex) => {
+    const sampleAlbums = [...albumsWithCovers.slice(templateIndex * 3), ...albumsWithCovers.slice(0, templateIndex * 3)]
+    return {
+      key: template.key,
+      name: template.name,
+      tagline: template.tagline,
+      slideStructure: template.slideStructure,
+      preview: <TemplateDeckPreview preview={buildTemplatePreview(template, sampleAlbums, PREVIEW_SLIDES_PER_FORMAT)} />,
+      tag,
+    }
+  })
 
   return (
     <>
       <StudioPageHeader
         eyebrow="Criar publicação · Etapa 1 de 3"
         title="Escolha um formato"
-        description="Cada formato monta a estrutura do carrossel a partir dos álbuns da biblioteca. Tudo continua editável depois."
+        description="Cada formato monta o carrossel a partir dos álbuns da biblioteca, e tudo continua editável depois. Arraste os cards para mudar a ordem."
       />
       <div className="flex flex-col gap-10 px-6 py-8 md:px-10">
         <ReorderableTemplateGrid cards={templateCards} />
