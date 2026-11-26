@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState, useState } from "react"
+import { useActionState, useState, type ReactNode } from "react"
 import Link from "next/link"
 import { ArrowRightIcon, PlusIcon, SearchIcon, ShuffleIcon, XIcon } from "lucide-react"
 import { FormSubmitButton } from "@/components/studio/form-submit-button"
@@ -44,6 +44,7 @@ type CreatePostFormProps = {
     settingFields: TemplateSettingField[]
   }
   albums: CreatePostAlbumOption[]
+  formatPreview: ReactNode
   defaultBackgroundImages: StudioImageSummary[]
   postPresets: PostPresetSummary[]
   action: (state: CreatePostFormState, formData: FormData) => Promise<CreatePostFormState>
@@ -82,7 +83,7 @@ function matchesAlbumFilter(album: CreatePostAlbumOption, filterText: string): b
     .includes(normalizedFilter)
 }
 
-export function CreatePostForm({ template, albums, defaultBackgroundImages, postPresets, action }: CreatePostFormProps) {
+export function CreatePostForm({ template, albums, formatPreview, defaultBackgroundImages, postPresets, action }: CreatePostFormProps) {
   const [presetId, setPresetId] = useState(NO_PRESET_ID)
   const [formState, formAction] = useActionState(action, INITIAL_CREATE_POST_STATE)
   const [language, setLanguage] = useState<PostLanguage>("pt")
@@ -289,8 +290,10 @@ export function CreatePostForm({ template, albums, defaultBackgroundImages, post
 
       <aside
         aria-labelledby="carousel-summary-title"
-        className="flex flex-col gap-6 rounded-xl border border-border bg-card p-5 xl:sticky xl:top-8 xl:max-h-[calc(100dvh-4rem)] xl:scrollbar-thin xl:overflow-y-auto"
+        className="flex flex-col overflow-hidden rounded-xl border border-border bg-card xl:sticky xl:top-8 xl:max-h-[calc(100dvh-4rem)] xl:scrollbar-thin xl:overflow-y-auto"
       >
+        <div className="p-3 pb-0">{formatPreview}</div>
+        <div className="flex flex-col gap-6 p-5">
         <h2 id="carousel-summary-title" className="font-heading text-base font-semibold">Seu carrossel</h2>
 
         <ul className="flex flex-col gap-4">
@@ -313,7 +316,7 @@ export function CreatePostForm({ template, albums, defaultBackgroundImages, post
                   <ul className="flex flex-wrap gap-1.5">
                     {selectedAlbums.map((album) => (
                       <li key={album.id} className="w-11">
-                        <StudioCoverImage coverImageUrl={album.coverImageUrl} albumTitle={album.title} className="w-full rounded-sm" />
+                        <StudioCoverImage coverImageUrl={album.coverImageUrl} albumTitle={album.title} className="w-full rounded-sm shadow-md shadow-black/30" />
                       </li>
                     ))}
                   </ul>
@@ -353,6 +356,7 @@ export function CreatePostForm({ template, albums, defaultBackgroundImages, post
             Os textos que dependem de pesquisa saem entre colchetes para você completar no editor.
           </p>
         </div>
+        </div>
       </aside>
     </form>
   )
@@ -372,8 +376,11 @@ function StepHeading({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-baseline gap-3">
-        <span className="font-mono text-sm text-muted-foreground tabular-nums" aria-hidden="true">
-          {String(stepNumber).padStart(2, "0")}
+        <span
+          aria-hidden="true"
+          className="flex size-7 shrink-0 translate-y-0.5 items-center justify-center self-start rounded-full bg-primary/15 text-sm font-semibold text-primary tabular-nums"
+        >
+          {stepNumber}
         </span>
         <h2 id={headingId} className="font-heading text-xl font-semibold tracking-tight">
           {title}
@@ -470,8 +477,8 @@ function AlbumSlotPicker({
               >
                 <span
                   className={cn(
-                    "relative block rounded-md ring-1 ring-border transition-[box-shadow,opacity] group-hover/album:opacity-90 group-has-focus-visible/album:ring-3 group-has-focus-visible/album:ring-ring/50",
-                    isSelected && "ring-2 ring-primary"
+                    "relative block rounded-md shadow-md ring-1 shadow-black/30 ring-white/10 transition-[box-shadow,opacity,translate] group-hover/album:-translate-y-0.5 group-has-focus-visible/album:ring-3 group-has-focus-visible/album:ring-ring/50 motion-reduce:transition-none",
+                    isSelected && "ring-2 ring-primary shadow-primary/20"
                   )}
                 >
                   <StudioCoverImage coverImageUrl={album.coverImageUrl} albumTitle={album.title} className="w-full" />

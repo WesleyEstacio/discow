@@ -1,3 +1,4 @@
+import { CreationSteps } from "@/components/studio/creation-steps"
 import { ReorderableTemplateGrid, type TemplateCard } from "@/components/studio/reorderable-template-grid"
 import { StudioPageHeader } from "@/components/studio/studio-page-header"
 import { TemplateDeckPreview } from "@/components/studio/template-deck-preview"
@@ -36,11 +37,12 @@ export default async function CreatePostPage() {
   return (
     <>
       <StudioPageHeader
-        eyebrow="Criar publicação · Etapa 1 de 3"
+        eyebrow="Criar publicação"
         title="Escolha um formato"
         description="Cada formato monta o carrossel a partir dos álbuns da biblioteca, e tudo continua editável depois. Arraste os cards para mudar a ordem."
       />
-      <div className="flex flex-col gap-10 px-6 py-8 md:px-10">
+      <div className="flex flex-col gap-8 px-6 py-8 md:px-10">
+        <CreationSteps isChoosingFormat />
         <ReorderableTemplateGrid cards={templateCards} />
 
         {PLANNED_STUDIO_TEMPLATES.length > 0 ? (
