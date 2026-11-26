@@ -106,6 +106,7 @@ export async function buildRenderableAlbums(albums: StudioAlbum[]): Promise<Reco
         releaseYear: album.releaseYear,
         coverImageUrl: coverDataUrls[index] ?? null,
         coverSource: album.coverSource,
+        dominantColorHex: album.dominantColorHex,
       },
     ])
   )

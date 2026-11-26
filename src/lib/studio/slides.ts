@@ -80,6 +80,7 @@ export const BACKGROUND_STYLES = [
   "blurred-covers-split",
   "cover-echo",
   "full-cover",
+  "album-colors",
 ] as const
 export type BackgroundStyle = (typeof BACKGROUND_STYLES)[number]
 export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
@@ -96,6 +97,7 @@ export const BACKGROUND_STYLE_LABELS: Record<BackgroundStyle, string> = {
   "blurred-covers-split": "Capas desfocadas na diagonal",
   "cover-echo": "Eco da capa",
   "full-cover": "Capa em tela cheia",
+  "album-colors": "Cores dos discos, lado a lado",
 }
 
 export function usesBlurredCoversBackground(backgroundStyle: BackgroundStyle): boolean {
@@ -107,15 +109,15 @@ export const MAX_BACKGROUND_SEED = 9999
 // Each layout can be arranged in a few ways. The first option is the
 // original arrangement, so slides saved before compositions existed keep it.
 export const SLIDE_COMPOSITIONS_BY_LAYOUT = {
-  cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type", "fan-deck", "cassette", "podium"],
+  cover: ["collage", "spotlight", "mosaic", "stack", "poster", "type", "fan-deck", "cassette", "podium", "mystery"],
   album: ["classic", "side", "vinyl", "poster", "taped", "now-playing"],
   "ranked-album": ["classic", "giant-number", "side", "rosette"],
   "album-pair": ["diagonal", "mirrored", "from-to", "from-to-mirrored"],
-  "album-grid": ["classic", "tight", "swatch-cards"],
+  "album-grid": ["classic", "tight", "swatch-cards", "split-screen"],
   "album-list": ["classic", "cards", "j-card", "leaderboard", "cover-tiles"],
   text: ["classic", "card", "accent-bar", "notebook", "certificate"],
   quote: ["classic", "card"],
-  cta: ["classic", "outline", "minimal", "subtle", "checklist", "grid"],
+  cta: ["classic", "outline", "minimal", "subtle", "checklist", "grid", "duel-list"],
 } as const satisfies Record<SlideLayout, readonly string[]>
 
 export type SlideComposition = (typeof SLIDE_COMPOSITIONS_BY_LAYOUT)[SlideLayout][number]
@@ -139,6 +141,9 @@ export const SLIDE_COMPOSITION_LABELS: Record<SlideComposition, string> = {
   certificate: "Certificado",
   "now-playing": "Tocando agora",
   "cover-tiles": "Capas em grade",
+  "split-screen": "Tela dividida",
+  mystery: "Mistério",
+  "duel-list": "Lista de duelos",
   classic: "Clássico",
   side: "Lado a lado",
   vinyl: "Vinil",

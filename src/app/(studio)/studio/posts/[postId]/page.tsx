@@ -54,6 +54,7 @@ export default async function PostEditorPage({ params }: PostEditorPageProps) {
         releaseYear: album.releaseYear,
         coverImageUrl: album.coverImageUrl,
         editorialDescription: album.editorialDescription,
+        dominantColorHex: album.dominantColorHex,
       }))}
       coverSourcesByAlbumId={Object.fromEntries(albums.map((album) => [album.id, album.coverSource]))}
       initialUploadedImages={uploadedImages}

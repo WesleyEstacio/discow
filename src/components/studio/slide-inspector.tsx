@@ -111,6 +111,7 @@ export type EditorAlbumOption = {
   releaseYear: number | null
   coverImageUrl: string | null
   editorialDescription: string
+  dominantColorHex: string | null
 }
 
 type SlideInspectorProps = {
