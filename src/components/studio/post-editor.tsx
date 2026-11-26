@@ -121,6 +121,7 @@ export function PostEditor({
         releaseYear: album.releaseYear,
         coverImageUrl: album.coverImageUrl,
         coverSource: coverSourcesByAlbumId[album.id] ?? null,
+        dominantColorHex: album.dominantColorHex,
       },
     ])
   )

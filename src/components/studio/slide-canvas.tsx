@@ -60,6 +60,7 @@ export type SlideCanvasAlbum = {
   releaseYear: number | null
   coverImageUrl: string | null
   coverSource: StudioCoverSource | null
+  dominantColorHex: string | null
 }
 
 // "css": the live preview applies filter and blur with CSS.
@@ -216,6 +217,8 @@ export function SlideCanvas({
         />
       ) : slide.backgroundStyle === "full-cover" ? (
         <FullCoverLayer album={slideAlbums[0]} colors={colors} />
+      ) : slide.backgroundStyle === "album-colors" ? (
+        <AlbumColorsLayer albums={slideAlbums.length ? slideAlbums : carouselAlbums} colors={colors} />
       ) : slide.backgroundStyle === "cover-echo" ? (
         <CoverEchoLayer
           slide={slide}
@@ -452,6 +455,7 @@ function BackgroundDecoration({ slide, colors }: { slide: StudioSlide; colors: S
     case "blurred-covers-split":
     case "cover-echo":
     case "full-cover":
+    case "album-colors":
       return null
     case "frame":
       return (
@@ -1313,7 +1317,7 @@ function CtaRecap({
   )
 }
 
-const CTA_COMPACT_HEADLINE_COMPOSITIONS: readonly SlideComposition[] = ["checklist", "grid"]
+const CTA_COMPACT_HEADLINE_COMPOSITIONS: readonly SlideComposition[] = ["checklist", "grid", "duel-list"]
 
 function CtaBody({
   slide,
@@ -1339,7 +1343,9 @@ function CtaBody({
   }
   const websiteStyle = composition === "outline" || composition === "minimal" ? websiteStyles[composition] : websiteStyles.classic
   const headlineBaseSize = CTA_COMPACT_HEADLINE_COMPOSITIONS.includes(composition) ? 80 : 92
-  const recap = (
+  const recap = composition === "duel-list" ? (
+    <DuelTitleList slide={slide} carouselAlbums={carouselAlbums} colors={colors} />
+  ) : (
     <CtaRecap
       composition={composition}
       position={slide.ctaRecapPosition}
@@ -1440,7 +1446,15 @@ function collageCoverSizeFor(albumCount: number) {
 
 type CoverBodyProps = SlideBodyProps & { composition: SlideComposition }
 
-function CoverBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, composition, typography }: CoverBodyProps) {
+function CoverBody({
+  slide,
+  slideAlbums,
+  carouselAlbums,
+  colors,
+  isCentered,
+  composition,
+  typography,
+}: CoverBodyProps) {
   const columnAlignment = isCentered ? "center" : "flex-start"
   const radius = slide.albumCoverRadius
   const coverText = (headlineBaseSize: number) => (
@@ -1482,6 +1496,8 @@ function CoverBody({ slide, slideAlbums, carouselAlbums, colors, isCentered, com
       return <CassetteCover slide={slide} slideAlbums={slideAlbums} carouselAlbums={carouselAlbums} colors={colors} typography={typography} />
     case "podium":
       return <PodiumCover slide={slide} slideAlbums={slideAlbums} colors={colors} isCentered={isCentered} typography={typography} />
+    case "mystery":
+      return <MysteryCover slide={slide} colors={colors} isCentered={isCentered} typography={typography} />
     case "fan-deck":
       return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: columnAlignment }}>
@@ -2922,6 +2938,10 @@ function AlbumGridBody({
   }
 
   const isDuel = slideAlbums.length === 2
+  if (isDuel && composition === "split-screen") {
+    return <SplitScreenDuelBody slide={slide} slideAlbums={slideAlbums} colors={colors} typography={typography} />
+  }
+
   const isTight = composition === "tight"
   const columnGap = isTight ? 0 : isDuel ? 64 : 40
   const coverSize = isTight ? (isDuel ? CONTENT_WIDTH / 2 : 360) : isDuel ? (CONTENT_WIDTH - columnGap) / 2 : 360
@@ -3250,6 +3270,334 @@ function PodiumCover({ slide, slideAlbums, colors, isCentered, typography }: Omi
           )
         })}
       </div>
+    </div>
+  )
+}
+
+const VERSUS_CHIP_SIZE = 84
+
+function VersusChip({ colors, style }: { colors: SlideColors; style: CSSProperties }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        position: "absolute",
+        width: VERSUS_CHIP_SIZE,
+        height: VERSUS_CHIP_SIZE,
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: VERSUS_CHIP_SIZE / 2,
+        border: `2px solid ${hexToRgba(colors.text, 0.28)}`,
+        backgroundColor: colors.background,
+        color: colors.text,
+        fontSize: 30,
+        lineHeight: 1,
+        letterSpacing: 1,
+        ...style,
+      }}
+    >
+      vs
+    </div>
+  )
+}
+
+// Cards and halves take the color of their own cover, deepened so white text
+// stays readable even on covers that are mostly white or yellow.
+const COVER_COLOR_SHADE = "#0c0a0f"
+const COVER_COLOR_SHADE_WEIGHT = 0.55
+
+function deepenedCoverColor(album: SlideCanvasAlbum | undefined, colors: SlideColors): string {
+  if (!album?.dominantColorHex) return mixHexColors(colors.background, "#ffffff", 0.08)
+  return mixHexColors(album.dominantColorHex, COVER_COLOR_SHADE, COVER_COLOR_SHADE_WEIGHT)
+}
+
+function formatDuelPosition(position: number): string {
+  return String(position).padStart(2, "0")
+}
+
+// The carousel lists each duel's albums in order, so consecutive albums
+// form the pairs; a leftover album without a rival is left out.
+function pairDuelAlbums(carouselAlbums: SlideCanvasAlbum[]): [SlideCanvasAlbum, SlideCanvasAlbum][] {
+  return Array.from({ length: Math.floor(carouselAlbums.length / 2) }, (_, duelIndex) => [
+    carouselAlbums[duelIndex * 2]!,
+    carouselAlbums[duelIndex * 2 + 1]!,
+  ])
+}
+
+const SPLIT_HALF_WIDTH = SLIDE_WIDTH / 2
+const SPLIT_HALF_PADDING = 48
+const SPLIT_POSITION_LABEL_HEIGHT = 30
+const SPLIT_POSITION_LABEL_GAP = 28
+const SPLIT_DUEL_COVER_SIZE = 400
+const SPLIT_BOTTOM_SHADE = "linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.32) 100%)"
+
+function AlbumColorsLayer({ albums, colors }: { albums: (SlideCanvasAlbum | undefined)[]; colors: SlideColors }) {
+  const leftColor = deepenedCoverColor(albums[0], colors)
+  const rightColor = albums[1] ? deepenedCoverColor(albums[1], colors) : leftColor
+  return (
+    <div style={fullSlideLayer({})}>
+      <div style={{ display: "flex", width: SPLIT_HALF_WIDTH, height: SLIDE_HEIGHT, backgroundColor: leftColor }} />
+      <div style={{ display: "flex", width: SPLIT_HALF_WIDTH, height: SLIDE_HEIGHT, backgroundColor: rightColor }} />
+      <div style={fullSlideLayer({ backgroundImage: SPLIT_BOTTOM_SHADE })} />
+    </div>
+  )
+}
+
+const MYSTERY_TEXT_GAP = 88
+const MYSTERY_BOTTOM_SPACING = 32
+const MYSTERY_STAGE_SIZE = 560
+const MYSTERY_CARD_SIZE = 430
+const MYSTERY_CARD_COLOR = "#151517"
+
+type MysteryCardPlacement = { position: 1 | 2; rotationDegrees: number; offsetX: number }
+
+// Album 1 rests behind, album 2 lies on top showing the question mark.
+const MYSTERY_CARD_PLACEMENTS: MysteryCardPlacement[] = [
+  { position: 1, rotationDegrees: -7, offsetX: -40 },
+  { position: 2, rotationDegrees: 5, offsetX: 40 },
+]
+
+// Two face-down sleeves, numbered like the duel: the albums stay a secret
+// until the first duel slide.
+function MysteryCards({ colors, typography }: { colors: SlideColors; typography: SlideTypography }) {
+  const cardInset = (MYSTERY_STAGE_SIZE - MYSTERY_CARD_SIZE) / 2
+  return (
+    <div style={{ display: "flex", position: "relative", width: MYSTERY_STAGE_SIZE, height: MYSTERY_STAGE_SIZE }}>
+      {MYSTERY_CARD_PLACEMENTS.map(({ position, rotationDegrees, offsetX }) => (
+        <div
+          key={position}
+          style={{
+            display: "flex",
+            position: "absolute",
+            left: cardInset + offsetX,
+            top: cardInset,
+            width: MYSTERY_CARD_SIZE,
+            height: MYSTERY_CARD_SIZE,
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: MYSTERY_CARD_COLOR,
+            border: "1.5px solid rgba(255, 255, 255, 0.2)",
+            boxShadow: COVER_SHADOW,
+            transform: `rotate(${rotationDegrees}deg)`,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              position: "absolute",
+              left: 28,
+              top: 24,
+              fontSize: 28,
+              fontWeight: 700,
+              letterSpacing: 4,
+              color: hexToRgba(colors.text, 0.7),
+            }}
+          >
+            {formatDuelPosition(position)}
+          </div>
+          {position === 2 ? (
+            <div
+              style={{
+                display: "flex",
+                position: "relative",
+                fontFamily: typography.headline,
+                fontSize: 220,
+                fontWeight: 700,
+                lineHeight: 1,
+                color: colors.text,
+              }}
+            >
+              ?
+            </div>
+          ) : null}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function MysteryCover({
+  slide,
+  colors,
+  isCentered,
+  typography,
+}: Omit<CoverBodyProps, "slideAlbums" | "carouselAlbums" | "composition">) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", flexGrow: 1, alignItems: isCentered ? "center" : "flex-start", width: CONTENT_WIDTH }}>
+      <div style={{ display: "flex", flexGrow: 1, alignItems: "center", justifyContent: "center", width: CONTENT_WIDTH }}>
+        <MysteryCards colors={colors} typography={typography} />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: isCentered ? "center" : "flex-start",
+          marginTop: MYSTERY_TEXT_GAP,
+          marginBottom: MYSTERY_BOTTOM_SPACING,
+        }}
+      >
+        <Headline slide={slide} typography={typography} baseSize={96} lineHeight={1.02}>{slide.headline}</Headline>
+        <BodyText
+          text={slide.body}
+          typography={typography}
+          alignment={slide.textAlign}
+          style={{ fontSize: 34, lineHeight: 1.3, marginTop: 24, color: colors.mutedText }}
+        />
+      </div>
+    </div>
+  )
+}
+
+// Spans the whole slide width so each album sits centered on its own half
+// of the "Cores dos discos" background.
+function SplitScreenHalves({
+  albums,
+  colors,
+  cornerRadiusPercent,
+}: {
+  albums: (SlideCanvasAlbum | undefined)[]
+  colors: SlideColors
+  cornerRadiusPercent: number
+}) {
+  const coverTop = SPLIT_POSITION_LABEL_HEIGHT + SPLIT_POSITION_LABEL_GAP
+
+  return (
+    <div style={{ display: "flex", position: "relative", alignSelf: "flex-start", marginLeft: -PAGE_PADDING, width: SLIDE_WIDTH }}>
+      {[albums[0], albums[1]].map((album, index) => {
+        const halfTextColor = readableTextColorFor(deepenedCoverColor(album, colors))
+        return (
+          <div
+            key={album?.id ?? index}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              width: SPLIT_HALF_WIDTH,
+              paddingLeft: SPLIT_HALF_PADDING,
+              paddingRight: SPLIT_HALF_PADDING,
+              textAlign: "center",
+              color: halfTextColor,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                height: SPLIT_POSITION_LABEL_HEIGHT,
+                marginBottom: SPLIT_POSITION_LABEL_GAP,
+                fontSize: 24,
+                fontWeight: 700,
+                letterSpacing: 4,
+                color: hexToRgba(halfTextColor, 0.6),
+              }}
+            >
+              {formatDuelPosition(index + 1)}
+            </div>
+            <CoverArt album={album} size={SPLIT_DUEL_COVER_SIZE} colors={colors} cornerRadiusPercent={cornerRadiusPercent} />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                fontSize: 38,
+                fontWeight: 700,
+                lineHeight: 1.12,
+                letterSpacing: -0.5,
+                marginTop: 32,
+                maxHeight: 86,
+                overflow: "hidden",
+              }}
+            >
+              {album?.title ?? ""}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                fontSize: 28,
+                lineHeight: 1.25,
+                marginTop: 10,
+                maxHeight: 36,
+                overflow: "hidden",
+                color: hexToRgba(halfTextColor, 0.72),
+              }}
+            >
+              {album ? album.artistNames.join(", ") : ""}
+            </div>
+          </div>
+        )
+      })}
+      <VersusChip colors={colors} style={{ left: SPLIT_HALF_WIDTH - VERSUS_CHIP_SIZE / 2, top: coverTop + (SPLIT_DUEL_COVER_SIZE - VERSUS_CHIP_SIZE) / 2 }} />
+    </div>
+  )
+}
+
+function SplitScreenDuelBody({
+  slide,
+  slideAlbums,
+  colors,
+  typography,
+}: {
+  slide: StudioSlide
+  slideAlbums: (SlideCanvasAlbum | undefined)[]
+  colors: SlideColors
+  typography: SlideTypography
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: CONTENT_WIDTH }}>
+      {slide.headline ? (
+        <Headline slide={slide} typography={typography} baseSize={64} style={{ marginBottom: 56 }}>{slide.headline}</Headline>
+      ) : null}
+      <SplitScreenHalves albums={slideAlbums} colors={colors} cornerRadiusPercent={slide.albumCoverRadius} />
+    </div>
+  )
+}
+
+const DUEL_LIST_POSITION_WIDTH = 64
+const DUEL_LIST_VERSUS_WIDTH = 72
+const DUEL_LIST_TITLE_WIDTH = (CONTENT_WIDTH - DUEL_LIST_POSITION_WIDTH - DUEL_LIST_VERSUS_WIDTH) / 2
+const DUEL_LIST_SPACING = 64
+
+function DuelListAlbum({ album, alignment, colors }: { album: SlideCanvasAlbum; alignment: "left" | "right"; colors: SlideColors }) {
+  const justifyContent = alignment === "left" ? "flex-start" : "flex-end"
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: justifyContent, width: DUEL_LIST_TITLE_WIDTH, textAlign: alignment }}>
+      <div style={{ display: "flex", justifyContent, fontSize: 32, fontWeight: 700, lineHeight: 1.2, maxHeight: 40, overflow: "hidden" }}>
+        {album.title}
+      </div>
+      <div style={{ display: "flex", justifyContent, fontSize: 24, lineHeight: 1.25, marginTop: 4, maxHeight: 30, overflow: "hidden", color: colors.mutedText }}>
+        {album.artistNames.join(", ")}
+      </div>
+    </div>
+  )
+}
+
+function DuelTitleList({ slide, carouselAlbums, colors }: { slide: StudioSlide; carouselAlbums: SlideCanvasAlbum[]; colors: SlideColors }) {
+  const duels = pairDuelAlbums(carouselAlbums)
+  if (!duels.length) return null
+  const ruleColor = hexToRgba(colors.text, 0.18)
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: CONTENT_WIDTH,
+        borderBottom: `1px solid ${ruleColor}`,
+        ...(slide.ctaRecapPosition === "above" ? { marginBottom: DUEL_LIST_SPACING } : { marginTop: DUEL_LIST_SPACING }),
+      }}
+    >
+      {duels.map(([firstAlbum, secondAlbum], duelIndex) => (
+        <div
+          key={`${firstAlbum.id}-${secondAlbum.id}`}
+          style={{ display: "flex", alignItems: "center", paddingTop: 20, paddingBottom: 20, borderTop: `1px solid ${ruleColor}` }}
+        >
+          <div style={{ display: "flex", width: DUEL_LIST_POSITION_WIDTH, fontSize: 24, fontWeight: 700, letterSpacing: 3, color: colors.mutedText }}>
+            {formatDuelPosition(duelIndex + 1)}
+          </div>
+          <DuelListAlbum album={firstAlbum} alignment="right" colors={colors} />
+          <div style={{ display: "flex", justifyContent: "center", width: DUEL_LIST_VERSUS_WIDTH, fontSize: 24, color: colors.mutedText }}>vs</div>
+          <DuelListAlbum album={secondAlbum} alignment="left" colors={colors} />
+        </div>
+      ))}
     </div>
   )
 }
