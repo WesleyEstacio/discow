@@ -1,10 +1,14 @@
 "use client"
 
 import { useEffect, useState, useTransition } from "react"
+import Link from "next/link"
 import {
   ArrowDownIcon,
+  ArrowLeftIcon,
   ArrowUpIcon,
   ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   CopyIcon,
   PaletteIcon,
   DownloadIcon,
@@ -18,7 +22,7 @@ import {
 import type { SlideCanvasAlbum } from "@/components/studio/slide-canvas"
 import { IdentitySwatches } from "@/components/studio/identity-swatches"
 import { PostPresetDialog } from "@/components/studio/post-preset-dialog"
-import { SlideInspector, type EditorAlbumOption } from "@/components/studio/slide-inspector"
+import { SlideInspector, type EditorAlbumOption, type SlideInspectorSection } from "@/components/studio/slide-inspector"
 import { SlidePreview } from "@/components/studio/slide-preview"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -102,6 +106,7 @@ export function PostEditor({
   const [savedDraftSnapshot, setSavedDraftSnapshot] = useState(() => JSON.stringify(initialDraft))
   const [selectedSlideId, setSelectedSlideId] = useState(initialDraft.slides[0]?.id ?? "")
   const [isSaving, startSaving] = useTransition()
+  const [activeInspectorSection, setActiveInspectorSection] = useState<SlideInspectorSection>("content")
 
   const hasUnsavedChanges = JSON.stringify(draft) !== savedDraftSnapshot
   const selectedSlideIndex = Math.max(
@@ -259,17 +264,28 @@ export function PostEditor({
   return (
     <div className="flex flex-col xl:h-dvh">
       <div className="sticky top-0 z-20 flex shrink-0 flex-wrap items-center gap-3 border-b border-border bg-background/95 px-6 py-3 backdrop-blur md:px-10 xl:static xl:px-6">
+        <Button variant="ghost" size="icon-sm" render={<Link href="/studio/posts" />} nativeButton={false} aria-label="Voltar para as publicações">
+          <ArrowLeftIcon />
+        </Button>
         <div className="flex min-w-0 flex-1 flex-col">
           <label htmlFor="post-title" className="sr-only">Título da publicação</label>
           <input
             id="post-title"
             value={draft.title}
             onChange={(event) => updateDraft({ title: event.target.value })}
-            className="w-full min-w-0 rounded-md bg-transparent font-heading text-xl font-semibold tracking-tight outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="w-full min-w-0 rounded-md bg-transparent font-heading text-xl font-semibold tracking-tight outline-none hover:bg-muted/40 focus-visible:ring-3 focus-visible:ring-ring/50"
           />
-          <p className="text-xs text-muted-foreground">
+          <p className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
             {templateName} · {draft.slides.length} slides
-            {hasUnsavedChanges ? <span className="text-primary"> · Alterações não salvas</span> : null}
+            <span className="inline-flex items-center gap-1.5" role="status">
+              <span
+                aria-hidden="true"
+                className={cn("size-1.5 rounded-full", hasUnsavedChanges ? "bg-primary" : "bg-emerald-400")}
+              />
+              <span className={cn(hasUnsavedChanges && "text-primary")}>
+                {isSaving ? "Salvando…" : hasUnsavedChanges ? "Alterações não salvas" : "Tudo salvo"}
+              </span>
+            </span>
           </p>
         </div>
 
@@ -346,23 +362,11 @@ export function PostEditor({
           aria-label="Slides"
           className="relative flex flex-col gap-3 xl:scrollbar-thin xl:overflow-y-auto xl:overscroll-contain xl:border-r xl:border-border xl:p-4"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-baseline justify-between">
             <h2 className="text-sm font-medium">Slides</h2>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={<Button variant="ghost" size="icon-sm" disabled={draft.slides.length >= MAX_SLIDES_PER_POST} />}
-                aria-label="Adicionar slide"
-              >
-                <PlusIcon />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {SLIDE_LAYOUTS.map((layout) => (
-                  <DropdownMenuItem key={layout} onClick={() => addSlide(layout)}>
-                    {SLIDE_LAYOUT_LABELS[layout]}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {draft.slides.length}/{MAX_SLIDES_PER_POST}
+            </span>
           </div>
           <ol className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin xl:flex-col xl:overflow-x-visible xl:pb-0">
             {draft.slides.map((slide, slideIndex) => {
@@ -376,77 +380,154 @@ export function PostEditor({
                     aria-current={slide.id === selectedSlide.id ? "true" : undefined}
                     aria-label={`Slide ${slideIndex + 1}: ${SLIDE_LAYOUT_LABELS[slide.layout]}${hasIssues ? " (precisa de atenção)" : ""}`}
                     className={cn(
-                      "relative flex flex-col gap-1 rounded-lg p-1 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                      "group/thumbnail relative flex flex-col gap-1.5 rounded-lg p-1 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
                       slide.id === selectedSlide.id ? "bg-primary/15 ring-2 ring-primary" : "hover:bg-muted"
                     )}
                   >
-                    <SlidePreview
-                      slide={slide}
-                      albumsById={albumsById}
-                      carouselAlbumIds={carouselAlbumIds}
-                      slideNumber={slideIndex + 1}
-                      slideCount={draft.slides.length}
-                      displayWidth={168}
-                      className="rounded-sm"
-                    />
-                    <span className="flex items-center gap-1 px-1 text-xs text-muted-foreground">
-                      {slideIndex + 1}. {SLIDE_LAYOUT_LABELS[slide.layout]}
-                      {hasIssues ? <TriangleAlertIcon className="ml-auto size-3.5 text-amber-400" aria-hidden="true" /> : null}
+                    <span className="relative">
+                      <SlidePreview
+                        slide={slide}
+                        albumsById={albumsById}
+                        carouselAlbumIds={carouselAlbumIds}
+                        slideNumber={slideIndex + 1}
+                        slideCount={draft.slides.length}
+                        displayWidth={168}
+                        className="rounded-sm shadow-md shadow-black/30"
+                      />
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "absolute top-1.5 left-1.5 flex size-5 items-center justify-center rounded-full text-[11px] font-semibold tabular-nums shadow",
+                          slide.id === selectedSlide.id ? "bg-primary text-primary-foreground" : "bg-background/85 text-foreground"
+                        )}
+                      >
+                        {slideIndex + 1}
+                      </span>
+                      {hasIssues ? (
+                        <span
+                          aria-hidden="true"
+                          className="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-amber-400 text-background shadow"
+                        >
+                          <TriangleAlertIcon className="size-3" />
+                        </span>
+                      ) : null}
                     </span>
+                    <span className="px-1 text-xs text-muted-foreground">{SLIDE_LAYOUT_LABELS[slide.layout]}</span>
                   </button>
                 </li>
               )
             })}
+            <li className="shrink-0">
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <button
+                      type="button"
+                      disabled={draft.slides.length >= MAX_SLIDES_PER_POST}
+                      className="flex h-full min-h-20 w-44 flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-border text-sm text-muted-foreground outline-none transition-colors hover:border-foreground/30 hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 xl:w-full"
+                    />
+                  }
+                >
+                  <PlusIcon className="size-4" aria-hidden="true" />
+                  Adicionar slide
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {SLIDE_LAYOUTS.map((layout) => (
+                    <DropdownMenuItem key={layout} onClick={() => addSlide(layout)}>
+                      {SLIDE_LAYOUT_LABELS[layout]}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </li>
           </ol>
         </section>
 
         <div className="relative flex min-w-0 flex-col gap-8 xl:scrollbar-thin xl:overflow-y-auto xl:overscroll-contain xl:px-10 xl:py-8">
-          <section aria-label="Prévia do slide" className="flex flex-col items-center gap-4">
-            <SlidePreview
-              slide={selectedSlide}
-              albumsById={albumsById}
-              carouselAlbumIds={carouselAlbumIds}
-              slideNumber={selectedSlideIndex + 1}
-              slideCount={draft.slides.length}
-              displayWidth={432}
-              className="rounded-md shadow-2xl ring-1 ring-border"
-            />
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => moveSelectedSlide(-1)} disabled={selectedSlideIndex === 0}>
-                <ArrowUpIcon data-icon="inline-start" />
-                Mover para antes
+          <section aria-label="Prévia do slide" className="flex flex-col items-center gap-4 rounded-2xl bg-muted/40 px-4 py-8">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Slide anterior"
+                disabled={selectedSlideIndex === 0}
+                onClick={() => setSelectedSlideId(draft.slides[selectedSlideIndex - 1]?.id ?? selectedSlide.id)}
+              >
+                <ChevronLeftIcon />
+              </Button>
+              <SlidePreview
+                slide={selectedSlide}
+                albumsById={albumsById}
+                carouselAlbumIds={carouselAlbumIds}
+                slideNumber={selectedSlideIndex + 1}
+                slideCount={draft.slides.length}
+                displayWidth={432}
+                className="rounded-md shadow-2xl shadow-black/50 ring-1 ring-white/10"
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Próximo slide"
+                disabled={selectedSlideIndex === draft.slides.length - 1}
+                onClick={() => setSelectedSlideId(draft.slides[selectedSlideIndex + 1]?.id ?? selectedSlide.id)}
+              >
+                <ChevronRightIcon />
+              </Button>
+            </div>
+            <div className="flex items-center gap-1 rounded-full border border-border bg-card p-1 shadow-sm">
+              <span className="px-3 text-xs text-muted-foreground tabular-nums">
+                {selectedSlideIndex + 1} de {draft.slides.length}
+              </span>
+              <Button variant="ghost" size="icon-sm" className="rounded-full" aria-label="Mover slide para antes" onClick={() => moveSelectedSlide(-1)} disabled={selectedSlideIndex === 0}>
+                <ArrowUpIcon />
               </Button>
               <Button
-                variant="outline"
-                size="sm"
+                variant="ghost"
+                size="icon-sm"
+                className="rounded-full"
+                aria-label="Mover slide para depois"
                 onClick={() => moveSelectedSlide(1)}
                 disabled={selectedSlideIndex === draft.slides.length - 1}
               >
-                <ArrowDownIcon data-icon="inline-start" />
-                Mover para depois
+                <ArrowDownIcon />
               </Button>
-              <Button variant="outline" size="sm" onClick={duplicateSelectedSlide} disabled={draft.slides.length >= MAX_SLIDES_PER_POST}>
-                <CopyIcon data-icon="inline-start" />
-                Duplicar
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="rounded-full"
+                aria-label="Duplicar slide"
+                onClick={duplicateSelectedSlide}
+                disabled={draft.slides.length >= MAX_SLIDES_PER_POST}
+              >
+                <CopyIcon />
               </Button>
-              <Button variant="outline" size="sm" onClick={deleteSelectedSlide} disabled={draft.slides.length <= 1}>
-                <Trash2Icon data-icon="inline-start" />
-                Remover
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="rounded-full hover:text-destructive"
+                aria-label="Remover slide"
+                onClick={deleteSelectedSlide}
+                disabled={draft.slides.length <= 1}
+              >
+                <Trash2Icon />
               </Button>
             </div>
             {selectedSlideIssues.missingText.length || selectedSlideIssues.textOverLimit.length ? (
-              <ul className="flex max-w-md flex-col gap-1 text-sm text-amber-300" role="status">
-                {selectedSlideIssues.missingText.length ? (
-                  <li>Falta preencher: {selectedSlideIssues.missingText.join(", ")}.</li>
-                ) : null}
-                {selectedSlideIssues.textOverLimit.length ? (
-                  <li>Texto acima do tamanho recomendado ({selectedSlideIssues.textOverLimit.join(", ")}) — pode não caber no slide.</li>
-                ) : null}
-              </ul>
+              <div className="flex max-w-md items-start gap-2 rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-sm text-amber-200" role="status">
+                <TriangleAlertIcon className="mt-0.5 size-4 shrink-0 text-amber-400" aria-hidden="true" />
+                <ul className="flex flex-col gap-1">
+                  {selectedSlideIssues.missingText.length ? (
+                    <li>Falta preencher: {selectedSlideIssues.missingText.join(", ")}.</li>
+                  ) : null}
+                  {selectedSlideIssues.textOverLimit.length ? (
+                    <li>Texto acima do tamanho recomendado ({selectedSlideIssues.textOverLimit.join(", ")}) — pode não caber no slide.</li>
+                  ) : null}
+                </ul>
+              </div>
             ) : null}
           </section>
 
-          <Tabs defaultValue="caption" className="w-full gap-6 border-t border-border pt-6">
+          <Tabs defaultValue="caption" className="w-full gap-6 rounded-xl border border-border bg-card p-5">
             <TabsList>
               <TabsTrigger value="caption">Legenda</TabsTrigger>
               <TabsTrigger value="carousel">Carrossel completo</TabsTrigger>
@@ -553,11 +634,14 @@ export function PostEditor({
           aria-label="Editar slide"
           className="relative flex flex-col gap-4 rounded-xl border border-border bg-card p-5 xl:scrollbar-thin xl:overflow-y-auto xl:overscroll-contain xl:rounded-none xl:border-0 xl:border-l xl:p-6"
         >
-          <h2 className="text-sm font-medium">
-            Slide {selectedSlideIndex + 1} de {draft.slides.length}
-          </h2>
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="font-heading text-base font-semibold tracking-tight">Slide {selectedSlideIndex + 1}</h2>
+            <span className="text-xs text-muted-foreground">{SLIDE_LAYOUT_LABELS[selectedSlide.layout]}</span>
+          </div>
           <SlideInspector
             key={selectedSlide.id}
+            activeSection={activeInspectorSection}
+            onActiveSectionChange={setActiveInspectorSection}
             slide={selectedSlide}
             albums={albums}
             carouselAlbumCount={carouselAlbumIds.length}
