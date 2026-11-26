@@ -1,6 +1,6 @@
 "use client"
 
-import { useOptimistic, useState, useTransition, type DragEvent } from "react"
+import { useOptimistic, useState, useTransition, type DragEvent, type ReactNode } from "react"
 import Link from "next/link"
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ChevronDownIcon, GripVerticalIcon } from "lucide-react"
 import { TemplateTagBadge } from "@/components/studio/template-tag-badge"
@@ -22,14 +22,12 @@ import {
 import { TEMPLATE_TAG_LABELS, TEMPLATE_TAGS, type TemplateTag } from "@/lib/studio/template-tags"
 import { cn } from "@/lib/utils"
 
-export type TemplateCardSwatch = { background: string; mutedText: string }
-
 export type TemplateCard = {
   key: string
   name: string
   tagline: string
   slideStructure: string[]
-  swatches: TemplateCardSwatch[]
+  preview: ReactNode
   tag: TemplateTag | null
 }
 
@@ -55,19 +53,24 @@ function moveItem<Item>(items: Item[], fromIndex: number, toIndex: number): Item
   return reorderedItems
 }
 
-function SlideStrip({ swatches }: { swatches: TemplateCardSwatch[] }) {
+function SlideStructureDetails({ slideStructure }: { slideStructure: string[] }) {
   return (
-    <div className="flex gap-1.5" aria-hidden="true">
-      {swatches.map((swatch, slideIndex) => (
-        <span
-          key={slideIndex}
-          className="flex aspect-[4/5] w-8 items-end rounded-sm p-1 font-mono text-[10px] leading-none tabular-nums ring-1 ring-border"
-          style={{ backgroundColor: swatch.background, color: swatch.mutedText }}
-        >
-          {slideIndex + 1}
-        </span>
-      ))}
-    </div>
+    <details className="group/structure relative z-10 rounded-lg border border-border bg-background/40">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 [&::-webkit-details-marker]:hidden">
+        Estrutura do carrossel
+        <ChevronDownIcon aria-hidden="true" className="size-4 transition-transform group-open/structure:rotate-180" />
+      </summary>
+      <ol className="flex flex-col gap-1.5 border-t border-border px-3 py-3 text-sm">
+        {slideStructure.map((step, stepIndex) => (
+          <li key={step} className="flex gap-3">
+            <span className="w-5 shrink-0 font-mono text-xs leading-5 text-muted-foreground tabular-nums">
+              {String(stepIndex + 1).padStart(2, "0")}
+            </span>
+            <span className="text-foreground/85">{step}</span>
+          </li>
+        ))}
+      </ol>
+    </details>
   )
 }
 
@@ -108,101 +111,98 @@ export function ReorderableTemplateGrid({ cards }: { cards: TemplateCard[] }) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <p className="text-sm text-muted-foreground">
-        Arraste os cards ou use as setas para mudar a ordem. Clique na tag para marcar em que pé cada formato está.
-      </p>
-      <ul className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
-        {visibleCards.map((card, index) => (
-          <li
-            key={card.key}
-            draggable
-            onDragStart={(event) => {
-              event.dataTransfer.effectAllowed = "move"
-              setDraggedTemplateKey(card.key)
-            }}
-            onDragOver={(event) => {
-              if (!draggedTemplateKey) return
-              event.preventDefault()
-              setDropTargetTemplateKey(card.key)
-            }}
-            onDrop={(event) => dropOnCard(event, index)}
-            onDragEnd={finishDragging}
-            className={cn(
-              "group relative flex h-full flex-col gap-5 rounded-xl border border-border bg-card p-5 transition-colors hover:border-foreground/25 hover:bg-muted/40",
-              draggedTemplateKey === card.key && "opacity-50",
-              dropTargetTemplateKey === card.key && draggedTemplateKey !== card.key && "border-primary/60 bg-muted/60"
-            )}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <SlideStrip swatches={card.swatches} />
-              <div className="relative z-10 flex shrink-0 items-center gap-0.5">
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={<Button variant="ghost" size="sm" className="gap-1 px-1.5" />}
-                    aria-label={`Tag de "${card.name}": ${card.tag ? TEMPLATE_TAG_LABELS[card.tag] : "sem tag"}. Alterar tag`}
+    <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-6">
+      {visibleCards.map((card, index) => (
+        <li
+          key={card.key}
+          draggable
+          onDragStart={(event) => {
+            event.dataTransfer.effectAllowed = "move"
+            setDraggedTemplateKey(card.key)
+          }}
+          onDragOver={(event) => {
+            if (!draggedTemplateKey) return
+            event.preventDefault()
+            setDropTargetTemplateKey(card.key)
+          }}
+          onDrop={(event) => dropOnCard(event, index)}
+          onDragEnd={finishDragging}
+          className={cn(
+            "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-foreground/25",
+            draggedTemplateKey === card.key && "opacity-50",
+            dropTargetTemplateKey === card.key && draggedTemplateKey !== card.key && "border-primary/60"
+          )}
+        >
+          <div className="p-3 pb-0">{card.preview}</div>
+
+          <div className="flex flex-1 flex-col gap-4 p-5">
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-baseline justify-between gap-3">
+                <h2 className="font-heading text-xl font-semibold tracking-tight">
+                  <Link
+                    href={`/studio/create/${card.key}`}
+                    draggable={false}
+                    className="outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-3 focus-visible:after:ring-ring/50"
                   >
-                    <TemplateTagBadge tag={card.tag} />
-                    <ChevronDownIcon className="text-muted-foreground" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuLabel>Marcar formato como</DropdownMenuLabel>
-                    {TEMPLATE_TAGS.map((tag) => (
-                      <DropdownMenuItem key={tag} disabled={tag === card.tag} onClick={() => changeTag(card.key, tag)}>
-                        <TemplateTagBadge tag={tag} />
-                        {tag === card.tag ? <CheckIcon className="ml-auto" /> : null}
-                      </DropdownMenuItem>
-                    ))}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem disabled={card.tag === null} onClick={() => changeTag(card.key, null)}>
-                      Remover tag
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={`Mover "${card.name}" para antes`}
-                  disabled={index === 0}
-                  onClick={() => moveTemplate(index, index - 1)}
-                >
-                  <ArrowLeftIcon />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={`Mover "${card.name}" para depois`}
-                  disabled={index === visibleCards.length - 1}
-                  onClick={() => moveTemplate(index, index + 1)}
-                >
-                  <ArrowRightIcon />
-                </Button>
-                <GripVerticalIcon aria-hidden="true" className="size-4 cursor-grab text-muted-foreground" />
+                    {card.name}
+                  </Link>
+                </h2>
+                <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{card.slideStructure.length} slides</span>
               </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <h2 className="font-heading text-lg font-semibold tracking-tight">
-                <Link
-                  href={`/studio/create/${card.key}`}
-                  draggable={false}
-                  className="outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-3 focus-visible:after:ring-ring/50"
-                >
-                  {card.name}
-                </Link>
-              </h2>
               <p className="text-sm text-muted-foreground">{card.tagline}</p>
             </div>
-            <ol className="mt-auto flex flex-col gap-1 border-t border-border pt-4 text-sm text-muted-foreground">
-              {card.slideStructure.map((step, stepIndex) => (
-                <li key={step} className="flex gap-3">
-                  <span className="w-5 shrink-0 font-mono text-xs leading-5 tabular-nums">{String(stepIndex + 1).padStart(2, "0")}</span>
-                  <span className="text-foreground/85">{step}</span>
-                </li>
-              ))}
-            </ol>
-          </li>
-        ))}
-      </ul>
-    </div>
+            <div className="mt-auto">
+              <SlideStructureDetails slideStructure={card.slideStructure} />
+            </div>
+          </div>
+
+          <div className="relative z-10 flex items-center justify-between gap-2 border-t border-border px-3 py-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={<Button variant="ghost" size="sm" className="gap-1 px-1.5" />}
+                aria-label={`Tag de "${card.name}": ${card.tag ? TEMPLATE_TAG_LABELS[card.tag] : "sem tag"}. Alterar tag`}
+              >
+                <TemplateTagBadge tag={card.tag} />
+                <ChevronDownIcon className="text-muted-foreground" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Marcar formato como</DropdownMenuLabel>
+                {TEMPLATE_TAGS.map((tag) => (
+                  <DropdownMenuItem key={tag} disabled={tag === card.tag} onClick={() => changeTag(card.key, tag)}>
+                    <TemplateTagBadge tag={tag} />
+                    {tag === card.tag ? <CheckIcon className="ml-auto" /> : null}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem disabled={card.tag === null} onClick={() => changeTag(card.key, null)}>
+                  Remover tag
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <div className="flex items-center gap-0.5">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={`Mover "${card.name}" para antes`}
+                disabled={index === 0}
+                onClick={() => moveTemplate(index, index - 1)}
+              >
+                <ArrowLeftIcon />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={`Mover "${card.name}" para depois`}
+                disabled={index === visibleCards.length - 1}
+                onClick={() => moveTemplate(index, index + 1)}
+              >
+                <ArrowRightIcon />
+              </Button>
+              <GripVerticalIcon aria-hidden="true" className="ml-1 size-4 cursor-grab text-muted-foreground" />
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
   )
 }
