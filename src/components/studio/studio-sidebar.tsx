@@ -12,6 +12,8 @@ import {
   RowsIcon,
   SettingsIcon,
 } from "lucide-react"
+import { DISCOWS_BRAND_PINK, DiscowsWordmark } from "@/components/brand/discows-wordmark"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 type StudioNavigationItem = {
@@ -23,8 +25,7 @@ type StudioNavigationItem = {
 
 const STUDIO_NAVIGATION_ITEMS: StudioNavigationItem[] = [
   { href: "/studio", label: "Visão geral", icon: LayoutDashboardIcon, matchesExactly: true },
-  { href: "/studio/posts", label: "Biblioteca de conteúdo", icon: RowsIcon },
-  { href: "/studio/create", label: "Criar publicação", icon: PlusIcon },
+  { href: "/studio/posts", label: "Publicações", icon: RowsIcon },
   { href: "/studio/music", label: "Biblioteca musical", icon: Disc3Icon },
   { href: "/studio/templates", label: "Modelos", icon: LayoutTemplateIcon },
   { href: "/studio/settings", label: "Configurações", icon: SettingsIcon },
@@ -40,14 +41,19 @@ export function StudioSidebar({ adminEmail }: { adminEmail: string }) {
 
   return (
     <aside className="flex shrink-0 flex-col border-b border-border bg-sidebar md:sticky md:top-0 md:h-screen md:w-64 md:border-r md:border-b-0">
-      <div className="flex items-center justify-between gap-2 px-5 pt-5 pb-4 md:block">
+      <div className="flex items-center justify-between gap-3 px-5 pt-6 pb-5 md:flex-col md:items-stretch md:gap-6">
         <Link
           href="/studio"
-          className="block rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          aria-label="Discows Studio, visão geral"
+          className="flex items-center gap-2.5 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
-          <span className="font-heading text-xl font-semibold tracking-tight">discows.</span>{" "}
-          <span className="font-heading text-xl text-muted-foreground">Studio</span>
+          <DiscowsWordmark height={30} inkColor="currentColor" accentColor={DISCOWS_BRAND_PINK} />
+          <span className="rounded-full border border-border px-2 py-0.5 text-xs font-medium text-muted-foreground">Studio</span>
         </Link>
+        <Button render={<Link href="/studio/create" />} nativeButton={false} className="md:w-full">
+          <PlusIcon data-icon="inline-start" />
+          Nova publicação
+        </Button>
       </div>
 
       <nav aria-label="Navegação do Studio" className="overflow-x-auto px-3 pb-3 md:flex-1 md:overflow-visible">
@@ -61,11 +67,12 @@ export function StudioSidebar({ adminEmail }: { adminEmail: string }) {
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm whitespace-nowrap text-muted-foreground outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-3 focus-visible:ring-ring/50",
-                    isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                    "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm whitespace-nowrap text-muted-foreground outline-none transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground focus-visible:ring-3 focus-visible:ring-ring/50",
+                    isActive &&
+                      "bg-sidebar-accent font-medium text-sidebar-accent-foreground md:before:absolute md:before:inset-y-2 md:before:-left-3 md:before:w-1 md:before:rounded-r-full md:before:bg-primary"
                   )}
                 >
-                  <Icon className="size-4 shrink-0" aria-hidden="true" />
+                  <Icon className={cn("size-4 shrink-0", isActive && "text-primary")} aria-hidden="true" />
                   {item.label}
                 </Link>
               </li>
@@ -74,17 +81,25 @@ export function StudioSidebar({ adminEmail }: { adminEmail: string }) {
         </ul>
       </nav>
 
-      <div className="hidden border-t border-border px-5 py-4 text-xs text-muted-foreground md:block">
-        <p className="truncate" title={adminEmail}>
-          {adminEmail}
-        </p>
-        <a
-          href="/library"
-          className="mt-2 inline-flex items-center gap-1 rounded-sm underline-offset-4 outline-none hover:text-foreground hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+      <div className="hidden items-center gap-3 border-t border-border px-5 py-4 md:flex">
+        <span
+          aria-hidden="true"
+          className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-semibold text-primary uppercase"
         >
-          Voltar para o Discows
-          <ArrowUpRightIcon className="size-3" aria-hidden="true" />
-        </a>
+          {adminEmail.slice(0, 1)}
+        </span>
+        <div className="flex min-w-0 flex-col text-xs">
+          <p className="truncate text-foreground" title={adminEmail}>
+            {adminEmail}
+          </p>
+          <a
+            href="/library"
+            className="inline-flex w-fit items-center gap-1 rounded-sm text-muted-foreground underline-offset-4 outline-none hover:text-foreground hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            Voltar para o Discows
+            <ArrowUpRightIcon className="size-3" aria-hidden="true" />
+          </a>
+        </div>
       </div>
     </aside>
   )
