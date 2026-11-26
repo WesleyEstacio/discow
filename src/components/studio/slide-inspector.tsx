@@ -19,10 +19,11 @@ import { mixtapeStripeColor } from "@/components/studio/slide-canvas"
 import { StudioCoverImage } from "@/components/studio/studio-cover-image"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field"
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { StudioImageSummary } from "@/lib/studio/background-images"
 import {
@@ -123,6 +124,19 @@ type SlideInspectorProps = {
   onImageUploaded: (image: StudioImageSummary) => void
   onApplyToAllSlides: (patch: Partial<StudioSlide>, confirmationMessage: string) => void
   onDefaultBackgroundChanged: (imageId: string, isDefaultBackground: boolean) => void
+  activeSection: SlideInspectorSection
+  onActiveSectionChange: (section: SlideInspectorSection) => void
+}
+
+export const SLIDE_INSPECTOR_SECTIONS = ["content", "visual", "elements", "background"] as const
+
+export type SlideInspectorSection = (typeof SLIDE_INSPECTOR_SECTIONS)[number]
+
+const SLIDE_INSPECTOR_SECTION_LABELS: Record<SlideInspectorSection, string> = {
+  content: "Conteúdo",
+  visual: "Visual",
+  elements: "Elementos",
+  background: "Fundo",
 }
 
 const LAYOUTS_WITH_SOURCE_NOTE = new Set<SlideLayout>(["album", "ranked-album", "text", "quote"])
@@ -163,6 +177,8 @@ export function SlideInspector({
   onImageUploaded,
   onApplyToAllSlides,
   onDefaultBackgroundChanged,
+  activeSection,
+  onActiveSectionChange,
 }: SlideInspectorProps) {
   const limits = SLIDE_TEXT_LIMITS[slide.layout]
   const maxAlbums = MAX_ALBUMS_BY_LAYOUT[slide.layout]
@@ -182,7 +198,17 @@ export function SlideInspector({
   }
 
   return (
-    <FieldGroup className="gap-6">
+    <Tabs value={activeSection} onValueChange={(section: SlideInspectorSection) => onActiveSectionChange(section)} className="gap-5">
+      <TabsList className="w-full">
+        {SLIDE_INSPECTOR_SECTIONS.map((section) => (
+          <TabsTrigger key={section} value={section}>
+            {SLIDE_INSPECTOR_SECTION_LABELS[section]}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+
+      <TabsContent value="content">
+      <FieldGroup className="gap-6">
       <FieldSet className="gap-5">
         <FieldLegend variant="label" className="sr-only">Conteúdo</FieldLegend>
         <Field>
@@ -388,11 +414,13 @@ export function SlideInspector({
           />
         ) : null}
       </FieldSet>
+      </FieldGroup>
+      </TabsContent>
 
-      <FieldSeparator />
-
+      <TabsContent value="visual">
+      <FieldGroup className="gap-6">
       <FieldSet className="gap-5">
-        <FieldLegend variant="label">Visual</FieldLegend>
+        <FieldLegend variant="label" className="sr-only">Visual</FieldLegend>
 
         <Field>
           <FieldLabel>Cor de fundo</FieldLabel>
@@ -711,11 +739,13 @@ export function SlideInspector({
           </Select>
         </Field>
       </FieldSet>
+      </FieldGroup>
+      </TabsContent>
 
-      <FieldSeparator />
-
+      <TabsContent value="elements">
+      <FieldGroup className="gap-6">
       <FieldSet className="gap-3">
-        <FieldLegend variant="label">Elementos do slide</FieldLegend>
+        <FieldLegend variant="label" className="sr-only">Elementos do slide</FieldLegend>
         {SLIDE_ELEMENT_TOGGLES.map((elementToggle) => (
           <Field key={elementToggle} orientation="horizontal">
             <Checkbox
@@ -855,9 +885,10 @@ export function SlideInspector({
           Usar em todos os slides
         </Button>
       </FieldSet>
+      </FieldGroup>
+      </TabsContent>
 
-      <FieldSeparator />
-
+      <TabsContent value="background">
       <SlideBackgroundImageField
         backgroundImage={slide.backgroundImage}
         uploadedImages={uploadedImages}
@@ -871,7 +902,8 @@ export function SlideInspector({
         }
         onDefaultBackgroundChanged={onDefaultBackgroundChanged}
       />
-    </FieldGroup>
+      </TabsContent>
+    </Tabs>
   )
 }
 
